@@ -1,8 +1,8 @@
 ﻿using FinanceApi.Enums;
 
-namespace FinanceApi.Models
+namespace FinanceApi.Data.Dtos
 {
-    public class Budget
+    public class BudgetDto
     {
         public int Id { get; set; }
         public string Title { get; set; }
@@ -11,7 +11,5 @@ namespace FinanceApi.Models
         public Urgency Urgency { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public User User { get; set; }
-        public ICollection<Category> Category { get; set; }
     }
 }

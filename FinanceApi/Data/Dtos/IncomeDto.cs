@@ -1,16 +1,14 @@
-﻿namespace FinanceApi.Models
+﻿namespace FinanceApi.Data.Dtos
 {
-    public class Income
+    public class IncomeDto
     {
         public int Id { get; set; }
         public string Title { get; set; }
-        public string Description{ get; set; }
+        public string Description { get; set; }
         public string DocumentUrl { get; set; }
         public string Currency { get; set; }
         public decimal Amount { get; set; }
         public bool Status { get; set; }
         public DateTime Date { get; set; }
-        public User User { get; set; }
-        public ICollection<Category> Categories { get; set; }
     }
 }

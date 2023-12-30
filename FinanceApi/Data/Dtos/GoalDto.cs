@@ -1,6 +1,6 @@
-﻿namespace FinanceApi.Models
+﻿namespace FinanceApi.Data.Dtos
 {
-    public class Goal
+    public class GoalDto
     {
         public int Id { get; set; }
         public string Title { get; set; }
@@ -8,7 +8,5 @@
         public decimal Amount { get; set; }
         public decimal Progress { get; set; }
         public DateTime TargetDate { get; set; }
-        public User User { get; set; }
-        public ICollection<Category> Categories{ get; set; }
     }
 }
