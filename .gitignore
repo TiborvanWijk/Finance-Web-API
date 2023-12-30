@@ -3,7 +3,7 @@
 appsettings.json
 appsettings.Development.json
 launchSettings.json
-
+*.config
 
 
 # Ignore HTTP request files
