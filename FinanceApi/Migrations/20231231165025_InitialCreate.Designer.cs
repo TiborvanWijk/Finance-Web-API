@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceApi.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20231231163715_InitialCreate")]
+    [Migration("20231231165025_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -94,7 +94,12 @@ namespace FinanceApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Categories");
                 });
@@ -499,6 +504,15 @@ namespace FinanceApi.Migrations
                     b.Navigation("Budget");
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("FinanceApi.Models.Category", b =>
+                {
+                    b.HasOne("FinanceApi.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("FinanceApi.Models.Expense", b =>

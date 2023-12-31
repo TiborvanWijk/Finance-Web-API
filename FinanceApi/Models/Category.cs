@@ -9,5 +9,6 @@
         public ICollection<IncomeCategory> IncomeCategories { get; set; }
         public ICollection<ExpenseCategory> ExpenseCategories { get; set; }
         public ICollection<GoalCategory> GoalCategories { get; set; }
+        public User User { get; set; }
     }
 }
