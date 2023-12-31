@@ -22,51 +22,6 @@ namespace FinanceApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("CategoryExpense", b =>
-                {
-                    b.Property<int>("CategoriesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ExpensesId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CategoriesId", "ExpensesId");
-
-                    b.HasIndex("ExpensesId");
-
-                    b.ToTable("CategoryExpense");
-                });
-
-            modelBuilder.Entity("CategoryGoal", b =>
-                {
-                    b.Property<int>("CategoriesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GoalsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CategoriesId", "GoalsId");
-
-                    b.HasIndex("GoalsId");
-
-                    b.ToTable("CategoryGoal");
-                });
-
-            modelBuilder.Entity("CategoryIncome", b =>
-                {
-                    b.Property<int>("CategoriesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IncomesId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CategoriesId", "IncomesId");
-
-                    b.HasIndex("IncomesId");
-
-                    b.ToTable("CategoryIncome");
-                });
-
             modelBuilder.Entity("FinanceApi.Models.Budget", b =>
                 {
                     b.Property<int>("Id")
@@ -105,6 +60,21 @@ namespace FinanceApi.Migrations
                     b.ToTable("Budgets");
                 });
 
+            modelBuilder.Entity("FinanceApi.Models.BudgetCategory", b =>
+                {
+                    b.Property<int>("BudgetId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("BudgetId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("BudgetCategories");
+                });
+
             modelBuilder.Entity("FinanceApi.Models.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -112,9 +82,6 @@ namespace FinanceApi.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("BudgetId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -125,8 +92,6 @@ namespace FinanceApi.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BudgetId");
 
                     b.ToTable("Categories");
                 });
@@ -177,6 +142,21 @@ namespace FinanceApi.Migrations
                     b.ToTable("Expenses");
                 });
 
+            modelBuilder.Entity("FinanceApi.Models.ExpenseCategory", b =>
+                {
+                    b.Property<int>("ExpenseId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ExpenseId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("ExpenseCategories");
+                });
+
             modelBuilder.Entity("FinanceApi.Models.Goal", b =>
                 {
                     b.Property<int>("Id")
@@ -210,6 +190,21 @@ namespace FinanceApi.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Goals");
+                });
+
+            modelBuilder.Entity("FinanceApi.Models.GoalCategory", b =>
+                {
+                    b.Property<int>("GoalId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("GoalId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("GoalCategories");
                 });
 
             modelBuilder.Entity("FinanceApi.Models.Income", b =>
@@ -253,6 +248,21 @@ namespace FinanceApi.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Incomes");
+                });
+
+            modelBuilder.Entity("FinanceApi.Models.IncomeCategory", b =>
+                {
+                    b.Property<int>("IncomeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("IncomeId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("IncomeCategories");
                 });
 
             modelBuilder.Entity("FinanceApi.Models.User", b =>
@@ -460,51 +470,6 @@ namespace FinanceApi.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("CategoryExpense", b =>
-                {
-                    b.HasOne("FinanceApi.Models.Category", null)
-                        .WithMany()
-                        .HasForeignKey("CategoriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FinanceApi.Models.Expense", null)
-                        .WithMany()
-                        .HasForeignKey("ExpensesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("CategoryGoal", b =>
-                {
-                    b.HasOne("FinanceApi.Models.Category", null)
-                        .WithMany()
-                        .HasForeignKey("CategoriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FinanceApi.Models.Goal", null)
-                        .WithMany()
-                        .HasForeignKey("GoalsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("CategoryIncome", b =>
-                {
-                    b.HasOne("FinanceApi.Models.Category", null)
-                        .WithMany()
-                        .HasForeignKey("CategoriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FinanceApi.Models.Income", null)
-                        .WithMany()
-                        .HasForeignKey("IncomesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("FinanceApi.Models.Budget", b =>
                 {
                     b.HasOne("FinanceApi.Models.User", "User")
@@ -514,11 +479,23 @@ namespace FinanceApi.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FinanceApi.Models.Category", b =>
+            modelBuilder.Entity("FinanceApi.Models.BudgetCategory", b =>
                 {
-                    b.HasOne("FinanceApi.Models.Budget", null)
-                        .WithMany("Category")
-                        .HasForeignKey("BudgetId");
+                    b.HasOne("FinanceApi.Models.Budget", "Budget")
+                        .WithMany("BudgetCategories")
+                        .HasForeignKey("BudgetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FinanceApi.Models.Category", "Category")
+                        .WithMany("BudgetCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Budget");
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("FinanceApi.Models.Expense", b =>
@@ -530,6 +507,25 @@ namespace FinanceApi.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("FinanceApi.Models.ExpenseCategory", b =>
+                {
+                    b.HasOne("FinanceApi.Models.Category", "Category")
+                        .WithMany("ExpenseCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FinanceApi.Models.Expense", "Expense")
+                        .WithMany("ExpenseCategories")
+                        .HasForeignKey("ExpenseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Expense");
+                });
+
             modelBuilder.Entity("FinanceApi.Models.Goal", b =>
                 {
                     b.HasOne("FinanceApi.Models.User", "User")
@@ -539,6 +535,25 @@ namespace FinanceApi.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("FinanceApi.Models.GoalCategory", b =>
+                {
+                    b.HasOne("FinanceApi.Models.Category", "Category")
+                        .WithMany("GoalCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FinanceApi.Models.Goal", "Goal")
+                        .WithMany("GoalCategories")
+                        .HasForeignKey("GoalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Goal");
+                });
+
             modelBuilder.Entity("FinanceApi.Models.Income", b =>
                 {
                     b.HasOne("FinanceApi.Models.User", "User")
@@ -546,6 +561,25 @@ namespace FinanceApi.Migrations
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FinanceApi.Models.IncomeCategory", b =>
+                {
+                    b.HasOne("FinanceApi.Models.Category", "Category")
+                        .WithMany("IncomeCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FinanceApi.Models.Income", "Income")
+                        .WithMany("IncomeCategories")
+                        .HasForeignKey("IncomeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Income");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -601,7 +635,33 @@ namespace FinanceApi.Migrations
 
             modelBuilder.Entity("FinanceApi.Models.Budget", b =>
                 {
-                    b.Navigation("Category");
+                    b.Navigation("BudgetCategories");
+                });
+
+            modelBuilder.Entity("FinanceApi.Models.Category", b =>
+                {
+                    b.Navigation("BudgetCategories");
+
+                    b.Navigation("ExpenseCategories");
+
+                    b.Navigation("GoalCategories");
+
+                    b.Navigation("IncomeCategories");
+                });
+
+            modelBuilder.Entity("FinanceApi.Models.Expense", b =>
+                {
+                    b.Navigation("ExpenseCategories");
+                });
+
+            modelBuilder.Entity("FinanceApi.Models.Goal", b =>
+                {
+                    b.Navigation("GoalCategories");
+                });
+
+            modelBuilder.Entity("FinanceApi.Models.Income", b =>
+                {
+                    b.Navigation("IncomeCategories");
                 });
 
             modelBuilder.Entity("FinanceApi.Models.User", b =>

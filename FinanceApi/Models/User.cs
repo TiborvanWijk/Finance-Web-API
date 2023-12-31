@@ -4,6 +4,7 @@ namespace FinanceApi.Models
 {
     public class User : IdentityUser
     {
+        public string Id { get; set; }
         public decimal Balance { get; set; } = 0;
         public string Currency { get; set; } = "EUR";
         public ICollection<Expense> Expenses{ get; set; }

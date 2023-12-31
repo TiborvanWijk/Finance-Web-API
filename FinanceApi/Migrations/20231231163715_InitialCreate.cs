@@ -53,6 +53,20 @@ namespace FinanceApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -257,92 +271,96 @@ namespace FinanceApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Categories",
+                name: "BudgetCategories",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    BudgetId = table.Column<int>(type: "int", nullable: true)
+                    BudgetId = table.Column<int>(type: "int", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Categories", x => x.Id);
+                    table.PrimaryKey("PK_BudgetCategories", x => new { x.BudgetId, x.CategoryId });
                     table.ForeignKey(
-                        name: "FK_Categories_Budgets_BudgetId",
+                        name: "FK_BudgetCategories_Budgets_BudgetId",
                         column: x => x.BudgetId,
                         principalTable: "Budgets",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BudgetCategories_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "CategoryExpense",
+                name: "ExpenseCategories",
                 columns: table => new
                 {
-                    CategoriesId = table.Column<int>(type: "int", nullable: false),
-                    ExpensesId = table.Column<int>(type: "int", nullable: false)
+                    ExpenseId = table.Column<int>(type: "int", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CategoryExpense", x => new { x.CategoriesId, x.ExpensesId });
+                    table.PrimaryKey("PK_ExpenseCategories", x => new { x.ExpenseId, x.CategoryId });
                     table.ForeignKey(
-                        name: "FK_CategoryExpense_Categories_CategoriesId",
-                        column: x => x.CategoriesId,
+                        name: "FK_ExpenseCategories_Categories_CategoryId",
+                        column: x => x.CategoryId,
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CategoryExpense_Expenses_ExpensesId",
-                        column: x => x.ExpensesId,
+                        name: "FK_ExpenseCategories_Expenses_ExpenseId",
+                        column: x => x.ExpenseId,
                         principalTable: "Expenses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "CategoryGoal",
+                name: "GoalCategories",
                 columns: table => new
                 {
-                    CategoriesId = table.Column<int>(type: "int", nullable: false),
-                    GoalsId = table.Column<int>(type: "int", nullable: false)
+                    GoalId = table.Column<int>(type: "int", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CategoryGoal", x => new { x.CategoriesId, x.GoalsId });
+                    table.PrimaryKey("PK_GoalCategories", x => new { x.GoalId, x.CategoryId });
                     table.ForeignKey(
-                        name: "FK_CategoryGoal_Categories_CategoriesId",
-                        column: x => x.CategoriesId,
+                        name: "FK_GoalCategories_Categories_CategoryId",
+                        column: x => x.CategoryId,
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CategoryGoal_Goals_GoalsId",
-                        column: x => x.GoalsId,
+                        name: "FK_GoalCategories_Goals_GoalId",
+                        column: x => x.GoalId,
                         principalTable: "Goals",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "CategoryIncome",
+                name: "IncomeCategories",
                 columns: table => new
                 {
-                    CategoriesId = table.Column<int>(type: "int", nullable: false),
-                    IncomesId = table.Column<int>(type: "int", nullable: false)
+                    IncomeId = table.Column<int>(type: "int", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CategoryIncome", x => new { x.CategoriesId, x.IncomesId });
+                    table.PrimaryKey("PK_IncomeCategories", x => new { x.IncomeId, x.CategoryId });
                     table.ForeignKey(
-                        name: "FK_CategoryIncome_Categories_CategoriesId",
-                        column: x => x.CategoriesId,
+                        name: "FK_IncomeCategories_Categories_CategoryId",
+                        column: x => x.CategoryId,
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CategoryIncome_Incomes_IncomesId",
-                        column: x => x.IncomesId,
+                        name: "FK_IncomeCategories_Incomes_IncomeId",
+                        column: x => x.IncomeId,
                         principalTable: "Incomes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -388,29 +406,19 @@ namespace FinanceApi.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BudgetCategories_CategoryId",
+                table: "BudgetCategories",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Budgets_UserId",
                 table: "Budgets",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Categories_BudgetId",
-                table: "Categories",
-                column: "BudgetId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CategoryExpense_ExpensesId",
-                table: "CategoryExpense",
-                column: "ExpensesId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CategoryGoal_GoalsId",
-                table: "CategoryGoal",
-                column: "GoalsId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CategoryIncome_IncomesId",
-                table: "CategoryIncome",
-                column: "IncomesId");
+                name: "IX_ExpenseCategories_CategoryId",
+                table: "ExpenseCategories",
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Expenses_UserId",
@@ -418,9 +426,19 @@ namespace FinanceApi.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_GoalCategories_CategoryId",
+                table: "GoalCategories",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Goals_UserId",
                 table: "Goals",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_IncomeCategories_CategoryId",
+                table: "IncomeCategories",
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Incomes_UserId",
@@ -447,16 +465,22 @@ namespace FinanceApi.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "CategoryExpense");
+                name: "BudgetCategories");
 
             migrationBuilder.DropTable(
-                name: "CategoryGoal");
+                name: "ExpenseCategories");
 
             migrationBuilder.DropTable(
-                name: "CategoryIncome");
+                name: "GoalCategories");
+
+            migrationBuilder.DropTable(
+                name: "IncomeCategories");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Budgets");
 
             migrationBuilder.DropTable(
                 name: "Expenses");
@@ -469,9 +493,6 @@ namespace FinanceApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "Incomes");
-
-            migrationBuilder.DropTable(
-                name: "Budgets");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

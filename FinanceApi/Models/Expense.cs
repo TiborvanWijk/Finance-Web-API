@@ -14,6 +14,6 @@ namespace FinanceApi.Models
         public Urgency Urgency { get; set; }
         public DateTime Date { get; set; }
         public User User { get; set; }
-        public ICollection<Category> Categories { get; set; }
+        public ICollection<ExpenseCategory> ExpenseCategories { get; set; }
     }
 }

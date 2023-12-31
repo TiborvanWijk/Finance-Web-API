@@ -9,6 +9,6 @@
         public decimal Progress { get; set; }
         public DateTime TargetDate { get; set; }
         public User User { get; set; }
-        public ICollection<Category> Categories{ get; set; }
+        public ICollection<GoalCategory> GoalCategories { get; set; }
     }
 }

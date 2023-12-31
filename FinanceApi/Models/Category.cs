@@ -5,8 +5,9 @@
         public int Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public ICollection<Income> Incomes { get; set; }
-        public ICollection<Expense> Expenses { get; set; }
-        public ICollection<Goal> Goals { get; set; }
+        public ICollection<BudgetCategory> BudgetCategories{ get; set; }
+        public ICollection<IncomeCategory> IncomeCategories { get; set; }
+        public ICollection<ExpenseCategory> ExpenseCategories { get; set; }
+        public ICollection<GoalCategory> GoalCategories { get; set; }
     }
 }
