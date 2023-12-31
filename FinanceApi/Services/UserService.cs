@@ -13,14 +13,49 @@ namespace FinanceApi.Services
             this.userRepository = userRepository;
         }
 
+        public bool Create(User user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Delete(User user)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool ExistsById(string userId)
         {
             return userRepository.ExistsById(userId);
         }
 
+        public bool ExistsByUsername(string username)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ICollection<User> GetAll()
+        {
+            throw new NotImplementedException();
+        }
+
+        public User GetById(string userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public User GetByUsername(string username)
+        {
+            throw new NotImplementedException();
+        }
+
         public User GetUserById(string userId)
         {
             return userRepository.GetById(userId);
+        }
+
+        public bool Update(User user)
+        {
+            throw new NotImplementedException();
         }
     }
 }

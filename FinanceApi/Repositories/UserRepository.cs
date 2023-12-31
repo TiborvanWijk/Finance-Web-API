@@ -6,6 +6,7 @@ namespace FinanceApi.Repositories
 {
     public class UserRepository : IUserRepository
     {
+
         private readonly DataContext dataContext;
 
         public UserRepository(DataContext dataContext)
@@ -50,7 +51,8 @@ namespace FinanceApi.Repositories
 
         public bool Save()
         {
-            throw new NotImplementedException();
+            var saved = dataContext.SaveChanges();
+            return saved > 0;
         }
 
         public bool Update(User user)

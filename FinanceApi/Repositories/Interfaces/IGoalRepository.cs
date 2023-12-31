@@ -11,6 +11,7 @@ namespace FinanceApi.Repositories.Interfaces
         bool Create(Goal goal);
         bool Update(Goal goal);
         bool Delete(Goal goal);
+        bool Save();
 
     }
 }

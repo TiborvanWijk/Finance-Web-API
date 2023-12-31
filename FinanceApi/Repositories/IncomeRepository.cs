@@ -1,10 +1,17 @@
-﻿using FinanceApi.Models;
+﻿using FinanceApi.Data;
+using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
 
 namespace FinanceApi.Repositories
 {
     public class IncomeRepository : IIncomeRepository
     {
+        private readonly DataContext dataContext;
+
+        public IncomeRepository(DataContext dataContext)
+        {
+            this.dataContext = dataContext;
+        }
         public bool Create(Income income)
         {
             throw new NotImplementedException();
@@ -32,7 +39,8 @@ namespace FinanceApi.Repositories
 
         public bool Save()
         {
-            throw new NotImplementedException();
+            var saved = dataContext.SaveChanges();
+            return saved > 0;
         }
 
         public bool Update(Income income)

@@ -6,5 +6,12 @@ namespace FinanceApi.Services.Interfaces
     {
         bool ExistsById(string userId);
         User GetUserById(string userId);
+        User GetById(string userId);
+        User GetByUsername(string username);
+        ICollection<User> GetAll();
+        bool ExistsByUsername(string username);
+        bool Create(User user);
+        bool Update(User user);
+        bool Delete(User user);
     }
 }

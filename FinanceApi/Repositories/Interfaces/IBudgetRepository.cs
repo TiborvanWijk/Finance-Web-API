@@ -10,5 +10,6 @@ namespace FinanceApi.Repositories.Interfaces
         bool Create(Budget budget);
         bool Update(Budget budget);
         bool Delete(Budget budget);
+        bool save();
     }
 }
