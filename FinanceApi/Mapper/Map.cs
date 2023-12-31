@@ -20,6 +20,22 @@ namespace FinanceApi.Mapper
             return userDto;
         }
 
+        internal static Income ToIncome(IncomeDto incomeDto)
+        {
+            var income = new Income()
+            {
+                Id = incomeDto.Id,
+                Title = incomeDto.Title,
+                Description = incomeDto.Description,
+                Amount = incomeDto.Amount,
+                Currency = incomeDto.Currency,
+                DocumentUrl = incomeDto.DocumentUrl,
+                Status = incomeDto.Status,
+                Date = incomeDto.Date,
+            };
+            return income;
+        }
+
         internal static IncomeDto ToIncomeDto(Income income)
         {
             var incomeDto = new IncomeDto()

@@ -14,7 +14,8 @@ namespace FinanceApi.Repositories
         }
         public bool Create(Income income)
         {
-            throw new NotImplementedException();
+            dataContext.Incomes.Add(income);
+            return Save();
         }
 
         public bool Delete(Income income)

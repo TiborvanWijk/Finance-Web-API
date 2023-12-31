@@ -14,7 +14,7 @@ namespace FinanceApi.Services
         }
         public bool Create(Income income)
         {
-            throw new NotImplementedException();
+            return incomeRepository.Create(income);
         }
 
         public bool Delete(Income income)

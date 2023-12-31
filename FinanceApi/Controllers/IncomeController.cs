@@ -8,6 +8,7 @@ using System.Security.Claims;
 
 namespace FinanceApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class IncomeController : Controller
@@ -21,8 +22,7 @@ namespace FinanceApi.Controllers
             this.userService = userService;
         }
 
-        [Authorize]
-        [HttpGet("incomes/current")]
+        [HttpGet("current/incomes")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -44,6 +44,35 @@ namespace FinanceApi.Controllers
             return Ok(incomeDtos);
         }
 
+        [HttpPost("Create")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public IActionResult CreateIncome([FromBody] IncomeDto incomeDto)
+        {
+            
+            if (incomeDto == null || !ModelState.IsValid)
+            {
+                Console.WriteLine("HDWUDHAWUIHDIUWAHIUDW");
+                return BadRequest(ModelState);
+            }
+
+            var income = Map.ToIncome(incomeDto);
+
+            income.User = userService.GetUserById(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!incomeService.Create(income))
+            {
+                ModelState.AddModelError("CreatingError", "Something went wrong while creating.");
+                return StatusCode(500, ModelState);
+            }
+            return Ok("Income created succesfully.");
+        }
 
     }
 }
