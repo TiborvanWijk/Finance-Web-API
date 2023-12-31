@@ -25,7 +25,8 @@ namespace FinanceApi.Controllers
         [Authorize]
         [HttpGet("current")]
         [ProducesResponseType(200)]
-        public IActionResult Testing()
+        [ProducesResponseType(404)]
+        public IActionResult GetCurrentUser()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 

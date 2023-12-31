@@ -27,9 +27,9 @@ namespace FinanceApi.Services
             throw new NotImplementedException();
         }
 
-        public ICollection<Income> GetAll(int userId)
+        public ICollection<Income> GetAllByUserId(string userId)
         {
-            throw new NotImplementedException();
+            return incomeRepository.GetAllByUserId(userId);
         }
 
         public Income GetById(int incomeId)

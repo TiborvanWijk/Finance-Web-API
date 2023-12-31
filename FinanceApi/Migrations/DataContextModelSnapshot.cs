@@ -96,14 +96,13 @@ namespace FinanceApi.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Budget");
+                    b.ToTable("Budgets");
                 });
 
             modelBuilder.Entity("FinanceApi.Models.Category", b =>
@@ -129,7 +128,7 @@ namespace FinanceApi.Migrations
 
                     b.HasIndex("BudgetId");
 
-                    b.ToTable("Category");
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("FinanceApi.Models.Expense", b =>
@@ -169,14 +168,13 @@ namespace FinanceApi.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Expense");
+                    b.ToTable("Expenses");
                 });
 
             modelBuilder.Entity("FinanceApi.Models.Goal", b =>
@@ -205,14 +203,13 @@ namespace FinanceApi.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Goal");
+                    b.ToTable("Goals");
                 });
 
             modelBuilder.Entity("FinanceApi.Models.Income", b =>
@@ -249,14 +246,13 @@ namespace FinanceApi.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Income");
+                    b.ToTable("Incomes");
                 });
 
             modelBuilder.Entity("FinanceApi.Models.User", b =>
@@ -513,9 +509,7 @@ namespace FinanceApi.Migrations
                 {
                     b.HasOne("FinanceApi.Models.User", "User")
                         .WithMany("Budgets")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
@@ -531,9 +525,7 @@ namespace FinanceApi.Migrations
                 {
                     b.HasOne("FinanceApi.Models.User", "User")
                         .WithMany("Expenses")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
@@ -542,9 +534,7 @@ namespace FinanceApi.Migrations
                 {
                     b.HasOne("FinanceApi.Models.User", "User")
                         .WithMany("Goals")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
@@ -553,9 +543,7 @@ namespace FinanceApi.Migrations
                 {
                     b.HasOne("FinanceApi.Models.User", "User")
                         .WithMany("Incomes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
