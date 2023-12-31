@@ -4,10 +4,10 @@ namespace FinanceApi.Repositories.Interfaces
 {
     public interface IUserRepository
     {
-        User GetById(int userId);
+        User GetById(string userId);
         User GetByUsername(string username);
         ICollection<User> GetAll();
-        bool ExistsById(int userId);
+        bool ExistsById(string userId);
         bool ExistsByUsername(string username);
         bool Create(User user);
         bool Update(User user);
