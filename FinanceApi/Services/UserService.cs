@@ -15,12 +15,12 @@ namespace FinanceApi.Services
 
         public bool Create(User user)
         {
-            throw new NotImplementedException();
+            return userRepository.Create(user);
         }
 
         public bool Delete(User user)
         {
-            throw new NotImplementedException();
+            return userRepository.Delete(user);
         }
 
         public bool ExistsById(string userId)
@@ -30,22 +30,17 @@ namespace FinanceApi.Services
 
         public bool ExistsByUsername(string username)
         {
-            throw new NotImplementedException();
-        }
-
-        public ICollection<User> GetAll()
-        {
-            throw new NotImplementedException();
+            return userRepository.ExistsByUsername(username);
         }
 
         public User GetById(string userId)
         {
-            throw new NotImplementedException();
+            return userRepository.GetById(userId);
         }
 
         public User GetByUsername(string username)
         {
-            throw new NotImplementedException();
+            return userRepository.GetByUsername(username);
         }
 
         public User GetUserById(string userId)
@@ -55,7 +50,7 @@ namespace FinanceApi.Services
 
         public bool Update(User user)
         {
-            throw new NotImplementedException();
+            return userRepository.Update(user);
         }
     }
 }

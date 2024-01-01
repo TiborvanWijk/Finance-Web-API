@@ -19,12 +19,12 @@ namespace FinanceApi.Services
 
         public bool Delete(Income income)
         {
-            throw new NotImplementedException();
+            return incomeRepository.Delete(income);
         }
 
         public bool Exists(int incomeId)
         {
-            throw new NotImplementedException();
+            return incomeRepository.Exists(incomeId);
         }
 
         public ICollection<Income> GetAllByUserId(string userId)
@@ -34,12 +34,12 @@ namespace FinanceApi.Services
 
         public Income GetById(int incomeId)
         {
-            throw new NotImplementedException();
+            return incomeRepository.GetById(incomeId);
         }
 
         public bool Update(Income income)
         {
-            throw new NotImplementedException();
+            return incomeRepository.Update(income);
         }
     }
 }

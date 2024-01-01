@@ -6,45 +6,45 @@ namespace FinanceApi.Services
 {
     public class CategoryService : ICategoryService
     {
-        private readonly IBudgetRepository budgetRepository;
+        private readonly ICategoryRepository categoryRepository;
 
-        public CategoryService(IBudgetRepository budgetRepository)
+        public CategoryService(ICategoryRepository categoryRepository)
         {
-            this.budgetRepository = budgetRepository;
+            this.categoryRepository = categoryRepository;
         }
         public bool Create(Category category)
         {
-            throw new NotImplementedException();
+            return categoryRepository.Create(category);
         }
 
         public bool Delete(Category category)
         {
-            throw new NotImplementedException();
+            return categoryRepository.Delete(category);
         }
 
         public bool ExistsById(int id)
         {
-            throw new NotImplementedException();
+            return categoryRepository.ExistsById(id);
         }
 
         public bool ExistsBytitle(string title)
         {
-            throw new NotImplementedException();
+            return categoryRepository.ExistsBytitle(title);
         }
 
-        public ICollection<Category> GetAllOfUser(int userId)
+        public ICollection<Category> GetAllOfUser(string userId)
         {
-            throw new NotImplementedException();
+            return categoryRepository.GetAllOfUser(userId);
         }
 
         public Category GetById(int categoryId)
         {
-            throw new NotImplementedException();
+            return categoryRepository.GetById(categoryId);
         }
 
         public bool Update(Category category)
         {
-            throw new NotImplementedException();
+            return categoryRepository.Update(category);
         }
     }
 }

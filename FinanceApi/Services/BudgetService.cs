@@ -15,32 +15,32 @@ namespace FinanceApi.Services
 
         public bool Create(Budget budget)
         {
-            throw new NotImplementedException();
+            return budgetRepository.Create(budget);
         }
 
         public bool Delete(Budget budget)
         {
-            throw new NotImplementedException();
+            return budgetRepository.Delete(budget);
         }
 
         public bool Exists(int budgetId)
         {
-            throw new NotImplementedException();
+            return budgetRepository.Exists(budgetId);
         }
 
-        public ICollection<Budget> GetAllOfUser(int userId)
+        public ICollection<Budget> GetAllOfUser(string userId)
         {
-            throw new NotImplementedException();
+            return budgetRepository.GetAllOfUser(userId);
         }
 
         public Budget GetById(int budgetId)
         {
-            throw new NotImplementedException();
+            return budgetRepository.GetById(budgetId);
         }
 
         public bool Update(Budget budget)
         {
-            throw new NotImplementedException();
+            return budgetRepository.Update(budget);
         }
     }
 }

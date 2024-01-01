@@ -14,37 +14,37 @@ namespace FinanceApi.Services
         }
         public bool Create(Goal goal)
         {
-            throw new NotImplementedException();
+            return goalRepository.Create(goal);
         }
 
         public bool Delete(Goal goal)
         {
-            throw new NotImplementedException();
+            return goalRepository.Delete(goal);
         }
 
         public bool Exists(int goalId)
         {
-            throw new NotImplementedException();
+            return goalRepository.Exists(goalId);
         }
 
-        public ICollection<Goal> GetAllOfUser(int userId)
+        public ICollection<Goal> GetAllOfUser(string userId)
         {
-            throw new NotImplementedException();
+            return goalRepository.GetAllOfUser(userId);
         }
 
         public Goal GetById(int goalId)
         {
-            throw new NotImplementedException();
+            return goalRepository.GetById(goalId);
         }
 
-        public bool HasGoals(int userId)
+        public bool HasGoals(string userId)
         {
-            throw new NotImplementedException();
+            return goalRepository.HasGoals(userId);
         }
 
         public bool Update(Goal goal)
         {
-            throw new NotImplementedException();
+            return goalRepository.Update(goal);
         }
     }
 }
