@@ -2,6 +2,7 @@
 using FinanceApi.Mapper;
 using FinanceApi.Models;
 using FinanceApi.Services.Interfaces;
+using FinanceApi.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -53,7 +54,18 @@ namespace FinanceApi.Controllers
             
             if (incomeDto == null || !ModelState.IsValid)
             {
-                Console.WriteLine("HDWUDHAWUIHDIUWAHIUDW");
+                return BadRequest(ModelState);
+            }
+
+            if (!Validator.IsValidCurrencyCode(incomeDto.Currency))
+            {
+                ModelState.AddModelError("CurrencyCodeError", "Currency ISOcode is not valid.");
+                return BadRequest(ModelState);
+            }
+
+            if (incomeDto.Amount <= 0)
+            {
+                ModelState.AddModelError("AmountError", "Amount must be more then '0'.");
                 return BadRequest(ModelState);
             }
 

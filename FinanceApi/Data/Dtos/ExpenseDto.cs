@@ -1,4 +1,5 @@
 ﻿using FinanceApi.Enums;
+using System.Text.Json.Serialization;
 
 namespace FinanceApi.Data.Dtos
 {
@@ -11,6 +12,7 @@ namespace FinanceApi.Data.Dtos
         public decimal Amount { get; set; }
         public string Currency { get; set; }
         public string DocumentUrl { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public Urgency Urgency { get; set; }
         public DateTime Date { get; set; }
     }
