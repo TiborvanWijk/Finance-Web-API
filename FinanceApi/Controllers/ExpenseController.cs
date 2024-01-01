@@ -1,6 +1,7 @@
 ﻿using FinanceApi.Data.Dtos;
 using FinanceApi.Enums;
 using FinanceApi.Mapper;
+using FinanceApi.Models;
 using FinanceApi.Services.Interfaces;
 using FinanceApi.Validators;
 using Microsoft.AspNetCore.Authorization;
@@ -16,11 +17,13 @@ namespace FinanceApi.Controllers
     {
         private readonly IExpenseService expenseService;
         private readonly IUserService userService;
+        private readonly ICategoryService categoryService;
 
-        public ExpenseController(IExpenseService expenseService, IUserService userService)
+        public ExpenseController(IExpenseService expenseService, IUserService userService, ICategoryService categoryService)
         {
             this.expenseService = expenseService;
             this.userService = userService;
+            this.categoryService = categoryService;
         }
 
 
@@ -82,6 +85,64 @@ namespace FinanceApi.Controllers
             return Ok("Expense created succesfully.");
         }
 
+        [HttpPost("AssociateCategories/{expenseId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult AddCategoryToExpense(int expenseId, [FromBody] ICollection<int> categoryIds)
+        {
+
+            if (!expenseService.Exists(expenseId))
+            {
+                return NotFound("Expense not found.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (categoryIds == null || categoryIds.Count() <= 0)
+            {
+                ModelState.AddModelError("MissingCategoryId", "No category id's found.");
+                return BadRequest(ModelState);
+            }
+
+            foreach (var categoryId in categoryIds)
+            {
+                if (!categoryService.ExistsById(categoryId))
+                {
+                    return NotFound("Category not found.");
+                }
+            }
+
+            var expense = expenseService.GetById(expenseId);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            foreach (var categoryId in categoryIds)
+            {
+                var expenseCategory = new ExpenseCategory()
+                {
+                    CategoryId = categoryId,
+                    Category = categoryService.GetById(categoryId),
+                    ExpenseId = expenseId,
+                    Expense = expense,
+                };
+
+                if (!expenseService.AddCategory(expenseCategory))
+                {
+                    ModelState.AddModelError("AddingError", "Something went wrong while adding category to expense.");
+                    return StatusCode(500, ModelState);
+                }
+            }
+
+            return Ok("Categories succesfully added to expense.");
+        }
 
     }
 }

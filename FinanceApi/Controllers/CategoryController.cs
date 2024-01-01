@@ -1,17 +1,56 @@
-﻿using FinanceApi.Services.Interfaces;
+﻿using FinanceApi.Data.Dtos;
+using FinanceApi.Mapper;
+using FinanceApi.Services;
+using FinanceApi.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FinanceApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class CategoryController : Controller
     {
         private readonly ICategoryService categoryService;
+        private readonly IUserService userService;
 
-        public CategoryController(ICategoryService categoryService)
+        public CategoryController(ICategoryService categoryService, IUserService userService)
         {
             this.categoryService = categoryService;
+            this.userService = userService;
         }
+
+
+        [HttpPost("Post")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public IActionResult CreateCategory([FromBody] CategoryDto categoryDto)
+        {
+
+            if(categoryDto == null || !ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var category = Map.ToCategory(categoryDto);
+            category.User = userService.GetById(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!categoryService.Create(category))
+            {
+                ModelState.AddModelError("CreationError", "Something went wrong while creating category.");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Category created succesfully.");
+        }
+
+
     }
 }

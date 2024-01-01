@@ -12,6 +12,12 @@ namespace FinanceApi.Services
         {
             this.expenseRepository = expenseRepository;
         }
+
+        public bool AddCategory(ExpenseCategory expenseCategory)
+        {
+            return expenseRepository.AddCategory(expenseCategory);
+        }
+
         public bool Create(Expense expense)
         {
             return expenseRepository.Create(expense);
