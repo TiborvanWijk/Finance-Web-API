@@ -5,7 +5,7 @@ namespace FinanceApi.Repositories.Interfaces
     public interface IBudgetRepository
     {
         Budget GetById(int budgetId);
-        ICollection<Budget> GetAllOfUser(int userId);
+        ICollection<Budget> GetAllOfUser(string userId);
         bool Exists(int budgetId);
         bool Create(Budget budget);
         bool Update(Budget budget);

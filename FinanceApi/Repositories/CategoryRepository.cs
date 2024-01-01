@@ -14,32 +14,34 @@ namespace FinanceApi.Repositories
         }
         public bool Create(Category category)
         {
-            throw new NotImplementedException();
+            dataContext.Categories.Add(category);
+            return Save();
         }
 
         public bool Delete(Category category)
         {
-            throw new NotImplementedException();
+            dataContext.Categories.Remove(category);
+            return Save();
         }
 
         public bool ExistsById(int id)
         {
-            throw new NotImplementedException();
+            return dataContext.Categories.Any(c => c.Id == id);
         }
 
         public bool ExistsBytitle(string title)
         {
-            throw new NotImplementedException();
+            return dataContext.Categories.Any(c => c.Title.Equals(title));
         }
 
-        public ICollection<Category> GetAllOfUser(int userId)
+        public ICollection<Category> GetAllOfUser(string userId)
         {
-            throw new NotImplementedException();
+            return dataContext.Categories.Where(c => c.User.Id.Equals(userId)).ToList();
         }
 
         public Category GetById(int categoryId)
         {
-            throw new NotImplementedException();
+            return dataContext.Categories.FirstOrDefault(c => c.Id == categoryId);
         }
 
         public bool Save()
@@ -50,7 +52,8 @@ namespace FinanceApi.Repositories
 
         public bool Update(Category category)
         {
-            throw new NotImplementedException();
+            dataContext.Categories.Update(category);
+            return Save();
         }
     }
 }

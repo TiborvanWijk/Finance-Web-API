@@ -14,27 +14,29 @@ namespace FinanceApi.Repositories
         }
         public bool Create(Budget budget)
         {
-            throw new NotImplementedException();
+            dataContext.Budgets.Add(budget);
+            return save();
         }
 
         public bool Delete(Budget budget)
         {
-            throw new NotImplementedException();
+            dataContext.Budgets.Remove(budget);
+            return save();
         }
 
         public bool Exists(int budgetId)
         {
-            throw new NotImplementedException();
+            return dataContext.Budgets.Any(b => b.Id == budgetId);
         }
 
-        public ICollection<Budget> GetAllOfUser(int userId)
+        public ICollection<Budget> GetAllOfUser(string userId)
         {
-            throw new NotImplementedException();
+            return dataContext.Budgets.Where(b => b.User.Id.Equals(userId)).ToList();
         }
 
         public Budget GetById(int budgetId)
         {
-            throw new NotImplementedException();
+            return dataContext.Budgets.FirstOrDefault(b => b.Id == budgetId);
         }
 
         public bool save()
@@ -45,7 +47,8 @@ namespace FinanceApi.Repositories
 
         public bool Update(Budget budget)
         {
-            throw new NotImplementedException();
+            dataContext.Budgets.Update(budget);
+            return save();
         }
     }
 }

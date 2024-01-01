@@ -5,7 +5,7 @@ namespace FinanceApi.Repositories.Interfaces
     public interface ICategoryRepository
     {
         Category GetById(int categoryId);
-        ICollection<Category> GetAllOfUser(int userId);
+        ICollection<Category> GetAllOfUser(string userId);
         bool ExistsById(int id);
         bool ExistsBytitle(string title);
         bool Create(Category category);

@@ -20,12 +20,13 @@ namespace FinanceApi.Repositories
 
         public bool Delete(Income income)
         {
-            throw new NotImplementedException();
+            dataContext.Incomes.Remove(income);
+            return Save();
         }
 
         public bool Exists(int incomeId)
         {
-            throw new NotImplementedException();
+            return dataContext.Incomes.Any(i => i.Id == incomeId);
         }
 
         public ICollection<Income> GetAllByUserId(string userId)
@@ -35,7 +36,7 @@ namespace FinanceApi.Repositories
 
         public Income GetById(int incomeId)
         {
-            throw new NotImplementedException();
+            return dataContext.Incomes.FirstOrDefault(i => i.Id == incomeId);
         }
 
         public bool Save()
@@ -46,7 +47,8 @@ namespace FinanceApi.Repositories
 
         public bool Update(Income income)
         {
-            throw new NotImplementedException();
+            dataContext.Incomes.Update(income);
+            return Save();
         }
     }
 }

@@ -16,12 +16,14 @@ namespace FinanceApi.Repositories
 
         public bool Create(User user)
         {
-            throw new NotImplementedException();
+            dataContext.Users.Add(user);
+            return Save();
         }
 
         public bool Delete(User user)
         {
-            throw new NotImplementedException();
+            dataContext.Users.Remove(user);
+            return Save();
         }
 
         public bool ExistsById(string userId)
@@ -31,12 +33,7 @@ namespace FinanceApi.Repositories
 
         public bool ExistsByUsername(string username)
         {
-            throw new NotImplementedException();
-        }
-
-        public ICollection<User> GetAll()
-        {
-            throw new NotImplementedException();
+            return dataContext.Users.Any(u => u.UserName.Equals(username));
         }
 
         public User GetById(string userId)
@@ -46,7 +43,7 @@ namespace FinanceApi.Repositories
 
         public User GetByUsername(string username)
         {
-            throw new NotImplementedException();
+            return dataContext.Users.FirstOrDefault(u => u.UserName.Equals(username));
         }
 
         public bool Save()
@@ -57,7 +54,8 @@ namespace FinanceApi.Repositories
 
         public bool Update(User user)
         {
-            throw new NotImplementedException();
+            dataContext.Users.Update(user);
+            return Save();
         }
     }
 }
