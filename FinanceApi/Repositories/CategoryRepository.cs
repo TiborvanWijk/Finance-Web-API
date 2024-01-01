@@ -31,7 +31,7 @@ namespace FinanceApi.Repositories
 
         public bool ExistsBytitle(string title)
         {
-            return dataContext.Categories.Any(c => c.Title.Equals(title));
+            return dataContext.Categories.Any(c => c.Title.ToLower().Equals(title.ToLower()));
         }
 
         public ICollection<Category> GetAllOfUser(string userId)

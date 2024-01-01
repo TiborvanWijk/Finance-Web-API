@@ -23,6 +23,23 @@ namespace FinanceApi.Controllers
         }
 
 
+        [HttpGet("Current")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetAllCategories()
+        {
+
+            var categoryDtos = categoryService.GetAllOfUser(User.FindFirst(ClaimTypes.NameIdentifier).Value).Select(Map.ToCategoryDto);
+
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            return Ok(categoryDtos);
+        }
+
+
         [HttpPost("Post")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -30,8 +47,14 @@ namespace FinanceApi.Controllers
         public IActionResult CreateCategory([FromBody] CategoryDto categoryDto)
         {
 
-            if(categoryDto == null || !ModelState.IsValid)
+            if (categoryDto == null || !ModelState.IsValid)
             {
+                return BadRequest(ModelState);
+            }
+
+            if (categoryService.ExistsBytitle(categoryDto.Title))
+            {
+                ModelState.AddModelError("Duplicate", "Category with this title already exists.");
                 return BadRequest(ModelState);
             }
 
