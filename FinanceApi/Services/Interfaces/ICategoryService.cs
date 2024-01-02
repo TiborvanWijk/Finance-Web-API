@@ -1,4 +1,5 @@
-﻿using FinanceApi.Models;
+﻿using FinanceApi.Data.Dtos;
+using FinanceApi.Models;
 
 namespace FinanceApi.Services.Interfaces
 {
@@ -6,6 +7,7 @@ namespace FinanceApi.Services.Interfaces
     {
         Category GetById(int categoryId);
         ICollection<Category> GetAllOfUser(string userId);
+        int ValidateCategoryUpdate(string userId, CategoryDto categoryDto);
         bool ExistsById(int id);
         bool ExistsBytitle(string title);
         bool Create(Category category);

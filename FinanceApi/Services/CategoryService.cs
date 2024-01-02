@@ -1,6 +1,8 @@
-﻿using FinanceApi.Models;
+﻿using FinanceApi.Data.Dtos;
+using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceApi.Services
 {
@@ -20,6 +22,31 @@ namespace FinanceApi.Services
         public bool Delete(Category category)
         {
             return categoryRepository.Delete(category);
+        }
+
+        public int ValidateCategoryUpdate(string userId, CategoryDto categoryDto)
+        {
+            var categories = categoryRepository.GetAllOfUser(userId);
+
+            bool exists = categoryRepository.ExistsById(categoryDto.Id);
+
+            bool isUsers = categories.Any(c => c.Id == categoryDto.Id);
+
+            bool isNotUnique = categories.Any(c => c.Id != categoryDto.Id && c.Title.ToLower().Equals(categoryDto.Title.ToLower()));
+
+
+            if (!exists || !isUsers)
+            {
+                return 404;
+            }
+            else if (isNotUnique)
+            {
+                return 400;
+            }
+
+
+
+            return 200;
         }
 
         public bool ExistsById(int id)

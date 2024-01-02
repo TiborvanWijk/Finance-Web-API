@@ -47,7 +47,7 @@ namespace FinanceApi.Controllers
         public IActionResult CreateCategory([FromBody] CategoryDto categoryDto)
         {
 
-            if (categoryDto == null || !ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -60,10 +60,6 @@ namespace FinanceApi.Controllers
 
             var category = Map.ToCategory(categoryDto);
             category.User = userService.GetById(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             if (!categoryService.Create(category))
             {
@@ -74,6 +70,41 @@ namespace FinanceApi.Controllers
             return Ok("Category created succesfully.");
         }
 
+        [HttpPut("put")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult UpdateCategory([FromBody] CategoryDto categoryDto)
+        { 
+        
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var categoryValidationCode = categoryService.ValidateCategoryUpdate(User.FindFirst(ClaimTypes.NameIdentifier).Value, categoryDto);
+
+            switch (categoryValidationCode)
+            {
+                case 404:
+                    return NotFound();
+                case 400:
+                    ModelState.AddModelError("NotUnique", "Category with this title already exists.");
+                    return BadRequest(ModelState);
+                default:
+                    break;
+            }
+            var category = Map.ToCategory(categoryDto);
+
+            if (!categoryService.Update(category))
+            {
+                ModelState.AddModelError("UpdatingError", "Something went wrong while updating.");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Category updated succesfully.");
+        }
 
     }
 }

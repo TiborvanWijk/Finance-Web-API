@@ -1,6 +1,7 @@
 ﻿using FinanceApi.Data;
 using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApi.Repositories
 {
@@ -36,7 +37,9 @@ namespace FinanceApi.Repositories
 
         public ICollection<Category> GetAllOfUser(string userId)
         {
-            return dataContext.Categories.Where(c => c.User.Id.Equals(userId)).ToList();
+            return dataContext.Categories
+                .AsNoTracking()
+                .Where(c => c.User.Id.Equals(userId)).ToList();
         }
 
         public Category GetById(int categoryId)
