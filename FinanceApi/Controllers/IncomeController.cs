@@ -101,7 +101,7 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult AddCategoryToExpense(int incomeId, [FromBody] ICollection<int> categoryIds)
+        public IActionResult AddCategoryToIncome(int incomeId, [FromBody] ICollection<int> categoryIds)
         {
             string errorMessage;
             int responseCode;
