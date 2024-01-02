@@ -22,9 +22,9 @@ namespace FinanceApi.Services
             return incomeRepository.Delete(income);
         }
 
-        public bool Exists(int incomeId)
+        public bool Exists(string userId, int incomeId)
         {
-            return incomeRepository.Exists(incomeId);
+            return incomeRepository.Exists(userId, incomeId);
         }
 
         public ICollection<Income> GetAllByUserId(string userId)

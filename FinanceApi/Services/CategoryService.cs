@@ -28,7 +28,7 @@ namespace FinanceApi.Services
         {
             var categories = categoryRepository.GetAllOfUser(userId);
 
-            bool exists = categoryRepository.ExistsById(categoryDto.Id);
+            bool exists = categoryRepository.ExistsById(userId, categoryDto.Id);
 
             bool isUsers = categories.Any(c => c.Id == categoryDto.Id);
 
@@ -49,14 +49,14 @@ namespace FinanceApi.Services
             return 200;
         }
 
-        public bool ExistsById(int id)
+        public bool ExistsById(string userId, int id)
         {
-            return categoryRepository.ExistsById(id);
+            return categoryRepository.ExistsById(userId, id);
         }
 
-        public bool ExistsBytitle(string title)
+        public bool ExistsBytitle(string userId, string title)
         {
-            return categoryRepository.ExistsBytitle(title);
+            return categoryRepository.ExistsBytitle(userId, title);
         }
 
         public ICollection<Category> GetAllOfUser(string userId)

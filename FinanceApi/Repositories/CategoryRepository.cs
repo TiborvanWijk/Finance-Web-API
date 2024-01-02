@@ -25,14 +25,14 @@ namespace FinanceApi.Repositories
             return Save();
         }
 
-        public bool ExistsById(int id)
+        public bool ExistsById(string userId, int id)
         {
-            return dataContext.Categories.Any(c => c.Id == id);
+            return dataContext.Categories.Any(c => c.Id == id && c.User.Id.Equals(userId));
         }
 
-        public bool ExistsBytitle(string title)
+        public bool ExistsBytitle(string userId, string title)
         {
-            return dataContext.Categories.Any(c => c.Title.ToLower().Equals(title.ToLower()));
+            return dataContext.Categories.Any(c => c.Title.ToLower().Equals(title.ToLower()) && c.User.Id.Equals(userId));
         }
 
         public ICollection<Category> GetAllOfUser(string userId)
@@ -47,6 +47,10 @@ namespace FinanceApi.Repositories
             return dataContext.Categories.FirstOrDefault(c => c.Id == categoryId);
         }
 
+        public ICollection<ExpenseCategory> GetExpenseCategories(string userId, int expenseId)
+        {
+            return dataContext.ExpenseCategories.Where(ec => ec.ExpenseId == expenseId && ec.Expense.User.Id.ToLower().Equals(userId.ToLower())).ToList();
+        }
         public bool Save()
         {
             var saved = dataContext.SaveChanges();

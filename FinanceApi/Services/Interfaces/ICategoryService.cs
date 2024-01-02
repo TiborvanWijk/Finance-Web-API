@@ -8,8 +8,8 @@ namespace FinanceApi.Services.Interfaces
         Category GetById(int categoryId);
         ICollection<Category> GetAllOfUser(string userId);
         int ValidateCategoryUpdate(string userId, CategoryDto categoryDto);
-        bool ExistsById(int id);
-        bool ExistsBytitle(string title);
+        bool ExistsById(string userId, int id);
+        bool ExistsBytitle(string userId, string title);
         bool Create(Category category);
         bool Update(Category category);
         bool Delete(Category category);

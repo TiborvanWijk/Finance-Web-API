@@ -31,9 +31,9 @@ namespace FinanceApi.Repositories
             return Save();
         }
 
-        public bool Exists(int expenseId)
+        public bool Exists(string userId, int expenseId)
         {
-            return dataContext.Expenses.Any(e => e.Id == expenseId);
+            return dataContext.Expenses.Any(e => e.Id == expenseId && e.User.Id.Equals(userId));
         }
 
         public ICollection<Expense> GetAllOfUser(string userId)

@@ -52,7 +52,7 @@ namespace FinanceApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (categoryService.ExistsBytitle(categoryDto.Title))
+            if (categoryService.ExistsBytitle(User.FindFirst(ClaimTypes.NameIdentifier).Value, categoryDto.Title))
             {
                 ModelState.AddModelError("Duplicate", "Category with this title already exists.");
                 return BadRequest(ModelState);
