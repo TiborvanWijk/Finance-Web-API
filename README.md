@@ -1,8 +1,8 @@
 # Finance Web API (Under Development)
 
-## Welcome to the Finance Web API – your one-stop solution for managing expenses, incomes, goals, budgets, and categories! This API is designed to simplify financial tracking and management, providing developers with the tools they need to create powerful and intuitive finance applications.
+## Welcome to the Finance Web API – your solution for managing expenses, incomes, goals, budgets, and categories! This API is designed to simplify financial tracking and management, providing developers with the tools they need to create powerful and intuitive finance applications.
 
-### Table of Contents
+### Key points
 
 * Expense Management: Add, retrieve, update, and delete expenses.
 * Income Tracking: Record and manage different sources of income.
@@ -14,20 +14,20 @@
 ### Getting Started
 #### Installation
 To contribute or test the API, clone this repository and install the necessary dependencies:
-
-Microsoft.AspNetCore.Identity.EntityFrameworkCore
-Microsoft.EntityFrameworkCore
-Microsoft.EntityFrameworkCore.Design
-Microsoft.EntityFrameworkCore.SqlServer
-Microsoft.EntityFrameworkCore.Tools
-Swashbuckle.AspNetCore
-Swashbuckle.AspNetCore.Filters
+ 
+* Microsoft.AspNetCore.Identity.EntityFrameworkCore 
+* Microsoft.EntityFrameworkCore 
+* Microsoft.EntityFrameworkCore.Design 
+* Microsoft.EntityFrameworkCore.SqlServer 
+* Microsoft.EntityFrameworkCore.Tools 
+* Swashbuckle.AspNetCore 
+* Swashbuckle.AspNetCore.Filters 
 
 
 All configuration files are .gitignored: 
 
-appsettings.json 
-appsettings.Development.json 
-launchSettings.json 
-
+* appsettings.json 
+* appsettings.Development.json 
+* launchSettings.json 
+ 
 You will have to create those files to make the api runnable.
