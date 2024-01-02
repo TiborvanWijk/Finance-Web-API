@@ -24,10 +24,8 @@ To contribute or test the API, clone this repository and install the necessary d
 * Swashbuckle.AspNetCore.Filters 
 
 
-All configuration files are .gitignored: 
+All necessary configuration files: 
 
 * appsettings.json 
 * appsettings.Development.json 
 * launchSettings.json 
- 
-You will have to create those files to make the api runnable.
