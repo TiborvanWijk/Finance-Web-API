@@ -12,6 +12,13 @@ namespace FinanceApi.Repositories
         {
             this.dataContext = dataContext;
         }
+
+        public bool AddCategory(IncomeCategory incomeCategory)
+        {
+            dataContext.IncomeCategories.Add(incomeCategory);
+            return Save();
+        }
+
         public bool Create(Income income)
         {
             dataContext.Incomes.Add(income);

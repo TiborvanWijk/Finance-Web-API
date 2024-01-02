@@ -11,5 +11,6 @@ namespace FinanceApi.Repositories.Interfaces
         bool Update(Income income);
         bool Delete(Income income);
         bool Save();
+        bool AddCategory(IncomeCategory incomeCategory);
     }
 }

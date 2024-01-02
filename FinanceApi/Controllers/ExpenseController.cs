@@ -68,8 +68,8 @@ namespace FinanceApi.Controllers
             }
 
             var expense = Map.ToExpense(expenseDto);
-
-            expense.User = userService.GetUserById(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            expense.User = userService.GetUserById(userId);
 
             if (!ModelState.IsValid)
             {
@@ -79,6 +79,12 @@ namespace FinanceApi.Controllers
             if (!expenseService.Create(expense))
             {
                 ModelState.AddModelError("CreatingError", "Something went wrong while creating.");
+                return StatusCode(500, ModelState);
+            }
+
+            if(expense.Status && !userService.UpdateBalance(userId, -expense.Amount))
+            {
+                ModelState.AddModelError("UpdatingError", "Something went wrong while updating userbalance.");
                 return StatusCode(500, ModelState);
             }
 

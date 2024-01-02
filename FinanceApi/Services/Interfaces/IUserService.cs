@@ -8,6 +8,7 @@ namespace FinanceApi.Services.Interfaces
         User GetUserById(string userId);
         User GetById(string userId);
         User GetByUsername(string username);
+        bool UpdateBalance(string userId, decimal amount);
         bool ExistsByUsername(string username);
         bool Create(User user);
         bool Update(User user);

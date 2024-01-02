@@ -1,6 +1,7 @@
 ﻿using FinanceApi.Data.Dtos;
 using FinanceApi.Mapper;
 using FinanceApi.Models;
+using FinanceApi.Services;
 using FinanceApi.Services.Interfaces;
 using FinanceApi.Validators;
 using Microsoft.AspNetCore.Authorization;
@@ -70,8 +71,8 @@ namespace FinanceApi.Controllers
             }
 
             var income = Map.ToIncome(incomeDto);
-
-            income.User = userService.GetUserById(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            income.User = userService.GetUserById(userId);
 
             if (!ModelState.IsValid)
             {
@@ -83,7 +84,43 @@ namespace FinanceApi.Controllers
                 ModelState.AddModelError("CreatingError", "Something went wrong while creating.");
                 return StatusCode(500, ModelState);
             }
+
+            
+            if (income.Status && !userService.UpdateBalance(userId, income.Amount))
+            {
+                ModelState.AddModelError("UpdatingError", "Something went wrong while updating userbalance.");
+            }
+
             return Ok("Income created succesfully.");
+        }
+
+
+
+        [HttpPost("AssociateCategories/{incomeId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult AddCategoryToExpense(int incomeId, [FromBody] ICollection<int> categoryIds)
+        {
+            string errorMessage;
+            int responseCode;
+            if (!incomeService.AddCategories(User.FindFirst(ClaimTypes.NameIdentifier).Value, incomeId, categoryIds, out errorMessage, out responseCode))
+            {
+                switch (responseCode)
+                {
+                    case 400:
+                        return BadRequest(errorMessage);
+                    case 404:
+                        return NotFound(errorMessage);
+                    case 500:
+                        return StatusCode(500, errorMessage);
+                    default:
+                        break;
+                }
+            }
+
+            return Ok("Categories successfully added to income.");
         }
 
     }
