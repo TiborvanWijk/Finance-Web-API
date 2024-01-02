@@ -1,6 +1,6 @@
 # Finance Web API (Under Development)
 
-## Welcome to the Finance Web API – your solution for managing expenses, incomes, goals, budgets, and categories! This API is designed to simplify financial tracking and management, providing developers with the tools they need to create powerful and intuitive finance applications.
+## Welcome to the Finance Web API – your solution for managing expenses, incomes, goals, budgets, and categories! This API is designed to simplify financial tracking and management.
 
 ### Key points
 
