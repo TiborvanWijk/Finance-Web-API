@@ -6,10 +6,11 @@ namespace FinanceApi.Repositories.Interfaces
     {
         Budget GetById(int budgetId);
         ICollection<Budget> GetAllOfUser(string userId);
-        bool Exists(string userId, int budgetId);
+        bool ExistsById(string userId, int budgetId);
         bool Create(Budget budget);
         bool Update(Budget budget);
         bool Delete(Budget budget);
         bool save();
+        bool ExistsByTitle(string userId, string title);
     }
 }

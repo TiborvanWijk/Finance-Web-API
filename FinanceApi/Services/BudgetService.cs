@@ -23,9 +23,14 @@ namespace FinanceApi.Services
             return budgetRepository.Delete(budget);
         }
 
-        public bool Exists(string userId, int budgetId)
+        public bool ExistsById(string userId, int budgetId)
         {
-            return budgetRepository.Exists(userId, budgetId);
+            return budgetRepository.ExistsById(userId, budgetId);
+        }
+
+        public bool ExistsByTitle(string userId, string title)
+        {
+            return budgetRepository.ExistsByTitle(userId, title);
         }
 
         public ICollection<Budget> GetAllOfUser(string userId)

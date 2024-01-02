@@ -24,9 +24,14 @@ namespace FinanceApi.Repositories
             return save();
         }
 
-        public bool Exists(string userId, int budgetId)
+        public bool ExistsById(string userId, int budgetId)
         {
             return dataContext.Budgets.Any(b => b.Id == budgetId && b.User.Id.Equals(userId));
+        }
+
+        public bool ExistsByTitle(string userId, string title)
+        {
+            return dataContext.Budgets.Any(b => b.Title.ToLower().Equals(title.ToLower()) && b.User.Id.Equals(userId));
         }
 
         public ICollection<Budget> GetAllOfUser(string userId)
