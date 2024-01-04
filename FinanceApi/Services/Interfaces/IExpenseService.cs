@@ -9,9 +9,10 @@ namespace FinanceApi.Services.Interfaces
         ICollection<Expense> GetAllOfUser(string userId);
         bool AddCategory(ExpenseCategory expenseCategory);
         public bool AddCategories(string userId, int expenseId, ICollection<int> categoryIds, out string errorMessage, out int responseCode);
+        bool ValidateExpense(ExpenseDto expenseDto, out int errorCode, out string errorMessage);
         bool Exists(string userId, int expenseId);
         bool Create(User user, ExpenseDto expenseDto, out int errorCode, out string errorMessage);
-        bool Update(Expense expense);
+        bool Update(User user, ExpenseDto expenseDto, out int errorCode, out string errorMessage, out decimal prevAmount);
         bool Delete(Expense expense);
     }
 }

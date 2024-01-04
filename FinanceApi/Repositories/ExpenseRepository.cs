@@ -1,6 +1,7 @@
 ﻿using FinanceApi.Data;
 using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApi.Repositories
 {
@@ -31,7 +32,7 @@ namespace FinanceApi.Repositories
             return Save();
         }
 
-        public bool Exists(string userId, int expenseId)
+        public bool ExistsById(string userId, int expenseId)
         {
             return dataContext.Expenses.Any(e => e.Id == expenseId && e.User.Id.Equals(userId));
         }
@@ -43,7 +44,7 @@ namespace FinanceApi.Repositories
 
         public Expense GetById(int expenseId)
         {
-            return dataContext.Expenses.FirstOrDefault(e => e.Id == expenseId);
+            return dataContext.Expenses.AsNoTracking().FirstOrDefault(e => e.Id == expenseId);
         }
 
         public bool Save()

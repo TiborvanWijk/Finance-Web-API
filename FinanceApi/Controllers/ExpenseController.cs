@@ -2,6 +2,7 @@
 using FinanceApi.Enums;
 using FinanceApi.Mapper;
 using FinanceApi.Models;
+using FinanceApi.Services;
 using FinanceApi.Services.Interfaces;
 using FinanceApi.Validators;
 using Microsoft.AspNetCore.Authorization;
@@ -119,5 +120,55 @@ namespace FinanceApi.Controllers
 
             return Ok("Categories successfully added to expense.");
         }
+
+        [HttpPut("put")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult UpdateExpense([FromBody] ExpenseDto expenseDto)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var user = userService.GetUserById(userId);
+
+            int errorCode;
+            string errorMessage;
+            decimal prevAmount;
+
+            if (!expenseService.Update(user, expenseDto, out errorCode, out errorMessage, out prevAmount))
+            {
+                switch (errorCode)
+                {
+                    case 404:
+                        return NotFound(errorMessage);
+                    case 400:
+                        return BadRequest(errorMessage);
+                    case 500:
+                        return StatusCode(errorCode, errorMessage);
+                }
+            }
+
+            if (expenseDto.Status && !userService.UpdateBalance(user, -(expenseDto.Amount - prevAmount)))
+            {
+                return StatusCode(500, "Something went wrong with updating users balance.");
+            }
+            else if (!expenseDto.Status && !userService.UpdateBalance(user, prevAmount))
+            {
+                return StatusCode(500, "Something went wrong with updating users balance.");
+            }
+
+
+            return Ok("Updated income succesfully.");
+
+
+        }
+        
     }
 }

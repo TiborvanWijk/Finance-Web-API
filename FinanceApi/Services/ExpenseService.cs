@@ -2,6 +2,7 @@
 using FinanceApi.Enums;
 using FinanceApi.Mapper;
 using FinanceApi.Models;
+using FinanceApi.Repositories;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services.Interfaces;
 using FinanceApi.Validators;
@@ -30,6 +31,30 @@ namespace FinanceApi.Services
             errorCode = 0;
             errorMessage = string.Empty;
 
+            if (!ValidateExpense(expenseDto, out errorCode, out errorMessage))
+            {
+                return false;
+            }
+
+            var expense = Map.ToExpense(expenseDto);
+            expense.Currency = expense.Currency.ToUpper();
+            expense.User = user;
+
+            if (!expenseRepository.Create(expense))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while creating expense.";
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool ValidateExpense(ExpenseDto expenseDto, out int errorCode, out string errorMessage)
+        {
+            errorCode = 0;
+            errorMessage = string.Empty;
+
             if (!Validator.IsValidCurrencyCode(expenseDto.Currency))
             {
                 errorCode = 400;
@@ -51,17 +76,6 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            var expense = Map.ToExpense(expenseDto);
-            expense.Currency = expense.Currency.ToUpper();
-            expense.User = user;
-
-            if (!expenseRepository.Create(expense))
-            {
-                errorCode = 500;
-                errorMessage = "Something went wrong while creating expense.";
-                return false;
-            }
-
             return true;
         }
 
@@ -72,7 +86,7 @@ namespace FinanceApi.Services
 
         public bool Exists(string userId, int expenseId)
         {
-            return expenseRepository.Exists(userId, expenseId);
+            return expenseRepository.ExistsById(userId, expenseId);
         }
 
         public ICollection<Expense> GetAllOfUser(string userId)
@@ -85,9 +99,41 @@ namespace FinanceApi.Services
             return expenseRepository.GetById(expenseId);
         }
 
-        public bool Update(Expense expense)
+        public bool Update(User user, ExpenseDto expenseDto, out int errorCode, out string errorMessage, out decimal prevAmount)
         {
-            return expenseRepository.Update(expense);
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+            prevAmount = 0;
+
+            if(!expenseRepository.ExistsById(user.Id, expenseDto.Id))
+            {
+                errorCode = 404;
+                errorMessage = "Expense not found";
+                return false;
+            }
+
+            if (expenseRepository.GetById(expenseDto.Id).Status)
+            {
+                prevAmount = expenseRepository.GetById(expenseDto.Id).Amount;
+            }
+
+            if (!ValidateExpense(expenseDto, out errorCode, out errorMessage))
+            {
+                return false;
+            }
+
+            var expense = Map.ToExpense(expenseDto);
+            expense.Currency = expense.Currency.ToUpper();
+
+            if (!expenseRepository.Update(expense))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while updating income.";
+                return false;
+            }
+
+            return true;
         }
 
         public bool AddCategories(string userId, int expenseId, ICollection<int> categoryIds, out string errorMessage, out int responseCode)
