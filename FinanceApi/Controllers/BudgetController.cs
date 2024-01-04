@@ -49,11 +49,13 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(500)]
         public IActionResult CreateBudget([FromBody] BudgetDto budgetDto)
         {
-            
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            budgetDto.Id = 0;
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
@@ -70,7 +72,32 @@ namespace FinanceApi.Controllers
             return Ok("Budget created succesfully.");
         }
 
+        [HttpPut("put")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult UpdateBudget([FromBody] BudgetDto budgetDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var user = userService.GetUserById(userId);
+
+            int errorCode;
+            string errorMessage;
+
+            if (!budgetService.Update(user, budgetDto, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok("Budget updated succesfully.");
+        }
 
     }
 }

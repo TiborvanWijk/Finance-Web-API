@@ -9,7 +9,7 @@ namespace FinanceApi.Services.Interfaces
         ICollection<Budget> GetAllOfUser(string userId);
         bool ExistsById(string userId, int budgetId);
         bool Create(User user, BudgetDto budgetDto, out int errorCode, out string errorMessage);
-        bool Update(Budget budget);
+        bool Update(User user, BudgetDto budgetDto, out int errorCode, out string errorMessage);
         bool Delete(Budget budget);
         bool ExistsByTitle(string userId, string title);
     }

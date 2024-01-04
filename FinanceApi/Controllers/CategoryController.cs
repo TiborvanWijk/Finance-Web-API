@@ -53,6 +53,8 @@ namespace FinanceApi.Controllers
                 return BadRequest(ModelState);
             }
 
+            categoryDto.Id = 0;
+
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
             var user = userService.GetUserById(userId);

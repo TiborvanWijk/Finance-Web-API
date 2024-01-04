@@ -23,6 +23,36 @@ namespace FinanceApi.Services
             errorCode = 0;
             errorMessage = string.Empty;
 
+            if (ExistsByTitle(user.Id, budgetDto.Title))
+            {
+                errorCode = 400;
+                errorMessage = "Budget with this title already exists.";
+                return false;
+            }
+
+            if (!ValidateBudget(budgetDto, out errorCode, out errorMessage, user.Id))
+            {
+                return false;
+            }
+
+            var budget = Map.ToBudget(budgetDto);
+            budget.Currency = budget.Currency.ToUpper();
+            budget.User = user;
+
+            if (!budgetRepository.Create(budget))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while saving budget.";
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool ValidateBudget(BudgetDto budgetDto, out int errorCode, out string errorMessage, string userId)
+        {
+            errorCode = 0;
+            errorMessage = string.Empty;
 
             if (budgetDto.StartDate >= budgetDto.EndDate)
             {
@@ -49,24 +79,6 @@ namespace FinanceApi.Services
             {
                 errorCode = 400;
                 errorMessage = "Invalid urgency type.";
-                return false;
-            }
-
-            if (ExistsByTitle(user.Id, budgetDto.Title))
-            {
-                errorCode = 400;
-                errorMessage = "Budget with this title already exists.";
-                return false;
-            }
-
-            var budget = Map.ToBudget(budgetDto);
-            budget.Currency = budget.Currency.ToUpper();
-            budget.User = user;
-
-            if (!budgetRepository.Create(budget))
-            {
-                errorCode = 500;
-                errorMessage = "Something went wrong while saving budget.";
                 return false;
             }
 
@@ -98,9 +110,42 @@ namespace FinanceApi.Services
             return budgetRepository.GetById(budgetId);
         }
 
-        public bool Update(Budget budget)
+        public bool Update(User user, BudgetDto budgetDto, out int errorCode, out string errorMessage)
         {
-            return budgetRepository.Update(budget);
+            errorCode = 0;
+            errorMessage = string.Empty;
+
+            if(!budgetRepository.ExistsById(user.Id, budgetDto.Id))
+            {
+                errorCode = 404;
+                errorMessage = "Budget not found.";
+                return false;
+            }
+
+            bool titleInUse = budgetRepository.GetAllOfUser(user.Id).Any(b => b.Id != budgetDto.Id && b.Title.ToLower().Equals(budgetDto.Title.ToLower()));
+            if (titleInUse)
+            {
+                errorCode = 400;
+                errorMessage = "Budget with that title already exists.";
+                return false;
+            }
+
+            if (!ValidateBudget(budgetDto, out errorCode, out errorMessage, user.Id))
+            {
+                return false;
+            }
+
+            var budget = Map.ToBudget(budgetDto);
+            budget.Currency = budget.Currency.ToUpper();
+
+            if (!budgetRepository.Update(budget))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while updating budget.";
+                return false;
+            }
+
+            return true;
         }
     }
 }
