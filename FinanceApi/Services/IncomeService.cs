@@ -24,7 +24,7 @@ namespace FinanceApi.Services
         {
             errorMessage = string.Empty;
             responseCode = 200;
-            if (!Exists(userId, incomeId))
+            if (!ExistsById(userId, incomeId))
             {
                 errorMessage = "Income not found.";
                 responseCode = 404;
@@ -87,7 +87,27 @@ namespace FinanceApi.Services
             return incomeRepository.AddCategory(incomeCategory);
         }
 
-        public bool Create(User user, IncomeDto incomeDto, out int errorCode, out string errorMessage)
+        public bool Delete(Income income)
+        {
+            return incomeRepository.Delete(income);
+        }
+
+        public bool ExistsById(string userId, int incomeId)
+        {
+            return incomeRepository.ExistsById(userId, incomeId);
+        }
+
+        public ICollection<Income> GetAllByUserId(string userId)
+        {
+            return incomeRepository.GetAllByUserId(userId);
+        }
+
+        public Income GetById(int incomeId)
+        {
+            return incomeRepository.GetById(incomeId);
+        }
+
+        public bool ValidateIncome(IncomeDto incomeDto, out int errorCode, out string errorMessage)
         {
             errorCode = 0;
             errorMessage = string.Empty;
@@ -106,6 +126,19 @@ namespace FinanceApi.Services
                 return false;
             }
 
+            return true;
+        }
+
+        public bool Create(User user, IncomeDto incomeDto, out int errorCode, out string errorMessage)
+        {
+            errorCode = 0;
+            errorMessage = string.Empty;
+
+            if(!ValidateIncome(incomeDto, out errorCode, out errorMessage))
+            {
+                return false;
+            }
+
             var income = Map.ToIncome(incomeDto);
             income.Currency = income.Currency.ToUpper();
             income.User = user;
@@ -120,29 +153,40 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool Delete(Income income)
+        public bool Update(User user, IncomeDto incomeDto, out int errorCode, out string errorMessage, out decimal prevAmount)
         {
-            return incomeRepository.Delete(income);
-        }
+            errorCode = 0;
+            errorMessage = string.Empty;
+            prevAmount = 0;
 
-        public bool Exists(string userId, int incomeId)
-        {
-            return incomeRepository.Exists(userId, incomeId);
-        }
+            if (!incomeRepository.ExistsById(user.Id, incomeDto.Id))
+            {
+                errorCode = 404;
+                errorMessage = "Income not found.";
+                return false;
+            }
 
-        public ICollection<Income> GetAllByUserId(string userId)
-        {
-            return incomeRepository.GetAllByUserId(userId);
-        }
+            if (incomeRepository.GetById(incomeDto.Id).Status)
+            {
+                prevAmount = incomeRepository.GetById(incomeDto.Id).Amount;
+            }
 
-        public Income GetById(int incomeId)
-        {
-            return incomeRepository.GetById(incomeId);
-        }
+            if (!ValidateIncome(incomeDto, out errorCode, out errorMessage))
+            {
+                return false;
+            }
 
-        public bool Update(Income income)
-        {
-            return incomeRepository.Update(income);
+            var income = Map.ToIncome(incomeDto);
+            income.Currency = income.Currency.ToUpper();
+
+            if (!incomeRepository.Update(income))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while updating income.";
+                return false;
+            }
+
+            return true;
         }
     }
 }

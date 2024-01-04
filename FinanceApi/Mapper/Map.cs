@@ -57,6 +57,7 @@ namespace FinanceApi.Mapper
                 Description = income.Description,
                 Currency = income.Currency,
                 Amount = income.Amount,
+                DocumentUrl = income.DocumentUrl,
                 Status = income.Status,
                 Date = income.Date,
             };

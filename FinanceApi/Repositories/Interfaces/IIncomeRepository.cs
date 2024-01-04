@@ -6,7 +6,7 @@ namespace FinanceApi.Repositories.Interfaces
     {
         Income GetById(int incomeId);
         ICollection<Income> GetAllByUserId(string userId);
-        bool Exists(string userId, int incomeId);
+        bool ExistsById(string userId, int incomeId);
         bool Create(Income income);
         bool Update(Income income);
         bool Delete(Income income);
