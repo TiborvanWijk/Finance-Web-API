@@ -107,7 +107,7 @@ namespace FinanceApi.Services
             }
 
             var income = Map.ToIncome(incomeDto);
-            income.Currency.ToUpper();
+            income.Currency = income.Currency.ToUpper();
             income.User = user;
 
             if (!incomeRepository.Create(income))

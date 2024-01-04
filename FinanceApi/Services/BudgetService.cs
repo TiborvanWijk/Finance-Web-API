@@ -27,7 +27,7 @@ namespace FinanceApi.Services
             if (budgetDto.StartDate >= budgetDto.EndDate)
             {
                 errorCode = 400;
-                errorMessage = "Starting time is later then ending time.";
+                errorMessage = "End date must be later then starting date.";
                 return false;
             }
 
@@ -35,6 +35,13 @@ namespace FinanceApi.Services
             {
                 errorCode = 400;
                 errorMessage = "Limit amount must me greater then '0'.";
+                return false;
+            }
+
+            if (!Validator.IsValidCurrencyCode(budgetDto.Currency))
+            {
+                errorCode = 400;
+                errorMessage = "Currency ISOcode is not valid.";
                 return false;
             }
 
@@ -53,6 +60,7 @@ namespace FinanceApi.Services
             }
 
             var budget = Map.ToBudget(budgetDto);
+            budget.Currency = budget.Currency.ToUpper();
             budget.User = user;
 
             if (!budgetRepository.Create(budget))

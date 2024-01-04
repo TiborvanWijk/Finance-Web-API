@@ -52,7 +52,7 @@ namespace FinanceApi.Services
             }
 
             var expense = Map.ToExpense(expenseDto);
-            expense.Currency.ToUpper();
+            expense.Currency = expense.Currency.ToUpper();
             expense.User = user;
 
             if (!expenseRepository.Create(expense))

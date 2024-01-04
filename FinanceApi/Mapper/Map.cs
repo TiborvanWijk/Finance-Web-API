@@ -106,6 +106,7 @@ namespace FinanceApi.Mapper
                 Title = budgetDto.Title,
                 Description = budgetDto.Description,
                 LimitAmount = budgetDto.LimitAmount,
+                Currency = budgetDto.Currency,
                 Urgency = budgetDto.Urgency,
                 StartDate = budgetDto.StartDate,
                 EndDate = budgetDto.EndDate,
@@ -121,6 +122,7 @@ namespace FinanceApi.Mapper
                 Title = budget.Title,
                 Description = budget.Description,
                 LimitAmount = budget.LimitAmount,
+                Currency= budget.Currency,
                 Urgency = budget.Urgency,
                 StartDate = budget.StartDate,
                 EndDate = budget.EndDate,
@@ -136,6 +138,7 @@ namespace FinanceApi.Mapper
                 Title = goalDto.Title,
                 Description = goalDto.Description,
                 Amount = goalDto.Amount,
+                Currency = goalDto.Currency,
                 Progress = goalDto.Progress,
                 TargetDate = goalDto.TargetDate,
             };
@@ -150,6 +153,7 @@ namespace FinanceApi.Mapper
                 Title = goal.Title,
                 Description = goal.Description,
                 Amount = goal.Amount,
+                Currency = goal.Currency,
                 Progress = goal.Progress,
                 TargetDate = goal.TargetDate,
             };
