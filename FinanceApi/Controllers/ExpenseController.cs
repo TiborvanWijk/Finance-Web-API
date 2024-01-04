@@ -155,19 +155,14 @@ namespace FinanceApi.Controllers
                 }
             }
 
-            if (expenseDto.Status && !userService.UpdateBalance(user, -(expenseDto.Amount - prevAmount)))
-            {
-                return StatusCode(500, "Something went wrong with updating users balance.");
-            }
-            else if (!expenseDto.Status && !userService.UpdateBalance(user, prevAmount))
-            {
-                return StatusCode(500, "Something went wrong with updating users balance.");
-            }
+            decimal balance = expenseDto.Status ? -(expenseDto.Amount - prevAmount) : prevAmount;
 
+            if (!userService.UpdateBalance(user, balance))
+            {
+                return StatusCode(500, "Something went wrong with updating users balance.");
+            }
 
             return Ok("Updated income succesfully.");
-
-
         }
         
     }
