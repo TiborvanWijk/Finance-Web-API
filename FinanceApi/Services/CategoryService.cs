@@ -46,29 +46,35 @@ namespace FinanceApi.Services
             return categoryRepository.Delete(category);
         }
 
-        public int ValidateCategoryUpdate(string userId, CategoryDto categoryDto)
+        public bool Update(User user, CategoryDto categoryDto, out int errorCode, out string errorMessage)
         {
-            var categories = categoryRepository.GetAllOfUser(userId);
+            errorCode = 0;
+            errorMessage = string.Empty;
 
-            bool exists = categoryRepository.ExistsById(userId, categoryDto.Id);
-
-            bool isUsers = categories.Any(c => c.Id == categoryDto.Id);
-
-            bool isNotUnique = categories.Any(c => c.Id != categoryDto.Id && c.Title.ToLower().Equals(categoryDto.Title.ToLower()));
-
-
-            if (!exists || !isUsers)
+            if (!categoryRepository.ExistsById(user.Id, categoryDto.Id))
             {
-                return 404;
+                errorCode = 404;
+                errorMessage = "Category does not exist.";
+                return false;
             }
-            else if (isNotUnique)
+            bool isNotUnique = categoryRepository.GetAllOfUser(user.Id).Any(c => c.Id != categoryDto.Id && c.Title.ToLower().Equals(categoryDto.Title.ToLower()));
+            if (isNotUnique)
             {
-                return 400;
+                errorCode = 400;
+                errorMessage = "Category with this title already exists.";
+                return false;
             }
 
+            var category = Map.ToCategory(categoryDto);
 
+            if (!categoryRepository.Update(category))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while updating.";
+                return false;
+            }
 
-            return 200;
+            return true;
         }
 
         public bool ExistsById(string userId, int id)
@@ -90,11 +96,5 @@ namespace FinanceApi.Services
         {
             return categoryRepository.GetById(categoryId);
         }
-
-        public bool Update(Category category)
-        {
-            return categoryRepository.Update(category);
-        }
-
     }
 }

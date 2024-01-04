@@ -7,11 +7,10 @@ namespace FinanceApi.Services.Interfaces
     {
         Category GetById(int categoryId);
         ICollection<Category> GetAllOfUser(string userId);
-        int ValidateCategoryUpdate(string userId, CategoryDto categoryDto);
         bool ExistsById(string userId, int id);
         bool ExistsBytitle(string userId, string title);
         bool Create(User user, CategoryDto categoryDto, out int errorCode, out string errorMessage);
-        bool Update(Category category);
+        bool Update(User user, CategoryDto categoryDto, out int errorCode, out string errorMessage);
         bool Delete(Category category);
     }
 }

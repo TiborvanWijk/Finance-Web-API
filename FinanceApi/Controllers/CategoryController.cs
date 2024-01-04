@@ -88,24 +88,26 @@ namespace FinanceApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var categoryValidationCode = categoryService.ValidateCategoryUpdate(User.FindFirst(ClaimTypes.NameIdentifier).Value, categoryDto);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            switch (categoryValidationCode)
-            {
-                case 404:
-                    return NotFound();
-                case 400:
-                    ModelState.AddModelError("NotUnique", "Category with this title already exists.");
-                    return BadRequest(ModelState);
-                default:
-                    break;
-            }
-            var category = Map.ToCategory(categoryDto);
+            var user = userService.GetUserById(userId);
 
-            if (!categoryService.Update(category))
+            int errorCode;
+            string errorMessage;
+
+            if (!categoryService.Update(user, categoryDto, out errorCode, out errorMessage))
             {
-                ModelState.AddModelError("UpdatingError", "Something went wrong while updating.");
-                return StatusCode(500, ModelState);
+                switch (errorCode)
+                {
+                    case 404:
+                        return NotFound(errorMessage);
+                    case 400:
+                        return BadRequest(errorMessage);
+                    case 500:
+                        return StatusCode(errorCode, errorMessage);
+                    default:
+                        throw new InvalidOperationException("Unexpected error code encountered.");
+                }
             }
 
             return Ok("Category updated succesfully.");
