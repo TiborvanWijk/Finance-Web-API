@@ -50,39 +50,34 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(500)]
         public IActionResult CreateExpense([FromBody] ExpenseDto expenseDto)
         {
-            if (expenseDto == null || !ModelState.IsValid)
+
+            if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (!Validator.IsValidCurrencyCode(expenseDto.Currency))
-            {
-                ModelState.AddModelError("CurrencyCodeError", "Currency ISOcode is not valid.");
-                return BadRequest(ModelState);
-            }
-
-            if(expenseDto.Amount <= 0)
-            {
-                ModelState.AddModelError("AmountError", "Amount must be more then '0'.");
-                return BadRequest(ModelState);
-            }
-
-            var expense = Map.ToExpense(expenseDto);
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            expense.User = userService.GetUserById(userId);
 
-            if (!ModelState.IsValid)
+            var user = userService.GetUserById(userId);
+
+            int errorCode;
+            string errorMessage;
+
+            if (!expenseService.Create(user, expenseDto, out errorCode, out errorMessage))
             {
-                return BadRequest(ModelState);
+
+                switch (errorCode)
+                {
+                    case 400:
+                        return BadRequest(errorMessage);
+                    case 500:
+                        return StatusCode(errorCode, errorMessage);
+                    default:
+                        throw new InvalidOperationException("Unexpected error code encountered.");
+                }
             }
 
-            if (!expenseService.Create(expense))
-            {
-                ModelState.AddModelError("CreatingError", "Something went wrong while creating.");
-                return StatusCode(500, ModelState);
-            }
-
-            if(expense.Status && !userService.UpdateBalance(userId, -expense.Amount))
+            if(expenseDto.Status && !userService.UpdateBalance(user, -expenseDto.Amount))
             {
                 ModelState.AddModelError("UpdatingError", "Something went wrong while updating userbalance.");
                 return StatusCode(500, ModelState);
@@ -99,6 +94,12 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(500)]
         public IActionResult AddCategoryToExpense(int expenseId, [FromBody] ICollection<int> categoryIds)
         {
+
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             string errorMessage;
             int responseCode;
             if (!expenseService.AddCategories(User.FindFirst(ClaimTypes.NameIdentifier).Value, expenseId, categoryIds, out errorMessage, out responseCode))
@@ -112,7 +113,7 @@ namespace FinanceApi.Controllers
                     case 500:
                         return StatusCode(500, errorMessage);
                     default:
-                        break;
+                        throw new InvalidOperationException("Unexpected error code encountered.");
                 }
             }
 

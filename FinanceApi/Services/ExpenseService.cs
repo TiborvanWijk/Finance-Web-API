@@ -1,6 +1,11 @@
-﻿using FinanceApi.Models;
+﻿using FinanceApi.Data.Dtos;
+using FinanceApi.Enums;
+using FinanceApi.Mapper;
+using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services.Interfaces;
+using FinanceApi.Validators;
+using System.Security.Claims;
 
 namespace FinanceApi.Services
 {
@@ -20,9 +25,44 @@ namespace FinanceApi.Services
             return expenseRepository.AddCategory(expenseCategory);
         }
 
-        public bool Create(Expense expense)
+        public bool Create(User user, ExpenseDto expenseDto, out int errorCode, out string errorMessage)
         {
-            return expenseRepository.Create(expense);
+            errorCode = 0;
+            errorMessage = string.Empty;
+
+            if (!Validator.IsValidCurrencyCode(expenseDto.Currency))
+            {
+                errorCode = 400;
+                errorMessage = "Currency ISOcode is not valid.";
+                return false;
+            }
+
+            if (expenseDto.Amount <= 0)
+            {
+                errorCode = 400;
+                errorMessage = "Amount must be more then '0'.";
+                return false;
+            }
+
+            if (!Enum.IsDefined(typeof(Urgency), expenseDto.Urgency))
+            {
+                errorCode = 400;
+                errorMessage = "Urgency type is not valid.";
+                return false;
+            }
+
+            var expense = Map.ToExpense(expenseDto);
+            expense.Currency.ToUpper();
+            expense.User = user;
+
+            if (!expenseRepository.Create(expense))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while creating expense.";
+                return false;
+            }
+
+            return true;
         }
 
         public bool Delete(Expense expense)
@@ -53,7 +93,7 @@ namespace FinanceApi.Services
         public bool AddCategories(string userId, int expenseId, ICollection<int> categoryIds, out string errorMessage, out int responseCode)
         {
             errorMessage = string.Empty;
-            responseCode = 200;
+            responseCode = 0;
             if (!Exists(userId, expenseId))
             {
                 errorMessage = "Expense not found.";

@@ -1,7 +1,11 @@
-﻿using FinanceApi.Models;
+﻿using FinanceApi.Data.Dtos;
+using FinanceApi.Enums;
+using FinanceApi.Mapper;
+using FinanceApi.Models;
 using FinanceApi.Repositories;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services.Interfaces;
+using FinanceApi.Validators;
 
 namespace FinanceApi.Services
 {
@@ -83,9 +87,37 @@ namespace FinanceApi.Services
             return incomeRepository.AddCategory(incomeCategory);
         }
 
-        public bool Create(Income income)
+        public bool Create(User user, IncomeDto incomeDto, out int errorCode, out string errorMessage)
         {
-            return incomeRepository.Create(income);
+            errorCode = 0;
+            errorMessage = string.Empty;
+
+            if (!Validator.IsValidCurrencyCode(incomeDto.Currency))
+            {
+                errorCode = 400;
+                errorMessage = "Currency ISOcode is not valid.";
+                return false;
+            }
+
+            if (incomeDto.Amount <= 0)
+            {
+                errorCode = 400;
+                errorMessage = "Amount must be more then '0'.";
+                return false;
+            }
+
+            var income = Map.ToIncome(incomeDto);
+            income.Currency.ToUpper();
+            income.User = user;
+
+            if (!incomeRepository.Create(income))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while creating expense.";
+                return false;
+            }
+
+            return true;
         }
 
         public bool Delete(Income income)

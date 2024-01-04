@@ -13,9 +13,8 @@ namespace FinanceApi.Services
             this.userRepository = userRepository;
         }
 
-        public bool UpdateBalance(string userId, decimal amount)
+        public bool UpdateBalance(User user, decimal amount)
         {
-            var user = userRepository.GetById(userId);
             user.Balance += amount;
             return userRepository.Update(user);
         }

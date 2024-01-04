@@ -52,41 +52,35 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(500)]
         public IActionResult CreateIncome([FromBody] IncomeDto incomeDto)
         {
-            
-            if (incomeDto == null || !ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (!Validator.IsValidCurrencyCode(incomeDto.Currency))
-            {
-                ModelState.AddModelError("CurrencyCodeError", "Currency ISOcode is not valid.");
-                return BadRequest(ModelState);
-            }
-
-            if (incomeDto.Amount <= 0)
-            {
-                ModelState.AddModelError("AmountError", "Amount must be more then '0'.");
-                return BadRequest(ModelState);
-            }
-
-            var income = Map.ToIncome(incomeDto);
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            income.User = userService.GetUserById(userId);
 
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (!incomeService.Create(income))
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var user = userService.GetUserById(userId);
+
+            int errorCode;
+            string errorMessage;
+
+            if (!incomeService.Create(user, incomeDto, out errorCode, out errorMessage))
             {
-                ModelState.AddModelError("CreatingError", "Something went wrong while creating.");
-                return StatusCode(500, ModelState);
+
+                switch (errorCode)
+                {
+                    case 400:
+                        return BadRequest(errorMessage);
+                    case 500:
+                        return StatusCode(errorCode, errorMessage);
+                    default:
+                        throw new InvalidOperationException("Unexpected error code encountered.");
+                }
             }
 
-            
-            if (income.Status && !userService.UpdateBalance(userId, income.Amount))
+
+            if (incomeDto.Status && !userService.UpdateBalance(user, incomeDto.Amount))
             {
                 ModelState.AddModelError("UpdatingError", "Something went wrong while updating userbalance.");
             }
