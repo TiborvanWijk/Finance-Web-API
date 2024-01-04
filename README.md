@@ -1,7 +1,8 @@
 # Finance Web API (Under Development)
 
 ## Welcome to the Finance Web API – your solution for managing expenses, incomes, goals, budgets, and categories! This API is designed to simplify financial tracking and management.
-#
+
+
 ## Key points
 
 * Expense Management: Add, retrieve, update, and delete expenses.
@@ -10,7 +11,6 @@
 * Budget Planning: Create and manage budgets for better financial planning.
 * Category Organization: Categorize expenses and incomes for easy analysis.
 
-#
 
 ## Installation
 To contribute, test or use the API, clone this repository and install the necessary dependencies:
@@ -23,7 +23,6 @@ To contribute, test or use the API, clone this repository and install the necess
 * Swashbuckle.AspNetCore (6.4.0)
 * Swashbuckle.AspNetCore.Filters (7.0.12)
 
-#
 
 ## Configuration Files
 
@@ -98,6 +97,5 @@ The `launchSettings.json` file is used to configure the behavior of the Visual S
 }
 ```
 
-#
 
 ## Api documentation expectation 2024-01-02 - 2024-29-02
