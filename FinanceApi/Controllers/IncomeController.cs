@@ -1,4 +1,5 @@
-﻿using FinanceApi.Data.Dtos;
+﻿using FinanceApi.Controllers.ApiResponseHelpers;
+using FinanceApi.Data.Dtos;
 using FinanceApi.Mapper;
 using FinanceApi.Models;
 using FinanceApi.Services;
@@ -67,16 +68,7 @@ namespace FinanceApi.Controllers
 
             if (!incomeService.Create(user, incomeDto, out errorCode, out errorMessage))
             {
-
-                switch (errorCode)
-                {
-                    case 400:
-                        return BadRequest(errorMessage);
-                    case 500:
-                        return StatusCode(errorCode, errorMessage);
-                    default:
-                        throw new InvalidOperationException("Unexpected error code encountered.");
-                }
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
 
@@ -98,20 +90,10 @@ namespace FinanceApi.Controllers
         public IActionResult AddCategoryToIncome(int incomeId, [FromBody] ICollection<int> categoryIds)
         {
             string errorMessage;
-            int responseCode;
-            if (!incomeService.AddCategories(User.FindFirst(ClaimTypes.NameIdentifier).Value, incomeId, categoryIds, out errorMessage, out responseCode))
+            int errorCode;
+            if (!incomeService.AddCategories(User.FindFirst(ClaimTypes.NameIdentifier).Value, incomeId, categoryIds, out errorMessage, out errorCode))
             {
-                switch (responseCode)
-                {
-                    case 400:
-                        return BadRequest(errorMessage);
-                    case 404:
-                        return NotFound(errorMessage);
-                    case 500:
-                        return StatusCode(500, errorMessage);
-                    default:
-                        break;
-                }
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
             return Ok("Categories successfully added to income.");
@@ -140,15 +122,7 @@ namespace FinanceApi.Controllers
 
             if (!incomeService.Update(user, incomeDto, out errorCode, out errorMessage, out prevAmount))
             {
-                switch (errorCode)
-                {
-                    case 404:
-                        return NotFound(errorMessage);
-                    case 400:
-                        return BadRequest(errorMessage);
-                    case 500:
-                        return StatusCode(errorCode, errorMessage);
-                }
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
             decimal balance = incomeDto.Status ? incomeDto.Amount - prevAmount : -prevAmount;

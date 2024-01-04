@@ -8,7 +8,7 @@ namespace FinanceApi.Services.Interfaces
         Expense GetById(int expenseId);
         ICollection<Expense> GetAllOfUser(string userId);
         bool AddCategory(ExpenseCategory expenseCategory);
-        public bool AddCategories(string userId, int expenseId, ICollection<int> categoryIds, out string errorMessage, out int responseCode);
+        public bool AddCategories(string userId, int expenseId, ICollection<int> categoryIds, out string errorMessage, out int errorCode);
         bool ValidateExpense(ExpenseDto expenseDto, out int errorCode, out string errorMessage);
         bool Exists(string userId, int expenseId);
         bool Create(User user, ExpenseDto expenseDto, out int errorCode, out string errorMessage);

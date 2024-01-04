@@ -1,4 +1,5 @@
-﻿using FinanceApi.Data.Dtos;
+﻿using FinanceApi.Controllers.ApiResponseHelpers;
+using FinanceApi.Data.Dtos;
 using FinanceApi.Enums;
 using FinanceApi.Mapper;
 using FinanceApi.Models;
@@ -66,16 +67,7 @@ namespace FinanceApi.Controllers
 
             if (!expenseService.Create(user, expenseDto, out errorCode, out errorMessage))
             {
-
-                switch (errorCode)
-                {
-                    case 400:
-                        return BadRequest(errorMessage);
-                    case 500:
-                        return StatusCode(errorCode, errorMessage);
-                    default:
-                        throw new InvalidOperationException("Unexpected error code encountered.");
-                }
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
             if(expenseDto.Status && !userService.UpdateBalance(user, -expenseDto.Amount))
@@ -102,20 +94,10 @@ namespace FinanceApi.Controllers
             }
 
             string errorMessage;
-            int responseCode;
-            if (!expenseService.AddCategories(User.FindFirst(ClaimTypes.NameIdentifier).Value, expenseId, categoryIds, out errorMessage, out responseCode))
+            int errorCode;
+            if (!expenseService.AddCategories(User.FindFirst(ClaimTypes.NameIdentifier).Value, expenseId, categoryIds, out errorMessage, out errorCode))
             {
-                switch (responseCode)
-                {
-                    case 400:
-                        return BadRequest(errorMessage);
-                    case 404:
-                        return NotFound(errorMessage);
-                    case 500:
-                        return StatusCode(500, errorMessage);
-                    default:
-                        throw new InvalidOperationException("Unexpected error code encountered.");
-                }
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
             return Ok("Categories successfully added to expense.");
@@ -144,15 +126,7 @@ namespace FinanceApi.Controllers
 
             if (!expenseService.Update(user, expenseDto, out errorCode, out errorMessage, out prevAmount))
             {
-                switch (errorCode)
-                {
-                    case 404:
-                        return NotFound(errorMessage);
-                    case 400:
-                        return BadRequest(errorMessage);
-                    case 500:
-                        return StatusCode(errorCode, errorMessage);
-                }
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
             decimal balance = expenseDto.Status ? -(expenseDto.Amount - prevAmount) : prevAmount;

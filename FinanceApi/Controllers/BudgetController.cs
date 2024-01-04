@@ -1,4 +1,5 @@
-﻿using FinanceApi.Data.Dtos;
+﻿using FinanceApi.Controllers.ApiResponseHelpers;
+using FinanceApi.Data.Dtos;
 using FinanceApi.Mapper;
 using FinanceApi.Models;
 using FinanceApi.Services;
@@ -63,15 +64,7 @@ namespace FinanceApi.Controllers
 
             if (!budgetService.Create(user, budgetDto, out errorCode, out errorMessage))
             {
-                switch (errorCode)
-                {
-                    case 400:
-                        return BadRequest(errorMessage);
-                    case 500:
-                        return StatusCode(errorCode, errorMessage);
-                    default:
-                        throw new InvalidOperationException("Unexpected error code encountered.");
-                }
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
             return Ok("Budget created succesfully.");

@@ -136,21 +136,21 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool AddCategories(string userId, int expenseId, ICollection<int> categoryIds, out string errorMessage, out int responseCode)
+        public bool AddCategories(string userId, int expenseId, ICollection<int> categoryIds, out string errorMessage, out int errorCode)
         {
             errorMessage = string.Empty;
-            responseCode = 0;
+            errorCode = 0;
             if (!Exists(userId, expenseId))
             {
                 errorMessage = "Expense not found.";
-                responseCode = 404;
+                errorCode = 404;
                 return false;
             }
 
             if (categoryIds == null || categoryIds.Count() <= 0)
             {
                 errorMessage = "No category id's found.";
-                responseCode = 400;
+                errorCode = 400;
                 return false;
             }
 
@@ -164,13 +164,13 @@ namespace FinanceApi.Services
                 if (!categoryRepository.ExistsById(userId, categoryId))
                 {
                     errorMessage = "Category not found.";
-                    responseCode = 404;
+                    errorCode = 404;
                     return false;
                 }
                 else if(expenseCategories.Any(ec => ec.CategoryId == categoryId))
                 {
                     errorMessage = "Category already added.";
-                    responseCode = 400;
+                    errorCode = 400;
                     return false;
                 }
             }
@@ -190,7 +190,7 @@ namespace FinanceApi.Services
                 if (!AddCategory(expenseCategory))
                 {
                     errorMessage = "Something went wrong while adding category to expense.";
-                    responseCode = 500;
+                    errorCode = 500;
                     return false;
                 }
             }
