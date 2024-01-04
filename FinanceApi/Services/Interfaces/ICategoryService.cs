@@ -10,7 +10,7 @@ namespace FinanceApi.Services.Interfaces
         int ValidateCategoryUpdate(string userId, CategoryDto categoryDto);
         bool ExistsById(string userId, int id);
         bool ExistsBytitle(string userId, string title);
-        bool Create(Category category);
+        bool Create(User user, CategoryDto categoryDto, out int errorCode, out string errorMessage);
         bool Update(Category category);
         bool Delete(Category category);
     }

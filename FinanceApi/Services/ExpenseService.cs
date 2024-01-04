@@ -47,7 +47,7 @@ namespace FinanceApi.Services
             if (!Enum.IsDefined(typeof(Urgency), expenseDto.Urgency))
             {
                 errorCode = 400;
-                errorMessage = "Urgency type is not valid.";
+                errorMessage = "Invalid urgency type.";
                 return false;
             }
 

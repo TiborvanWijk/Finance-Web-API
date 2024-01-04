@@ -52,19 +52,24 @@ namespace FinanceApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (categoryService.ExistsBytitle(User.FindFirst(ClaimTypes.NameIdentifier).Value, categoryDto.Title))
-            {
-                ModelState.AddModelError("Duplicate", "Category with this title already exists.");
-                return BadRequest(ModelState);
-            }
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var category = Map.ToCategory(categoryDto);
-            category.User = userService.GetById(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var user = userService.GetUserById(userId);
 
-            if (!categoryService.Create(category))
+            int errorCode;
+            string errorMessage;
+
+            if (!categoryService.Create(user, categoryDto, out errorCode, out errorMessage))
             {
-                ModelState.AddModelError("CreationError", "Something went wrong while creating category.");
-                return StatusCode(500, ModelState);
+                switch (errorCode)
+                {
+                    case 400:
+                        return BadRequest(errorMessage);
+                    case 500:
+                        return StatusCode(errorCode, errorMessage);
+                    default:
+                        throw new InvalidOperationException("Unexpected error code encountered.");
+                }
             }
 
             return Ok("Category created succesfully.");

@@ -1,5 +1,7 @@
 ﻿using FinanceApi.Data.Dtos;
 using FinanceApi.Mapper;
+using FinanceApi.Models;
+using FinanceApi.Services;
 using FinanceApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -51,32 +53,25 @@ namespace FinanceApi.Controllers
             {
                 return BadRequest(ModelState);
             }
-            if (budgetDto.StartDate > budgetDto.EndDate)
-            {
-                ModelState.AddModelError("TimePeriodError", "Starting time is later then ending time.");
-                return BadRequest(ModelState);
-            }
-            if (budgetDto.LimitAmount <= 0)
-            {
-                ModelState.AddModelError("AmountError", "Limit amount must me greater then '0'.");
-                return BadRequest(ModelState);
-            }
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            if (budgetService.ExistsByTitle(userId, budgetDto.Title))
-            {
-                ModelState.AddModelError("Duplicate", "Budget with this title already exists.");
-                return BadRequest(ModelState);
-            }
+            var user = userService.GetUserById(userId);
 
-            var budget = Map.ToBudget(budgetDto);
-            budget.User = userService.GetUserById(userId);
+            int errorCode;
+            string errorMessage;
 
-            if (!budgetService.Create(budget))
+            if (!budgetService.Create(user, budgetDto, out errorCode, out errorMessage))
             {
-                ModelState.AddModelError("SavingError", "Something went wrong while saving budget.");
-                return StatusCode(500, ModelState);
+                switch (errorCode)
+                {
+                    case 400:
+                        return BadRequest(errorMessage);
+                    case 500:
+                        return StatusCode(errorCode, errorMessage);
+                    default:
+                        throw new InvalidOperationException("Unexpected error code encountered.");
+                }
             }
 
             return Ok("Budget created succesfully.");

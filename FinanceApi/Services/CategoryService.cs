@@ -1,4 +1,5 @@
 ﻿using FinanceApi.Data.Dtos;
+using FinanceApi.Mapper;
 using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services.Interfaces;
@@ -14,9 +15,30 @@ namespace FinanceApi.Services
         {
             this.categoryRepository = categoryRepository;
         }
-        public bool Create(Category category)
+
+        public bool Create(User user, CategoryDto categoryDto, out int errorCode, out string errorMessage)
         {
-            return categoryRepository.Create(category);
+            errorMessage = string.Empty;
+            errorCode = 0;
+
+            if (categoryRepository.ExistsBytitle(user.Id, categoryDto.Title))
+            {
+                errorCode = 400;
+                errorMessage = "Category with this title already exists.";
+                return false;
+            }
+
+            var category = Map.ToCategory(categoryDto);
+            category.User = user;
+
+            if (!categoryRepository.Create(category))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while creating category.";
+                return false;
+            }
+
+            return true;
         }
 
         public bool Delete(Category category)
@@ -73,5 +95,6 @@ namespace FinanceApi.Services
         {
             return categoryRepository.Update(category);
         }
+
     }
 }
