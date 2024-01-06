@@ -44,7 +44,7 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult CreateGoal([FromBody] GoalDto goalDto)
+        public IActionResult CreateGoal([FromBody] GoalManageDto goalDto)
         {
             if(!ModelState.IsValid)
             {
@@ -52,7 +52,6 @@ namespace FinanceApi.Controllers
             }
 
             goalDto.Id = 0;
-            goalDto.Progress = 0;
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 

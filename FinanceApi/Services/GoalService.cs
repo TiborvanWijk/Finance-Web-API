@@ -16,26 +16,26 @@ namespace FinanceApi.Services
             this.goalRepository = goalRepository;
         }
 
-        public bool Create(User user, GoalDto goalDto, out int errorCode, out string errorMessage)
+        public bool Create(User user, GoalManageDto goalManageDto, out int errorCode, out string errorMessage)
         {
             
             errorCode = 0;
             errorMessage = string.Empty;
 
-            if(!ValidateGoal(goalDto, out errorCode, out errorMessage))
+            if(!ValidateGoal(goalManageDto, out errorCode, out errorMessage))
             {
                 return false;
             }
 
-            if(ExistsByTitle(user.Id, goalDto.Title))
+            if(ExistsByTitle(user.Id, goalManageDto.Title))
             {
                 errorCode = 400;
                 errorMessage = "Goal with this title already in use.";
                 return false;
             }
 
-            var goal = Map.ToGoal(goalDto);
-            goal.Currency = goalDto.Currency.ToUpper();
+            var goal = Map.ToGoalFromManageDto(goalManageDto);
+            goal.Currency = goalManageDto.Currency.ToUpper();
             goal.User = user;
 
             if (!goalRepository.Create(goal))
@@ -48,7 +48,7 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool ValidateGoal(GoalDto goalDto, out int errorCode, out string errorMessage)
+        public bool ValidateGoal(GoalManageDto goalDto, out int errorCode, out string errorMessage)
         {
             errorCode = 0;
             errorMessage = string.Empty;

@@ -161,6 +161,21 @@ namespace FinanceApi.Mapper
             return goalDto;
         }
 
+        internal static GoalManageDto ToGoalManageDto(Goal goal)
+        {
+            var goalDto = new GoalManageDto()
+            {
+                Id = goal.Id,
+                Title = goal.Title,
+                Description = goal.Description,
+                Amount = goal.Amount,
+                Currency = goal.Currency,
+                TargetDate = goal.TargetDate
+            };
+
+            return goalDto;
+        }
+
         internal static Category ToCategory(CategoryDto categoryDto)
         {
             var category = new Category()
@@ -183,5 +198,19 @@ namespace FinanceApi.Mapper
             return categoryDto;
         }
 
+        internal static Goal ToGoalFromManageDto(GoalManageDto goalManageDto)
+        {
+            var goal = new Goal()
+            {
+                Id = goalManageDto.Id,
+                Title = goalManageDto.Title,
+                Description = goalManageDto.Description,
+                Amount = goalManageDto.Amount,
+                Currency = goalManageDto.Currency,
+                TargetDate = goalManageDto.TargetDate
+            };
+
+            return goal;
+        }
     }
 }
