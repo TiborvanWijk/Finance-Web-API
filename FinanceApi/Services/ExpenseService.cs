@@ -84,7 +84,7 @@ namespace FinanceApi.Services
             return expenseRepository.Delete(expense);
         }
 
-        public bool Exists(string userId, int expenseId)
+        public bool ExistsById(string userId, int expenseId)
         {
             return expenseRepository.ExistsById(userId, expenseId);
         }
@@ -140,7 +140,7 @@ namespace FinanceApi.Services
         {
             errorMessage = string.Empty;
             errorCode = 0;
-            if (!Exists(userId, expenseId))
+            if (!ExistsById(userId, expenseId))
             {
                 errorMessage = "Expense not found.";
                 errorCode = 404;

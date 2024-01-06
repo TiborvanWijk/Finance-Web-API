@@ -13,5 +13,6 @@ namespace FinanceApi.Repositories.Interfaces
         bool Delete(Goal goal);
         bool Save();
         bool ExistsByTitle(string userId, string title);
+        bool AddCategory(GoalCategory goalCategory);
     }
 }

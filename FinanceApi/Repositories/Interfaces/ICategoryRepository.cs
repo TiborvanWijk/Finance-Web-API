@@ -15,5 +15,6 @@ namespace FinanceApi.Repositories.Interfaces
         bool Update(Category category);
         bool Delete(Category category);
         bool Save();
+        ICollection<GoalCategory> GetGoalCategories(string userId, int goalId);
     }
 }

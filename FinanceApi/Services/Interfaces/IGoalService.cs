@@ -11,8 +11,9 @@ namespace FinanceApi.Services.Interfaces
         bool ExistsById(string userId, int goalId);
         bool ExistsByTitle(string userId, string title);
         bool ValidateGoal(GoalManageDto goalDto, out int errorCode, out string errorMessage);
-        bool Update(Goal goal);
+        bool AddCategory(GoalCategory goalCategory);
         bool Delete(Goal goal);
         bool Create(User user, GoalManageDto goalDto, out int errorCode, out string errorMessage);
+        bool AddCategories(string userId, int goalId, ICollection<int> categoryIds, out string errorMessage, out int errorCode);
     }
 }

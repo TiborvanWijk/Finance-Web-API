@@ -1,6 +1,7 @@
 ﻿using FinanceApi.Data.Dtos;
 using FinanceApi.Mapper;
 using FinanceApi.Models;
+using FinanceApi.Repositories;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services.Interfaces;
 using FinanceApi.Validators;
@@ -10,10 +11,12 @@ namespace FinanceApi.Services
     public class GoalService : IGoalService
     {
         private readonly IGoalRepository goalRepository;
+        private readonly ICategoryRepository categoryRepository;
 
-        public GoalService(IGoalRepository goalRepository)
+        public GoalService(IGoalRepository goalRepository, ICategoryRepository categoryRepository)
         {
             this.goalRepository = goalRepository;
+            this.categoryRepository = categoryRepository;
         }
 
         public bool Create(User user, GoalManageDto goalManageDto, out int errorCode, out string errorMessage)
@@ -110,6 +113,73 @@ namespace FinanceApi.Services
         public bool Update(Goal goal)
         {
             return goalRepository.Update(goal);
+        }
+
+        public bool AddCategories(string userId, int goalId, ICollection<int> categoryIds, out string errorMessage, out int errorCode)
+        {
+            errorMessage = string.Empty;
+            errorCode = 0;
+            if (!ExistsById(userId, goalId))
+            {
+                errorMessage = "Goal not found.";
+                errorCode = 404;
+                return false;
+            }
+
+            if (categoryIds == null || categoryIds.Count() <= 0)
+            {
+                errorMessage = "No category id's found.";
+                errorCode = 400;
+                return false;
+            }
+
+
+            var goal = GetById(goalId);
+
+            var goalCategories = categoryRepository.GetGoalCategories(userId, goalId);
+
+            foreach (var categoryId in categoryIds)
+            {
+                if (!categoryRepository.ExistsById(userId, categoryId))
+                {
+                    errorMessage = "Category not found.";
+                    errorCode = 404;
+                    return false;
+                }
+                else if (goalCategories.Any(gc => gc.CategoryId == categoryId))
+                {
+                    errorMessage = "Category already added.";
+                    errorCode = 400;
+                    return false;
+                }
+            }
+
+
+            foreach (var categoryId in categoryIds)
+            {
+
+                var goalCategory = new GoalCategory()
+                {
+                    CategoryId = categoryId,
+                    Category = categoryRepository.GetById(categoryId),
+                    GoalId = goalId,
+                    Goal = goal,
+                };
+
+                if (!AddCategory(goalCategory))
+                {
+                    errorMessage = "Something went wrong while adding category to goal.";
+                    errorCode = 500;
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public bool AddCategory(GoalCategory goalCategory)
+        {
+            return goalRepository.AddCategory(goalCategory);
         }
     }
 }

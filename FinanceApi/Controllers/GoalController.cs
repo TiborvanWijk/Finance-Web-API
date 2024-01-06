@@ -1,6 +1,7 @@
 ﻿using FinanceApi.Controllers.ApiResponseHelpers;
 using FinanceApi.Data.Dtos;
 using FinanceApi.Mapper;
+using FinanceApi.Models;
 using FinanceApi.Services;
 using FinanceApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -67,6 +68,28 @@ namespace FinanceApi.Controllers
             return Ok("Goal created succesfully.");
         }
 
+        [HttpPost("AssociateCategories/{goalId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult AddCategories(int goalId, [FromBody] ICollection<int> categoryIds)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            string errorMessage;
+            int errorCode;
+            if (!goalService.AddCategories(User.FindFirst(ClaimTypes.NameIdentifier).Value, goalId, categoryIds, out errorMessage, out errorCode))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok("Categories successfully added to goal.");
+        }
 
     }
 }
