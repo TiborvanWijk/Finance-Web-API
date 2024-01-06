@@ -74,7 +74,7 @@ namespace FinanceApi.Controllers
             }
 
 
-            if (incomeDto.Status && !userService.UpdateBalance(user, incomeDto.Amount))
+            if (incomeDto.IsPaid && !userService.UpdateBalance(user, incomeDto.Amount))
             {
                 ModelState.AddModelError("UpdatingError", "Something went wrong while updating userbalance.");
             }
@@ -127,7 +127,7 @@ namespace FinanceApi.Controllers
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            decimal balance = incomeDto.Status ? incomeDto.Amount - prevAmount : -prevAmount;
+            decimal balance = incomeDto.IsPaid ? incomeDto.Amount - prevAmount : -prevAmount;
 
             if (!userService.UpdateBalance(user, balance))
             {

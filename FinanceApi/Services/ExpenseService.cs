@@ -113,7 +113,7 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            if (expenseRepository.GetById(expenseDto.Id).Status)
+            if (expenseRepository.GetById(expenseDto.Id).IsPaid)
             {
                 prevAmount = expenseRepository.GetById(expenseDto.Id).Amount;
             }

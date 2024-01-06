@@ -42,7 +42,7 @@ namespace FinanceApi.Mapper
                 Amount = incomeDto.Amount,
                 Currency = incomeDto.Currency,
                 DocumentUrl = incomeDto.DocumentUrl,
-                Status = incomeDto.Status,
+                IsPaid = incomeDto.IsPaid,
                 Date = incomeDto.Date,
             };
             return income;
@@ -58,7 +58,7 @@ namespace FinanceApi.Mapper
                 Currency = income.Currency,
                 Amount = income.Amount,
                 DocumentUrl = income.DocumentUrl,
-                Status = income.Status,
+                IsPaid = income.IsPaid,
                 Date = income.Date,
             };
             return incomeDto;
@@ -73,7 +73,7 @@ namespace FinanceApi.Mapper
                 Description = expenseDto.Description,
                 Urgency = expenseDto.Urgency,
                 DocumentUrl = expenseDto.DocumentUrl,
-                Status = expenseDto.Status,
+                IsPaid = expenseDto.IsPaid,
                 Date = expenseDto.Date,
                 Currency = expenseDto.Currency,
                 Amount = expenseDto.Amount,
@@ -91,7 +91,7 @@ namespace FinanceApi.Mapper
                 Description = expense.Description,
                 Urgency = expense.Urgency,
                 DocumentUrl = expense.DocumentUrl,
-                Status = expense.Status,
+                IsPaid = expense.IsPaid,
                 Date = expense.Date,
                 Currency = expense.Currency,
                 Amount = expense.Amount,

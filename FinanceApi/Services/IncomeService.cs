@@ -166,7 +166,7 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            if (incomeRepository.GetById(incomeDto.Id).Status)
+            if (incomeRepository.GetById(incomeDto.Id).IsPaid)
             {
                 prevAmount = incomeRepository.GetById(incomeDto.Id).Amount;
             }

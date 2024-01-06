@@ -1,6 +1,7 @@
 ﻿using FinanceApi.Data;
 using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApi.Repositories
 {
@@ -43,12 +44,12 @@ namespace FinanceApi.Repositories
 
         public ICollection<Goal> GetAllOfUser(string userId)
         {
-            return dataContext.Goals.Where(g => g.User.Id.Equals(userId)).ToList();
+            return dataContext.Goals.AsNoTracking().Where(g => g.User.Id.Equals(userId)).ToList();
         }
 
         public Goal GetById(int goalId)
         {
-            return dataContext.Goals.FirstOrDefault(g => g.Id == goalId);
+            return dataContext.Goals.AsNoTracking().FirstOrDefault(g => g.Id == goalId);
         }
 
         public bool HasGoals(string userId)

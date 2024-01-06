@@ -181,5 +181,48 @@ namespace FinanceApi.Services
         {
             return goalRepository.AddCategory(goalCategory);
         }
+
+        public bool Update(User user, GoalManageDto goalManageDto, out int errorCode, out string errorMessage)
+        {
+            errorCode = 0;
+            errorMessage = string.Empty;
+            if (!goalRepository.ExistsById(user.Id, goalManageDto.Id))
+            {
+                errorCode = 404;
+                errorMessage = "Goal not found.";
+                return false;
+            }
+
+            if(!ValidateGoal(goalManageDto, out errorCode, out errorMessage))
+            {
+                return false;
+            }
+
+            var titleInUse = goalRepository.GetAllOfUser(user.Id).Any(g => g.Id != goalManageDto.Id && g.Title.ToLower().Equals(goalManageDto.Title.ToLower()));
+
+            if (titleInUse)
+            {
+                errorCode = 400;
+                errorMessage = "Title is already in use.";
+                return false;
+            }
+
+            var goal = goalRepository.GetById(goalManageDto.Id);
+
+            goal.Title = goalManageDto.Title;
+            goal.Description = goalManageDto.Description;
+            goal.Amount = goalManageDto.Amount;
+            goal.Currency = goalManageDto.Currency.ToUpper();
+            goal.TargetDate = goalManageDto.TargetDate;
+
+            if (!goalRepository.Update(goal))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while updating goal.";
+                return false;
+            }
+
+            return true;
+        }
     }
 }

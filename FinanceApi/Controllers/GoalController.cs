@@ -91,5 +91,31 @@ namespace FinanceApi.Controllers
             return Ok("Categories successfully added to goal.");
         }
 
+
+        [HttpPut("put")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult UpdateGoal([FromBody] GoalManageDto goalManageDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = userService.GetById(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+
+            int errorCode = 0;
+            string errorMessage = string.Empty;
+
+
+            if(!goalService.Update(user, goalManageDto, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok("Goal updated succesfully.");
+        }
     }
 }
