@@ -12,5 +12,6 @@ namespace FinanceApi.Repositories.Interfaces
         bool Delete(Budget budget);
         bool save();
         bool ExistsByTitle(string userId, string title);
+        bool AddCategory(BudgetCategory budgetCategory);
     }
 }

@@ -47,7 +47,7 @@ namespace FinanceApi.Controllers
             return Ok(incomeDtos);
         }
 
-        [HttpPost("Create")]
+        [HttpPost("Post")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]

@@ -42,6 +42,11 @@ namespace FinanceApi.Repositories
                 .Where(c => c.User.Id.Equals(userId)).ToList();
         }
 
+        public ICollection<BudgetCategory> GetBudgetCategories(string userId, int budgetId)
+        {
+            return dataContext.BudgetCategories.Where(bc => bc.BudgetId == budgetId && bc.Budget.User.Id.Equals(userId)).ToList();
+        }
+
         public Category GetById(int categoryId)
         {
             return dataContext.Categories.FirstOrDefault(c => c.Id == categoryId);

@@ -72,6 +72,28 @@ namespace FinanceApi.Controllers
             return Ok("Budget created succesfully.");
         }
 
+        [HttpPost("AssociateCategories/{budgetId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult AddCategoriesToBudget(int budgetId, [FromBody] ICollection<int> categoryIds)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            string errorMessage;
+            int errorCode;
+            if (!budgetService.AddCategories(User.FindFirst(ClaimTypes.NameIdentifier).Value, budgetId, categoryIds, out errorMessage, out errorCode))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok("Categories successfully added to expense.");
+        }
+
         [HttpPut("put")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -98,6 +120,8 @@ namespace FinanceApi.Controllers
 
             return Ok("Budget updated succesfully.");
         }
+
+
 
     }
 }

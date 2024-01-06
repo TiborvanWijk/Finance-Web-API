@@ -2,6 +2,7 @@
 using FinanceApi.Enums;
 using FinanceApi.Mapper;
 using FinanceApi.Models;
+using FinanceApi.Repositories;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services.Interfaces;
 using FinanceApi.Validators;
@@ -12,10 +13,12 @@ namespace FinanceApi.Services
     public class BudgetService : IBudgetService
     {
         private readonly IBudgetRepository budgetRepository;
+        private readonly ICategoryRepository categoryRepository;
 
-        public BudgetService(IBudgetRepository budgetRepository)
+        public BudgetService(IBudgetRepository budgetRepository, ICategoryRepository categoryRepository)
         {
             this.budgetRepository = budgetRepository;
+            this.categoryRepository = categoryRepository;
         }
 
         public bool Create (User user, BudgetDto budgetDto, out int errorCode, out string errorMessage)
@@ -143,6 +146,69 @@ namespace FinanceApi.Services
                 errorCode = 500;
                 errorMessage = "Something went wrong while updating budget.";
                 return false;
+            }
+
+            return true;
+        }
+
+        public bool AddCategories(string userId, int budgetId, ICollection<int> categoryIds, out string errorMessage, out int errorCode)
+        {
+
+            errorMessage = string.Empty;
+            errorCode = 0;
+            if (!ExistsById(userId, budgetId))
+            {
+                errorMessage = "Budget not found.";
+                errorCode = 404;
+                return false;
+            }
+
+            if (categoryIds == null || categoryIds.Count() <= 0)
+            {
+                errorMessage = "No category id's found.";
+                errorCode = 400;
+                return false;
+            }
+
+
+            var budget = GetById(budgetId);
+
+            var budgetCategories = categoryRepository.GetBudgetCategories(userId, budgetId);
+
+            foreach (var categoryId in categoryIds)
+            {
+                if (!categoryRepository.ExistsById(userId, categoryId))
+                {
+                    errorMessage = "Category not found.";
+                    errorCode = 404;
+                    return false;
+                }
+                else if (budgetCategories.Any(bc => bc.CategoryId == categoryId))
+                {
+                    errorMessage = "Category already added.";
+                    errorCode = 400;
+                    return false;
+                }
+            }
+
+
+            foreach (var categoryId in categoryIds)
+            {
+
+                var budgetCategory = new BudgetCategory()
+                {
+                    CategoryId = categoryId,
+                    Category = categoryRepository.GetById(categoryId),
+                    BudgetId = budgetId,
+                    Budget = budget,
+                };
+
+                if (!budgetRepository.AddCategory(budgetCategory))
+                {
+                    errorMessage = "Something went wrong while adding category to budget.";
+                    errorCode = 500;
+                    return false;
+                }
             }
 
             return true;
