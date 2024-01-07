@@ -1,4 +1,6 @@
 ﻿using FinanceApi.Services.Interfaces;
+using FinanceApi.Validators;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FinanceApi.Services
 {
@@ -51,7 +53,7 @@ namespace FinanceApi.Services
             savingsRate = 0;
 
 
-            if(!ValidateTimePeriod(startDate, endDate, out errorCode, out errorMessage))
+            if(!Validator.ValidateTimePeriod(startDate, endDate, out errorCode, out errorMessage))
             {
                 return false;
             }
@@ -87,7 +89,7 @@ namespace FinanceApi.Services
             errorCode = 0;
             errorMessage = string.Empty;
             netIncome = 0;
-            if(!ValidateTimePeriod(startDate, endDate, out errorCode, out errorMessage))
+            if(!Validator.ValidateTimePeriod(startDate, endDate, out errorCode, out errorMessage))
             {
                 return false;
             }
@@ -108,29 +110,6 @@ namespace FinanceApi.Services
                 errorMessage = $"Error while calculating net income: {ex.Message}";
                 return false;
             }
-        }
-
-        public bool ValidateTimePeriod(DateTime? startDate, DateTime? endDate, out int errorCode, out string errorMessage)
-        {
-            errorCode = 0;
-            errorMessage = string.Empty;
-
-            if(startDate == null || endDate == null)
-            {
-                errorCode = 400;
-                errorMessage = "Invalid date format.";
-                return false;
-            }
-            Console.WriteLine(startDate.ToString());
-            Console.WriteLine(endDate.ToString());
-            if(startDate >= endDate)
-            {
-                errorCode = 400;
-                errorMessage = "EndDate must be later then startDate.";
-                return false;
-            }
-
-            return true;
         }
     }
 }
