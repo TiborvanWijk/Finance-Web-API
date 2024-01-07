@@ -1,8 +1,13 @@
-﻿namespace FinanceApi.Services.Interfaces
+﻿using FinanceApi.Models;
+
+namespace FinanceApi.Services.Interfaces
 {
     public interface IFinancialService
     {
-        decimal GetSavingsRate(string userId);
-        decimal GetSavingsRateInTimePeriod(string userId, DateTime? startdate, DateTime? endDate);
+        bool tryGetSavingsRate(string userId, out decimal savingsRate, out int errorCode, out string errorMessage);
+        bool TryGetSavingsRateInTimePeriod(string userId, DateTime? startDate, DateTime? endDate, out decimal savingsRate, out int errorCode, out string errorMessage);
+        decimal AverageSpendingPerMonth(string userId, DateTime? startDate, DateTime? endDate);
+        bool TryGetNetIncomeInTimePeriod(string userId, DateTime? startDate, DateTime? endDate, out decimal netIncome, out int errorCode, out string errorMessage);
+        bool ValidateTimePeriod(DateTime? startDate, DateTime? endDate, out int errorCode, out string errorMessage);
     }
 }

@@ -13,32 +13,124 @@ namespace FinanceApi.Services
             this.incomeService = incomeService;
         }
 
-        public decimal GetSavingsRate(string userId)
+        public decimal AverageSpendingPerMonth(string userId, DateTime? startDate, DateTime? endDate)
         {
-            var totalIncomeAmount = incomeService.GetAllOfUser(userId).Select(i => i.Amount).Sum();
-
-            var totalExpenseAmount = expenseService.GetAllOfUser(userId).Select(e => e.Amount).Sum();
-
-            var savingsRate = Math.Round(100 - (totalExpenseAmount / (totalIncomeAmount / 100)), 2);
-
-            return savingsRate;
+            throw new NotImplementedException();
         }
 
-        public decimal GetSavingsRateInTimePeriod(string userId, DateTime? startdate, DateTime? endDate)
+        public bool tryGetSavingsRate(string userId, out decimal savingsRate, out int errorCode, out string errorMessage)
         {
-            var totalIncomeAmount = incomeService.GetAllOfUser(userId).Where(i => i.Date >= startdate && i.Date <= endDate).Select(i => i.Amount).Sum();
 
-            var totalExpenseAmount = expenseService.GetAllOfUser(userId).Where(e => e.Date >= startdate && e.Date <= endDate).Select(e => e.Amount).Sum();
+            errorCode = 0;
+            errorMessage = string.Empty;
+            savingsRate = 0;
 
-            
-            if(totalIncomeAmount == 0 || totalExpenseAmount == 0)
+            try
             {
-                return totalIncomeAmount == 0 ? 0 : 100;
+                var totalIncomeAmount = incomeService.GetAllOfUser(userId).Select(i => i.Amount).Sum();
+
+                var totalExpenseAmount = expenseService.GetAllOfUser(userId).Select(e => e.Amount).Sum();
+
+                savingsRate = Math.Round(100 - (totalExpenseAmount / (totalIncomeAmount / 100)), 2);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errorCode = 500;
+                errorMessage = $"Error while calculating net income: {ex.Message}";
+                return false;
+            }
+        }
+
+        public bool TryGetSavingsRateInTimePeriod(string userId, DateTime? startDate, DateTime? endDate, out decimal savingsRate, out int errorCode, out string errorMessage)
+        {
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+            savingsRate = 0;
+
+
+            if(!ValidateTimePeriod(startDate, endDate, out errorCode, out errorMessage))
+            {
+                return false;
             }
 
-            var savingsRate = Math.Round(100 - (totalExpenseAmount / (totalIncomeAmount / 100)), 2);
+            try
+            {
+                var totalIncomeAmount = incomeService.GetAllOfUser(userId).Where(i => i.Date >= startDate && i.Date <= endDate).Select(i => i.Amount).Sum();
 
-            return savingsRate;
+                var totalExpenseAmount = expenseService.GetAllOfUser(userId).Where(e => e.Date >= startDate && e.Date <= endDate).Select(e => e.Amount).Sum();
+
+            
+                if(totalIncomeAmount == 0 || totalExpenseAmount == 0)
+                {
+                    savingsRate = totalIncomeAmount == 0 ? 0 : 100;
+                    return true;
+                }
+
+                savingsRate = Math.Round(100 - (totalExpenseAmount / (totalIncomeAmount / 100)), 2);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errorCode = 500;
+                errorMessage = $"Error while calculating net income: {ex.Message}";
+                return false;
+            }
+        }
+
+        public bool TryGetNetIncomeInTimePeriod(string userId, DateTime? startDate, DateTime? endDate, out decimal netIncome, out int errorCode, out string errorMessage)
+        {
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+            netIncome = 0;
+            if(!ValidateTimePeriod(startDate, endDate, out errorCode, out errorMessage))
+            {
+                return false;
+            }
+
+            try
+            {
+                var totalIncomeAmount = incomeService.GetAllOfUser(userId).Where(i => i.Date >= startDate && i.Date <= endDate).Select(i => i.Amount).Sum();
+
+                var totalExpenseAmount = expenseService.GetAllOfUser(userId).Where(e => e.Date >= startDate && e.Date <= endDate).Select(e => e.Amount).Sum();
+
+                netIncome = Math.Round(totalIncomeAmount - totalExpenseAmount, 2);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errorCode = 500;
+                errorMessage = $"Error while calculating net income: {ex.Message}";
+                return false;
+            }
+        }
+
+        public bool ValidateTimePeriod(DateTime? startDate, DateTime? endDate, out int errorCode, out string errorMessage)
+        {
+            errorCode = 0;
+            errorMessage = string.Empty;
+
+            if(startDate == null || endDate == null)
+            {
+                errorCode = 400;
+                errorMessage = "Invalid date format.";
+                return false;
+            }
+            Console.WriteLine(startDate.ToString());
+            Console.WriteLine(endDate.ToString());
+            if(startDate >= endDate)
+            {
+                errorCode = 400;
+                errorMessage = "EndDate must be later then startDate.";
+                return false;
+            }
+
+            return true;
         }
     }
 }

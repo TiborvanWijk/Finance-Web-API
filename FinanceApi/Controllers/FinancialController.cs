@@ -1,4 +1,5 @@
-﻿using FinanceApi.Services.Interfaces;
+﻿using FinanceApi.Controllers.ApiResponseHelpers;
+using FinanceApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -23,36 +24,68 @@ namespace FinanceApi.Controllers
 
 
 
+        [HttpGet("NetIncome")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetNetIncome([FromQuery] DateTime? startdate, [FromQuery] DateTime? endDate)
+        {
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            decimal netIncome;
+            int errorCode;
+            string errorMessage;
+
+            if (!financialService.TryGetNetIncomeInTimePeriod(userId, startdate, endDate, out netIncome, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok(netIncome);
+        }
 
         [HttpGet("GetSavingsRate")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult GetSavingsRate()
         {
-
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var rate = financialService.GetSavingsRate(userId);
+            decimal savingsRate;
+            int errorCode;
+            string errorMessage;
 
-            return Ok(rate);            
+            if (!financialService.tryGetSavingsRate(userId, out savingsRate, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok(savingsRate);            
         }
+
         [HttpGet("GetSavingsRateInTimePeriod")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult GetSavingsRateInTimePeriod([FromQuery] DateTime? startdate, [FromQuery] DateTime? endDate)
         {
 
-            if (!ModelState.IsValid || startdate == null || endDate == null)
+            if (!ModelState.IsValid)
             {
-                ModelState.AddModelError("InvalidDate", "Start or end date is invalid.");
                 return BadRequest(ModelState);
             }
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var rate = financialService.GetSavingsRateInTimePeriod(userId, startdate, endDate);
+            decimal savingsRate;
+            int errorCode;
+            string errorMessage;
 
-            return Ok(rate);
+            if(!financialService.TryGetSavingsRateInTimePeriod(userId, startdate, endDate, out savingsRate, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok(savingsRate);
         }
 
     }
