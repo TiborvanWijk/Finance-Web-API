@@ -7,7 +7,7 @@ namespace FinanceApi.Services.Interfaces
     public interface IIncomeService
     {
         Income GetById(int incomeId);
-        ICollection<Income> GetAllByUserId(string userId);
+        ICollection<Income> GetAllOfUser(string userId);
         public bool AddCategory(IncomeCategory incomeCategory);
         bool ExistsById(string userId, int incomeId);
         bool ValidateIncome(IncomeDto incomeDto, out int errorCode, out string errorMessage);

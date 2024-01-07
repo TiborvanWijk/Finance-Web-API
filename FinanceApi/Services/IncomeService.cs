@@ -97,9 +97,9 @@ namespace FinanceApi.Services
             return incomeRepository.ExistsById(userId, incomeId);
         }
 
-        public ICollection<Income> GetAllByUserId(string userId)
+        public ICollection<Income> GetAllOfUser(string userId)
         {
-            return incomeRepository.GetAllByUserId(userId);
+            return incomeRepository.GetAllOfUser(userId);
         }
 
         public Income GetById(int incomeId)

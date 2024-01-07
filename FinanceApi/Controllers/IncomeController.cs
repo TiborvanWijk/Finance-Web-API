@@ -38,7 +38,7 @@ namespace FinanceApi.Controllers
                 return NotFound();
             }
 
-            ICollection<IncomeDto> incomeDtos = incomeService.GetAllByUserId(userId).Select(Map.ToIncomeDto).ToList();
+            ICollection<IncomeDto> incomeDtos = incomeService.GetAllOfUser(userId).Select(Map.ToIncomeDto).ToList();
 
             if(!ModelState.IsValid)
             {

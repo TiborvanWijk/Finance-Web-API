@@ -28,6 +28,7 @@ builder.Services.AddScoped<IGoalService, GoalService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IBudgetService, BudgetService>();
+builder.Services.AddScoped<IFinancialService, FinancialService>();
 
 
 
