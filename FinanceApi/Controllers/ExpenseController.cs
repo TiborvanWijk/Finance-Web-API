@@ -45,6 +45,37 @@ namespace FinanceApi.Controllers
             return Ok(expenses);
         }
 
+        [HttpGet("current/expenses/{categoryId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetExpenses(int categoryId)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var user = userService.GetById(userId, true);
+
+
+            int errorCode;
+            string errorMessage;
+            ICollection<Expense> expenses;
+
+            if (!expenseService.tryGetExpensesWithCategoryId(user, categoryId, out expenses, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var expenseDtos = expenses.Select(Map.ToExpenseDto);
+
+            return Ok(expenseDtos);
+        }
+
+
 
         [HttpPost("Post")]
         [ProducesResponseType(200)]

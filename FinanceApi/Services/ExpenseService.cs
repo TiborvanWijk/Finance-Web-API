@@ -206,5 +206,25 @@ namespace FinanceApi.Services
         {
             return expenseRepository.GetById(expenseId, tracking);
         }
+
+        public bool tryGetExpensesWithCategoryId(User user, int categoryId, out ICollection<Expense> expenses, out int errorCode, out string errorMessage)
+        {
+            errorCode = 0;
+            errorMessage = string.Empty;
+            expenses = new List<Expense>();
+
+
+
+            if (!categoryRepository.ExistsById(user.Id, categoryId))
+            {
+                errorCode = 404;
+                errorMessage = "Category not found.";
+                return false;
+            }
+
+            expenses = expenseRepository.GetAllOfUser(user.Id).Where(e => categoryRepository.GetIncomeCategories(user.Id, e.Id).Any(ec => ec.CategoryId == categoryId)).ToList();
+
+            return true;
+        }
     }
 }
