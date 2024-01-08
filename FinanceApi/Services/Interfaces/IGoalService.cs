@@ -5,7 +5,7 @@ namespace FinanceApi.Services.Interfaces
 {
     public interface IGoalService
     {
-        Goal GetById(int goalId);
+        Goal GetById(int goalId, bool tracking);
         ICollection<Goal> GetAllOfUser(string userId);
         bool HasGoals(string userId);
         bool ExistsById(string userId, int goalId);

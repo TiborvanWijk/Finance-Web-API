@@ -42,8 +42,12 @@ namespace FinanceApi.Repositories
             return dataContext.Incomes.Where(i => i.User.Id == userId).ToList();
         }
 
-        public Income GetById(int incomeId)
+        public Income GetById(int incomeId, bool tracking)
         {
+            if(tracking)
+            {
+                return dataContext.Incomes.FirstOrDefault(i => i.Id == incomeId);
+            }
             return dataContext.Incomes.AsNoTracking().FirstOrDefault(i => i.Id == incomeId);
         }
 

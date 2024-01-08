@@ -100,9 +100,9 @@ namespace FinanceApi.Services
             return goalRepository.GetAllOfUser(userId);
         }
 
-        public Goal GetById(int goalId)
+        public Goal GetById(int goalId, bool tracking)
         {
-            return goalRepository.GetById(goalId);
+            return goalRepository.GetById(goalId, tracking);
         }
 
         public bool HasGoals(string userId)
@@ -134,7 +134,7 @@ namespace FinanceApi.Services
             }
 
 
-            var goal = GetById(goalId);
+            var goal = GetById(goalId, true);
 
             var goalCategories = categoryRepository.GetGoalCategories(userId, goalId);
 
@@ -161,7 +161,7 @@ namespace FinanceApi.Services
                 var goalCategory = new GoalCategory()
                 {
                     CategoryId = categoryId,
-                    Category = categoryRepository.GetById(categoryId),
+                    Category = categoryRepository.GetById(categoryId, true),
                     GoalId = goalId,
                     Goal = goal,
                 };
@@ -207,7 +207,7 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            var goal = goalRepository.GetById(goalManageDto.Id);
+            var goal = goalRepository.GetById(goalManageDto.Id, true);
 
             goal.Title = goalManageDto.Title;
             goal.Description = goalManageDto.Description;

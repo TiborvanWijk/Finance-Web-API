@@ -108,9 +108,9 @@ namespace FinanceApi.Services
             return budgetRepository.GetAllOfUser(userId);
         }
 
-        public Budget GetById(int budgetId)
+        public Budget GetById(int budgetId, bool tracking)
         {
-            return budgetRepository.GetById(budgetId);
+            return budgetRepository.GetById(budgetId, tracking);
         }
 
         public bool Update(User user, BudgetDto budgetDto, out int errorCode, out string errorMessage)
@@ -171,7 +171,7 @@ namespace FinanceApi.Services
             }
 
 
-            var budget = GetById(budgetId);
+            var budget = budgetRepository.GetById(budgetId, true);
 
             var budgetCategories = categoryRepository.GetBudgetCategories(userId, budgetId);
 
@@ -198,7 +198,7 @@ namespace FinanceApi.Services
                 var budgetCategory = new BudgetCategory()
                 {
                     CategoryId = categoryId,
-                    Category = categoryRepository.GetById(categoryId),
+                    Category = categoryRepository.GetById(categoryId, true),
                     BudgetId = budgetId,
                     Budget = budget,
                 };

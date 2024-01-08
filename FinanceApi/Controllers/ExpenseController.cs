@@ -57,12 +57,11 @@ namespace FinanceApi.Controllers
             {
                 return BadRequest(ModelState);
             }
-
             expenseDto.Id = 0;
             
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var user = userService.GetUserById(userId);
+            var user = userService.GetById(userId, true);
 
             int errorCode;
             string errorMessage;
@@ -120,7 +119,7 @@ namespace FinanceApi.Controllers
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var user = userService.GetUserById(userId);
+            var user = userService.GetById(userId, true);
 
             int errorCode;
             string errorMessage;

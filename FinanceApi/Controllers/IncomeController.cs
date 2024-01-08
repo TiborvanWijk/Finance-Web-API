@@ -7,6 +7,8 @@ using FinanceApi.Services.Interfaces;
 using FinanceApi.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Security.Claims;
 
 namespace FinanceApi.Controllers
@@ -31,12 +33,7 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(404)]
         public IActionResult GetUsersIncomes()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (userId == null || !userService.ExistsById(userId))
-            {
-                return NotFound();
-            }
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
             ICollection<IncomeDto> incomeDtos = incomeService.GetAllOfUser(userId).Select(Map.ToIncomeDto).ToList();
 
@@ -44,8 +41,41 @@ namespace FinanceApi.Controllers
             {
                 return BadRequest(ModelState);
             }
+
             return Ok(incomeDtos);
         }
+
+        [HttpGet("current/incomes/{categoryId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult GetUsersIncomesByCategoryId(int categoryId)
+        {
+
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var user = userService.GetById(userId, true);
+
+
+            int errorCode;
+            string errorMessage;
+            ICollection<Income> incomes;
+
+            if(!incomeService.tryGetIncomesWithCategoryId(user, categoryId, out incomes, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var incomeDtos = incomes.Select(Map.ToIncomeDto).ToList();
+
+            return Ok(incomeDtos);
+        }
+
 
         [HttpPost("Post")]
         [ProducesResponseType(200)]
@@ -63,7 +93,7 @@ namespace FinanceApi.Controllers
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var user = userService.GetUserById(userId);
+            var user = userService.GetById(userId, true);
 
             int errorCode;
             string errorMessage;
@@ -116,7 +146,7 @@ namespace FinanceApi.Controllers
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var user = userService.GetUserById(userId);
+            var user = userService.GetById(userId, true);
 
             int errorCode;
             string errorMessage;
@@ -136,6 +166,38 @@ namespace FinanceApi.Controllers
 
             return Ok("Updated income succesfully.");
         }
+
+        //[HttpDelete("RemoveCategories/{incomeId}")]
+        //[ProducesResponseType(200)]
+        //[ProducesResponseType(400)]
+        //[ProducesResponseType(404)]
+        //[ProducesResponseType(500)]
+        //public IActionResult RemoveCategoriesFromIncome(int incomeId, [FromBody] ICollection<int> categoryIds)
+        //{
+
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+
+
+        //    var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+        //    var user = userService.GetById(userId);
+
+        //    int errorCode;
+        //    string errorMessage;
+
+
+        //    if (!incomeService.RemoveCategories(user, incomeId, categoryIds, out errorCode, out errorMessage))
+        //    {
+
+        //    }
+
+
+
+        //}
+
 
 
     }

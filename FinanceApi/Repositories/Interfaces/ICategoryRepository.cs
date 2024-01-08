@@ -4,7 +4,7 @@ namespace FinanceApi.Repositories.Interfaces
 {
     public interface ICategoryRepository
     {
-        Category GetById(int categoryId);
+        Category GetById(int categoryId, bool tracking);
         ICollection<Category> GetAllOfUser(string userId);
         ICollection<ExpenseCategory> GetExpenseCategories(string userId, int expenseId);
         ICollection<IncomeCategory> GetIncomeCategories(string userId, int incomeId);

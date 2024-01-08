@@ -5,8 +5,7 @@ namespace FinanceApi.Services.Interfaces
     public interface IUserService
     {
         bool ExistsById(string userId);
-        User GetUserById(string userId);
-        User GetById(string userId);
+        User GetById(string userId, bool tracking);
         User GetByUsername(string username);
         bool UpdateBalance(User user, decimal amount);
         bool ExistsByUsername(string username);

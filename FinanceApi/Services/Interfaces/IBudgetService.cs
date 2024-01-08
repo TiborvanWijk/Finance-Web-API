@@ -5,7 +5,7 @@ namespace FinanceApi.Services.Interfaces
 {
     public interface IBudgetService
     {
-        Budget GetById(int budgetId);
+        Budget GetById(int budgetId, bool tracking);
         ICollection<Budget> GetAllOfUser(string userId);
         bool ExistsById(string userId, int budgetId);
         bool Create(User user, BudgetDto budgetDto, out int errorCode, out string errorMessage);

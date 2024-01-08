@@ -47,9 +47,13 @@ namespace FinanceApi.Repositories
             return dataContext.Budgets.AsNoTracking().Where(b => b.User.Id.Equals(userId)).ToList();
         }
 
-        public Budget GetById(int budgetId)
+        public Budget GetById(int budgetId, bool tracking)
         {
-            return dataContext.Budgets.FirstOrDefault(b => b.Id == budgetId);
+            if(tracking)
+            {
+                return dataContext.Budgets.FirstOrDefault(b => b.Id == budgetId);
+            }
+            return dataContext.Budgets.AsNoTracking().FirstOrDefault(b => b.Id == budgetId);
         }
 
         public bool save()

@@ -4,7 +4,7 @@ namespace FinanceApi.Repositories.Interfaces
 {
     public interface IIncomeRepository
     {
-        Income GetById(int incomeId);
+        Income GetById(int incomeId, bool tracking);
         ICollection<Income> GetAllOfUser(string userId);
         bool ExistsById(string userId, int incomeId);
         bool Create(Income income);

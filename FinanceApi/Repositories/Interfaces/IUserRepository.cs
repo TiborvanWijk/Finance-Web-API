@@ -4,7 +4,7 @@ namespace FinanceApi.Repositories.Interfaces
 {
     public interface IUserRepository
     {
-        User GetById(string userId);
+        User GetById(string userId, bool tracking);
         User GetByUsername(string username);
         bool ExistsById(string userId);
         bool ExistsByUsername(string username);

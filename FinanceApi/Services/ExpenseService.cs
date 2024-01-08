@@ -94,11 +94,6 @@ namespace FinanceApi.Services
             return expenseRepository.GetAllOfUser(userId);
         }
 
-        public Expense GetById(int expenseId)
-        {
-            return expenseRepository.GetById(expenseId);
-        }
-
         public bool Update(User user, ExpenseDto expenseDto, out int errorCode, out string errorMessage, out decimal prevAmount)
         {
 
@@ -113,9 +108,11 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            if (expenseRepository.GetById(expenseDto.Id).IsPaid)
+            var expense = expenseRepository.GetById(expenseDto.Id, false);
+
+            if (expense.IsPaid)
             {
-                prevAmount = expenseRepository.GetById(expenseDto.Id).Amount;
+                prevAmount = expense.Amount;
             }
 
             if (!ValidateExpense(expenseDto, out errorCode, out errorMessage))
@@ -123,10 +120,17 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            var expense = Map.ToExpense(expenseDto);
-            expense.Currency = expense.Currency.ToUpper();
+            //expense.Amount = expenseDto.Amount;
+            //expense.Date = expenseDto.Date;
+            //expense.Description = expenseDto.Description;
+            //expense.Title = expenseDto.Title;
+            //expense.Currency = expenseDto.Currency;
 
-            if (!expenseRepository.Update(expense))
+            var expenseNew = Map.ToExpense(expenseDto);
+            expense.Currency = expense.Currency.ToUpper();
+            expense = null;
+
+            if (!expenseRepository.Update(expenseNew))
             {
                 errorCode = 500;
                 errorMessage = "Something went wrong while updating income.";
@@ -155,7 +159,7 @@ namespace FinanceApi.Services
             }
 
 
-            var expense = GetById(expenseId);
+            var expense = expenseRepository.GetById(expenseId, true);
 
             var expenseCategories = categoryRepository.GetExpenseCategories(userId, expenseId);
 
@@ -182,12 +186,12 @@ namespace FinanceApi.Services
                 var expenseCategory = new ExpenseCategory()
                 {
                     CategoryId = categoryId,
-                    Category = categoryRepository.GetById(categoryId),
+                    Category = categoryRepository.GetById(categoryId, true),
                     ExpenseId = expenseId,
                     Expense = expense,
                 };
 
-                if (!AddCategory(expenseCategory))
+                if (!expenseRepository.AddCategory(expenseCategory))
                 {
                     errorMessage = "Something went wrong while adding category to expense.";
                     errorCode = 500;
@@ -196,6 +200,11 @@ namespace FinanceApi.Services
             }
 
             return true;
+        }
+
+        public Expense GetById(int expenseId, bool tracking)
+        {
+            return expenseRepository.GetById(expenseId, tracking);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using FinanceApi.Data;
 using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApi.Repositories
 {
@@ -36,9 +37,13 @@ namespace FinanceApi.Repositories
             return dataContext.Users.Any(u => u.UserName.Equals(username));
         }
 
-        public User GetById(string userId)
+        public User GetById(string userId, bool tracking)
         {
-            return dataContext.Users.Where(u => u.Id.Equals(userId)).FirstOrDefault();
+            if (tracking)
+            {
+                return dataContext.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            }
+            return dataContext.Users.AsNoTracking().FirstOrDefault(u => u.Id.Equals(userId));
         }
 
         public User GetByUsername(string username)

@@ -47,8 +47,12 @@ namespace FinanceApi.Repositories
             return dataContext.Goals.AsNoTracking().Where(g => g.User.Id.Equals(userId)).ToList();
         }
 
-        public Goal GetById(int goalId)
+        public Goal GetById(int goalId, bool tracking)
         {
+            if (tracking)
+            {
+                return dataContext.Goals.FirstOrDefault(g => g.Id == goalId);
+            }
             return dataContext.Goals.AsNoTracking().FirstOrDefault(g => g.Id == goalId);
         }
 

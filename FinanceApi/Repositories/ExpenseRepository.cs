@@ -16,7 +16,7 @@ namespace FinanceApi.Repositories
 
         public bool AddCategory(ExpenseCategory expenseCategory)
         {
-            dataContext.ExpenseCategories.Add(expenseCategory);
+            dataContext.Add(expenseCategory);
             return Save();
         }
 
@@ -42,8 +42,12 @@ namespace FinanceApi.Repositories
             return dataContext.Expenses.Where(e => e.User.Id.Equals(userId)).ToList();
         }
 
-        public Expense GetById(int expenseId)
+        public Expense GetById(int expenseId, bool tracking)
         {
+            if(tracking)
+            {
+                return dataContext.Expenses.FirstOrDefault(e => e.Id == expenseId);
+            }
             return dataContext.Expenses.AsNoTracking().FirstOrDefault(e => e.Id == expenseId);
         }
 

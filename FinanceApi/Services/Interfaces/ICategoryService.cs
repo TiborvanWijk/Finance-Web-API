@@ -5,7 +5,7 @@ namespace FinanceApi.Services.Interfaces
 {
     public interface ICategoryService
     {
-        Category GetById(int categoryId);
+        Category GetById(int categoryId, bool tracking);
         ICollection<Category> GetAllOfUser(string userId);
         bool ExistsById(string userId, int id);
         bool ExistsBytitle(string userId, string title);

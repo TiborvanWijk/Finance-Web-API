@@ -36,7 +36,7 @@ namespace FinanceApi.Controllers
             }
 
 
-            UserDto userDto = Map.ToUserDto(userService.GetUserById(userId));
+            UserDto userDto = Map.ToUserDto(userService.GetById(userId, false));
 
             return Ok(userDto);
         }

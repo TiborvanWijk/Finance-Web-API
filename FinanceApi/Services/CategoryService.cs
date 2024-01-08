@@ -92,9 +92,9 @@ namespace FinanceApi.Services
             return categoryRepository.GetAllOfUser(userId);
         }
 
-        public Category GetById(int categoryId)
+        public Category GetById(int categoryId, bool tracking)
         {
-            return categoryRepository.GetById(categoryId);
+            return categoryRepository.GetById(categoryId, tracking);
         }
     }
 }

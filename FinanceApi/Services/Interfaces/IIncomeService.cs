@@ -6,7 +6,7 @@ namespace FinanceApi.Services.Interfaces
 {
     public interface IIncomeService
     {
-        Income GetById(int incomeId);
+        Income GetById(int incomeId, bool tracking);
         ICollection<Income> GetAllOfUser(string userId);
         public bool AddCategory(IncomeCategory incomeCategory);
         bool ExistsById(string userId, int incomeId);
@@ -15,5 +15,6 @@ namespace FinanceApi.Services.Interfaces
         bool Update(User user, IncomeDto incomeDto, out int errorCode, out string errorMessage, out decimal prevAmount);
         bool Delete(Income income);
         bool AddCategories(string userId, int incomeId, ICollection<int> categoryIds, out string errorMessage, out int errorCode);
+        bool tryGetIncomesWithCategoryId(User user, int categoryId, out ICollection<Income> incomes, out int errorCode, out string errorMessage);
     }
 }

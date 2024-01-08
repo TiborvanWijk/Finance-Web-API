@@ -39,7 +39,7 @@ namespace FinanceApi.Services
             }
 
 
-            var income = GetById(incomeId);
+            var income = GetById(incomeId, true);
 
             var incomeCategories = categoryRepository.GetIncomeCategories(userId, incomeId);
 
@@ -66,12 +66,12 @@ namespace FinanceApi.Services
                 var incomeCategory = new IncomeCategory()
                 {
                     CategoryId = categoryId,
-                    Category = categoryRepository.GetById(categoryId),
+                    Category = categoryRepository.GetById(categoryId, true),
                     IncomeId = incomeId,
                     Income = income,
                 };
 
-                if (!AddCategory(incomeCategory))
+                if (!incomeRepository.AddCategory(incomeCategory))
                 {
                     errorMessage = "Something went wrong while adding category to income.";
                     errorCode = 500;
@@ -102,9 +102,9 @@ namespace FinanceApi.Services
             return incomeRepository.GetAllOfUser(userId);
         }
 
-        public Income GetById(int incomeId)
+        public Income GetById(int incomeId, bool tracking)
         {
-            return incomeRepository.GetById(incomeId);
+            return incomeRepository.GetById(incomeId, tracking);
         }
 
         public bool ValidateIncome(IncomeDto incomeDto, out int errorCode, out string errorMessage)
@@ -134,7 +134,7 @@ namespace FinanceApi.Services
             errorCode = 0;
             errorMessage = string.Empty;
 
-            if(!ValidateIncome(incomeDto, out errorCode, out errorMessage))
+            if (!ValidateIncome(incomeDto, out errorCode, out errorMessage))
             {
                 return false;
             }
@@ -166,9 +166,9 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            if (incomeRepository.GetById(incomeDto.Id).IsPaid)
+            if (incomeRepository.GetById(incomeDto.Id, false).IsPaid)
             {
-                prevAmount = incomeRepository.GetById(incomeDto.Id).Amount;
+                prevAmount = incomeRepository.GetById(incomeDto.Id, false).Amount;
             }
 
             if (!ValidateIncome(incomeDto, out errorCode, out errorMessage))
@@ -185,6 +185,26 @@ namespace FinanceApi.Services
                 errorMessage = "Something went wrong while updating income.";
                 return false;
             }
+
+            return true;
+        }
+
+        public bool tryGetIncomesWithCategoryId(User user, int categoryId, out ICollection<Income> incomes, out int errorCode, out string errorMessage)
+        {
+            errorCode = 0;
+            errorMessage = string.Empty;
+            incomes = new List<Income>();
+
+
+
+            if (!categoryRepository.ExistsById(user.Id, categoryId))
+            {
+                errorCode = 404;
+                errorMessage = "Category not found.";
+                return false;
+            }
+
+            incomes = incomeRepository.GetAllOfUser(user.Id).Where(i => categoryRepository.GetIncomeCategories(user.Id, i.Id).Any(ic => ic.CategoryId == categoryId)).ToList();
 
             return true;
         }

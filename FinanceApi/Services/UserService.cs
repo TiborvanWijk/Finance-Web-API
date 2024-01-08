@@ -39,19 +39,14 @@ namespace FinanceApi.Services
             return userRepository.ExistsByUsername(username);
         }
 
-        public User GetById(string userId)
+        public User GetById(string userId, bool tracking)
         {
-            return userRepository.GetById(userId);
+            return userRepository.GetById(userId, tracking);
         }
 
         public User GetByUsername(string username)
         {
             return userRepository.GetByUsername(username);
-        }
-
-        public User GetUserById(string userId)
-        {
-            return userRepository.GetById(userId);
         }
 
         public bool Update(User user)
