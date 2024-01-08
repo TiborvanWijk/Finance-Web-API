@@ -33,6 +33,12 @@ namespace FinanceApi.Services
 
                 var totalExpenseAmount = expenseService.GetAllOfUser(userId).Select(e => e.Amount).Sum();
 
+                if (totalIncomeAmount == 0 || totalExpenseAmount == 0)
+                {
+                    savingsRate = totalIncomeAmount == 0 ? 0 : 100;
+                    return true;
+                }
+
                 savingsRate = Math.Round(100 - (totalExpenseAmount / (totalIncomeAmount / 100)), 2);
 
                 return true;

@@ -119,10 +119,10 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            if (incomeDto.Amount <= 0)
+            if (incomeDto.Amount <= 0 || incomeDto.Amount > 100000000) 
             {
                 errorCode = 400;
-                errorMessage = "Amount must be more then '0'.";
+                errorMessage = "Amount must be more then '0' and smaller then '100000000'.";
                 return false;
             }
 
