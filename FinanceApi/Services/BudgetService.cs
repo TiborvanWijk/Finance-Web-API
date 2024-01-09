@@ -213,5 +213,26 @@ namespace FinanceApi.Services
 
             return true;
         }
+
+        public bool TryGetBudgetsByCategoryId(User user, int categoryId, out ICollection<Budget> budgets, out int errorCode, out string errorMessage)
+        {
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+            budgets = new List<Budget>();
+
+
+            if(!categoryRepository.ExistsById(user.Id, categoryId))
+            {
+                errorCode = 404;
+                errorMessage = "Category not found.";
+                return false;
+            }
+
+            budgets = budgetRepository.GetAllOfUser(user.Id).Where(b => categoryRepository.GetBudgetCategories(user.Id, b.Id).Any(bc => bc.CategoryId == categoryId)).ToList();
+
+
+            return true;
+        }
     }
 }
