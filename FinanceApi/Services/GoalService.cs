@@ -224,5 +224,24 @@ namespace FinanceApi.Services
 
             return true;
         }
+
+        public bool TryGetGoalsById(User user, int categoryId, out ICollection<Goal> goals, out int errorCode, out string errorMessage)
+        {
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+            goals = new List<Goal>();
+
+            if(!categoryRepository.ExistsById(user.Id, categoryId))
+            {
+                errorCode = 404;
+                errorMessage = "Category not found.";
+                return false;
+            }
+
+            goals = goalRepository.GetAllOfUser(user.Id).Where(g => categoryRepository.GetGoalCategories(user.Id, g.Id).Any(gc => gc.CategoryId == categoryId)).ToList();
+
+            return true;
+        }
     }
 }

@@ -44,7 +44,7 @@ namespace FinanceApi.Controllers
         }
 
         
-        [HttpGet("current/budget/{categoryId}")]
+        [HttpGet("current/budgets/{categoryId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         public IActionResult GetBudgetByCategoryId(int categoryId)

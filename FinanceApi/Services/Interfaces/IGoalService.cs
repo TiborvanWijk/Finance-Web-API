@@ -16,5 +16,6 @@ namespace FinanceApi.Services.Interfaces
         bool Update(User user, GoalManageDto goalDto, out int errorCode, out string errorMessage);
         bool Create(User user, GoalManageDto goalDto, out int errorCode, out string errorMessage);
         bool AddCategories(string userId, int goalId, ICollection<int> categoryIds, out string errorMessage, out int errorCode);
+        bool TryGetGoalsById(User user, int categoryId, out ICollection<Goal> goals, out int errorCode, out string errorMessage);
     }
 }

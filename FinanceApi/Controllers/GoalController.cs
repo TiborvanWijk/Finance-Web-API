@@ -27,6 +27,7 @@ namespace FinanceApi.Controllers
 
         [HttpGet("current")]
         [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
         public IActionResult GetGoals()
         {
 
@@ -39,6 +40,32 @@ namespace FinanceApi.Controllers
 
             return Ok(goals);
         }
+
+        [HttpGet("current/goals/{categoryId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult GetGoalsByCategoryId(int categoryId)
+        {
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var user = userService.GetById(userId, true);
+
+            ICollection<Goal> goals;
+
+            int errorCode;
+            string errorMessage;
+
+            if(!goalService.TryGetGoalsById(user, categoryId, out goals, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+                
+            return Ok(goals);
+        }
+        
+
 
         [HttpPost("Post")]
         [ProducesResponseType(200)]
