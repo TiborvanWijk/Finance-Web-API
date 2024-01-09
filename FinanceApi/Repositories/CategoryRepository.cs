@@ -61,6 +61,11 @@ namespace FinanceApi.Repositories
             return dataContext.ExpenseCategories.Where(ec => ec.ExpenseId == expenseId && ec.Expense.User.Id.Equals(userId)).ToList();
         }
 
+        public ICollection<ExpenseCategory> GetExpenseCategoriesByCategoryId(int categoryId)
+        {
+            return dataContext.ExpenseCategories.Where(ec => ec.CategoryId == categoryId).ToList();
+        }
+
         public ICollection<GoalCategory> GetGoalCategories(string userId, int goalId)
         {
             return dataContext.GoalCategories.Where(gc => gc.Goal.Id == goalId && gc.Goal.User.Id.Equals(userId)).ToList();

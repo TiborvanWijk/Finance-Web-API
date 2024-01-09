@@ -61,8 +61,11 @@ namespace FinanceApi.Controllers
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
-                
-            return Ok(goals);
+
+
+            var goalDtos = goals.Select(Map.ToGoalDto);
+
+            return Ok(goalDtos);
         }
         
 

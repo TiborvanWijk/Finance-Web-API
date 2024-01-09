@@ -96,5 +96,16 @@ namespace FinanceApi.Services
         {
             return categoryRepository.GetById(categoryId, tracking);
         }
+
+        public bool TryGetCategoriesSortedByExpenseAmount(User user, out ICollection<Category> categories, out int errorCode, out string errorMessage)
+        {
+            errorCode = 0;
+            errorMessage = string.Empty;
+            categories = new List<Category>();
+
+            throw new NotImplementedException();
+
+            return true;
+        }
     }
 }

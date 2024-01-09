@@ -1,6 +1,7 @@
 ﻿using FinanceApi.Controllers.ApiResponseHelpers;
 using FinanceApi.Data.Dtos;
 using FinanceApi.Mapper;
+using FinanceApi.Models;
 using FinanceApi.Services;
 using FinanceApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -39,6 +40,31 @@ namespace FinanceApi.Controllers
 
             return Ok(categoryDtos);
         }
+
+        [HttpGet("CurrentByExpenseAmount")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetCategoriesSortedByExpenseAmount()
+        {
+
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var user = userService.GetById(userId, true);
+
+            int errorCode;
+            string errorMessage;
+            ICollection<Category> categories;
+
+            if(!categoryService.TryGetCategoriesSortedByExpenseAmount(user, out categories, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var categoryDtos = categories.Select(Map.ToCategoryDto);
+            return Ok(categoryDtos);
+        }
+
 
 
         [HttpPost("Post")]

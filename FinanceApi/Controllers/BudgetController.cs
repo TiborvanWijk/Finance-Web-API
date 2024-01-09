@@ -64,7 +64,10 @@ namespace FinanceApi.Controllers
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            return Ok(budgets);
+
+            var budgetDtos = budgets.Select(Map.ToBudgetDto);
+
+            return Ok(budgetDtos);
         }
 
 
