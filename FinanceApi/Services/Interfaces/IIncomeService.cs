@@ -16,5 +16,6 @@ namespace FinanceApi.Services.Interfaces
         bool Delete(Income income);
         bool AddCategories(string userId, int incomeId, ICollection<int> categoryIds, out string errorMessage, out int errorCode);
         bool tryGetIncomesWithCategoryId(User user, int categoryId, out ICollection<Income> incomes, out int errorCode, out string errorMessage);
+        bool TryDeleteIncome(User user, int incomeId, out decimal prevAmount, out int errorCode, out string errorMessage);
     }
 }

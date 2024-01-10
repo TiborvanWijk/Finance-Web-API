@@ -220,5 +220,35 @@ namespace FinanceApi.Services
 
             return true;
         }
+
+        public bool TryDeleteExpense(User user, int expenseId, out decimal prevAmount, out int errorCode, out string errorMessage)
+        {
+            errorCode = 0;
+            errorMessage = string.Empty;
+            prevAmount = 0;
+
+
+            if(!expenseRepository.ExistsById(user.Id, expenseId))
+            {
+                errorCode = 404;
+                errorMessage = "Expense not found.";
+                return false;
+            }
+
+            var expense = expenseRepository.GetById(expenseId, true);
+            if (expense.IsPaid)
+            {
+                prevAmount = expense.Amount;
+            }
+
+            if (!expenseRepository.Delete(expense))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while deleting expense.";
+                return false;
+            }
+
+            return true;
+        }
     }
 }

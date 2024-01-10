@@ -208,5 +208,36 @@ namespace FinanceApi.Services
 
             return true;
         }
+
+        public bool TryDeleteIncome(User user, int incomeId, out decimal prevAmount, out int errorCode, out string errorMessage)
+        {
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+            prevAmount = 0;
+
+            if(!incomeRepository.ExistsById(user.Id, incomeId))
+            {
+                errorCode = 404;
+                errorMessage = "Income not found.";
+                return false;
+            }
+
+            var income = incomeRepository.GetById(incomeId, true);
+
+            if (income.IsPaid)
+            {
+                prevAmount = income.Amount;
+            }
+
+            if (!incomeRepository.Delete(income))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while deleting income.";
+                return false;
+            }
+
+            return true;
+        }
     }
 }

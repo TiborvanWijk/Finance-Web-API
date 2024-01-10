@@ -170,6 +170,36 @@ namespace FinanceApi.Controllers
 
             return Ok("Updated income succesfully.");
         }
-        
+
+        [HttpDelete("Delete/{expenseId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult DeleteExpense(int expenseId)
+        {
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var user = userService.GetById(userId, true);
+
+            decimal prevAmount;
+            int errorCode;
+            string errorMessage;
+
+            if (!expenseService.TryDeleteExpense(user, expenseId, out prevAmount, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+
+            if (!userService.UpdateBalance(user, prevAmount))
+            {
+                return StatusCode(500, "something went wrong while updating users balance.");
+            }
+
+            return Ok("Expense succesfully deleted.");
+        }
+
+
     }
 }
