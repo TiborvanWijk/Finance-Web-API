@@ -32,6 +32,13 @@ namespace FinanceApi.Repositories
             return Save();
         }
 
+        public bool DeleteIncomeCategoryWithId(string userId, int categoryId)
+        {
+            dataContext.Remove(dataContext.IncomeCategories.First(ic => ic.Income.User.Id.Equals(userId) && ic.CategoryId == categoryId));
+
+            return Save();
+        }
+
         public bool ExistsById(string userId, int incomeId)
         {
             return dataContext.Incomes.Any(i => i.Id == incomeId && i.User.Id.Equals(userId));

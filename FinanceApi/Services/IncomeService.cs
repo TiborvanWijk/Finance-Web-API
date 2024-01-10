@@ -239,5 +239,58 @@ namespace FinanceApi.Services
 
             return true;
         }
+
+        public bool TryRemoveCategories(User user, int incomeId, ICollection<int> categoryIds, out int errorCode, out string errorMessage)
+        {
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+
+            if(!incomeRepository.ExistsById(user.Id, incomeId))
+            {
+                errorCode = 404;
+                errorMessage = "Income not found.";
+                return false;
+            }
+
+
+            var incomeCategories = categoryRepository.GetIncomeCategories(user.Id, incomeId);
+
+            if (incomeCategories.Count <= 0)
+            {
+                errorCode = 400;
+                errorMessage = "Income does not have any categories";
+                return false;
+            }
+            foreach (var categoryId in categoryIds)
+            {
+                if (!categoryRepository.ExistsById(user.Id, categoryId))
+                {
+                    errorCode = 404;
+                    errorMessage = "Category not found.";
+                    return false;
+                }
+
+                if(!incomeCategories.Any(ic => ic.CategoryId == categoryId))
+                {
+                    errorCode = 400;
+                    errorMessage = "Income does not have this category";
+                    return false;
+                }
+            }
+
+            foreach (var categoryId in categoryIds)
+            {
+
+                if (!incomeRepository.DeleteIncomeCategoryWithId(user.Id, categoryId))
+                {
+                    errorCode = 500;
+                    errorMessage = "Something went wrong while deleting income category.";
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }

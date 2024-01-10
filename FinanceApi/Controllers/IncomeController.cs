@@ -197,36 +197,35 @@ namespace FinanceApi.Controllers
 
 
 
-        //[HttpDelete("RemoveCategories/{incomeId}")]
-        //[ProducesResponseType(200)]
-        //[ProducesResponseType(400)]
-        //[ProducesResponseType(404)]
-        //[ProducesResponseType(500)]
-        //public IActionResult RemoveCategoriesFromIncome(int incomeId, [FromBody] ICollection<int> categoryIds)
-        //{
+        [HttpDelete("RemoveCategories/{incomeId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult RemoveCategoriesFromIncome(int incomeId, [FromBody] ICollection<int> categoryIds)
+        {
 
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-
-
-        //    var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-        //    var user = userService.GetById(userId);
-
-        //    int errorCode;
-        //    string errorMessage;
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
 
-        //    if (!incomeService.RemoveCategories(user, incomeId, categoryIds, out errorCode, out errorMessage))
-        //    {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-        //    }
+            var user = userService.GetById(userId, true);
 
+            int errorCode;
+            string errorMessage;
 
+            
+            if (!incomeService.TryRemoveCategories(user, incomeId, categoryIds, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
 
-        //}
+            return Ok("Categories deleted succesfully.");
+        }
 
 
 
