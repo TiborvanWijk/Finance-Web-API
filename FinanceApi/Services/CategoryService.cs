@@ -1,19 +1,24 @@
-﻿using FinanceApi.Data.Dtos;
+﻿using FinanceApi.Data;
+using FinanceApi.Data.Dtos;
 using FinanceApi.Mapper;
 using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services.Interfaces;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApi.Services
 {
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository categoryRepository;
+        private readonly IExpenseRepository expenseRepository;
+        private readonly DataContext dataContext;
 
-        public CategoryService(ICategoryRepository categoryRepository)
+        public CategoryService(ICategoryRepository categoryRepository, IExpenseRepository expenseRepository, DataContext dataContext)
         {
             this.categoryRepository = categoryRepository;
+            this.expenseRepository = expenseRepository;
+            this.dataContext = dataContext;
         }
 
         public bool Create(User user, CategoryDto categoryDto, out int errorCode, out string errorMessage)
@@ -103,7 +108,23 @@ namespace FinanceApi.Services
             errorMessage = string.Empty;
             categories = new List<Category>();
 
-            throw new NotImplementedException();
+
+            try
+            { 
+                categories = dataContext.Categories
+                    .Include(c => c.ExpenseCategories)
+                    .ThenInclude(ec => ec.Expense)
+                    .Where(c => c.ExpenseCategories != null && c.ExpenseCategories.All(ec => ec.Expense != null)) // Check for nulls
+                    .OrderByDescending(c => c.ExpenseCategories.Sum(ec => ec.Expense != null ? ec.Expense.Amount : 0))
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                errorCode = 500;
+                errorMessage = ex.Message;
+                return false;
+            }
+
 
             return true;
         }

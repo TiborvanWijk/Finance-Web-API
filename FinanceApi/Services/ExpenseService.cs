@@ -108,11 +108,11 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            var expense = expenseRepository.GetById(expenseDto.Id, false);
+            var prevExpense = expenseRepository.GetById(expenseDto.Id, false);
 
-            if (expense.IsPaid)
+            if (prevExpense.IsPaid)
             {
-                prevAmount = expense.Amount;
+                prevAmount = prevExpense.Amount;
             }
 
             if (!ValidateExpense(expenseDto, out errorCode, out errorMessage))
@@ -120,17 +120,11 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            //expense.Amount = expenseDto.Amount;
-            //expense.Date = expenseDto.Date;
-            //expense.Description = expenseDto.Description;
-            //expense.Title = expenseDto.Title;
-            //expense.Currency = expenseDto.Currency;
 
-            var expenseNew = Map.ToExpense(expenseDto);
+            var expense = Map.ToExpense(expenseDto);
             expense.Currency = expense.Currency.ToUpper();
-            expense = null;
 
-            if (!expenseRepository.Update(expenseNew))
+            if (!expenseRepository.Update(expense))
             {
                 errorCode = 500;
                 errorMessage = "Something went wrong while updating income.";
@@ -222,7 +216,7 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            expenses = expenseRepository.GetAllOfUser(user.Id).Where(e => categoryRepository.GetIncomeCategories(user.Id, e.Id).Any(ec => ec.CategoryId == categoryId)).ToList();
+            expenses = expenseRepository.GetAllOfUser(user.Id).Where(e => categoryRepository.GetExpenseCategories(user.Id, e.Id).Any(ec => ec.CategoryId == categoryId)).ToList();
 
             return true;
         }
