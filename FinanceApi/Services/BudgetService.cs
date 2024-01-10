@@ -88,11 +88,6 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool Delete(Budget budget)
-        {
-            return budgetRepository.Delete(budget);
-        }
-
         public bool ExistsById(string userId, int budgetId)
         {
             return budgetRepository.ExistsById(userId, budgetId);

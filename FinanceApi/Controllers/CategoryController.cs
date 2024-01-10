@@ -146,5 +146,30 @@ namespace FinanceApi.Controllers
             return Ok("Category updated succesfully.");
         }
 
+
+
+        [HttpDelete("Delete/{categoryId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult DeleteCategory(int categoryId)
+        {
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var user = userService.GetById(userId, true);
+
+            int errorCode;
+            string errorMessage;
+
+            if(!categoryService.TryDelete(user, categoryId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok("Category deleted succesfully.");
+        }
+
+
     }
 }

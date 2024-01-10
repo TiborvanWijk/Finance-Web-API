@@ -11,8 +11,8 @@ namespace FinanceApi.Services.Interfaces
         bool ExistsBytitle(string userId, string title);
         bool Create(User user, CategoryDto categoryDto, out int errorCode, out string errorMessage);
         bool Update(User user, CategoryDto categoryDto, out int errorCode, out string errorMessage);
-        bool Delete(Category category);
         bool TryGetCategoriesSortedByExpenseAmount(User user, out ICollection<Category> categories, out int errorCode, out string errorMessage);
         bool TryGetCategoryExpenseAmount(User user, int categoryId, out decimal expenseAmount, out int errorCode, out string errorMessage);
+        bool TryDelete(User user, int categoryId, out int errorCode, out string errorMessage);
     }
 }

@@ -43,12 +43,6 @@ namespace FinanceApi.Services
 
             return true;
         }
-
-        public bool Delete(Category category)
-        {
-            return categoryRepository.Delete(category);
-        }
-
         public bool Update(User user, CategoryDto categoryDto, out int errorCode, out string errorMessage)
         {
             errorCode = 0;
@@ -146,6 +140,32 @@ namespace FinanceApi.Services
             }
 
             expenseAmount = expenseRepository.GetAllOfUserByCategoryId(user.Id, categoryId).Sum(e => e.Amount);
+
+            return true;
+        }
+
+        public bool TryDelete(User user, int categoryId, out int errorCode, out string errorMessage)
+        {
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+
+
+            if(!categoryRepository.ExistsById(user.Id, categoryId))
+            {
+                errorCode = 404;
+                errorMessage = "Category not found.";
+                return false;
+            }
+
+            var category = categoryRepository.GetById(categoryId, true);
+
+            if (!categoryRepository.Delete(category))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while deleting category.";
+                return false;
+            }
 
             return true;
         }
