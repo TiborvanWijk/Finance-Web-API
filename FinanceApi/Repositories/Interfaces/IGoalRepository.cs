@@ -6,6 +6,7 @@ namespace FinanceApi.Repositories.Interfaces
     {
         Goal GetById(int goalId, bool tracking);
         ICollection<Goal> GetAllOfUser(string userId);
+        ICollection<Goal> GetAllOfUserByCategoryId(string userId, int categoryId);
         bool HasGoals(string userId);
         bool ExistsById(string userId, int goalId);
         bool Create(Goal goal);

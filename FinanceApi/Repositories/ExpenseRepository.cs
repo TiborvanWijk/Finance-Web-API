@@ -42,6 +42,11 @@ namespace FinanceApi.Repositories
             return dataContext.Expenses.Where(e => e.User.Id.Equals(userId)).ToList();
         }
 
+        public ICollection<Expense> GetAllOfUserByCategoryId(string userId, int categoryId)
+        {
+            return dataContext.Expenses.Where(e => e.User.Id.Equals(userId) && e.ExpenseCategories.Any(ec => ec.CategoryId == categoryId)).ToList();
+        }
+
         public Expense GetById(int expenseId, bool tracking)
         {
             if(tracking)

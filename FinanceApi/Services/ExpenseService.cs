@@ -216,7 +216,7 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            expenses = expenseRepository.GetAllOfUser(user.Id).Where(e => categoryRepository.GetExpenseCategories(user.Id, e.Id).Any(ec => ec.CategoryId == categoryId)).ToList();
+            expenses = expenseRepository.GetAllOfUserByCategoryId(user.Id, categoryId);
 
             return true;
         }

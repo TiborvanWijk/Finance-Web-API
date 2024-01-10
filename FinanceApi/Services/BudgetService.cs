@@ -229,7 +229,7 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            budgets = budgetRepository.GetAllOfUser(user.Id).Where(b => categoryRepository.GetBudgetCategories(user.Id, b.Id).Any(bc => bc.CategoryId == categoryId)).ToList();
+            budgets = budgetRepository.GetAllOfUserByCategoryId(user.Id, categoryId);
 
 
             return true;

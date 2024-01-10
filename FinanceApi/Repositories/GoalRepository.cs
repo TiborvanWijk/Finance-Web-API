@@ -47,6 +47,11 @@ namespace FinanceApi.Repositories
             return dataContext.Goals.AsNoTracking().Where(g => g.User.Id.Equals(userId)).ToList();
         }
 
+        public ICollection<Goal> GetAllOfUserByCategoryId(string userId, int categoryId)
+        {
+            return dataContext.Goals.Where(g => g.User.Id.Equals(userId) && g.GoalCategories.Any(gc => gc.CategoryId == categoryId)).ToList();
+        }
+
         public Goal GetById(int goalId, bool tracking)
         {
             if (tracking)

@@ -239,7 +239,8 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            goals = goalRepository.GetAllOfUser(user.Id).Where(g => categoryRepository.GetGoalCategories(user.Id, g.Id).Any(gc => gc.CategoryId == categoryId)).ToList();
+            goals = goalRepository.GetAllOfUserByCategoryId(user.Id, categoryId);
+
 
             return true;
         }

@@ -6,6 +6,7 @@ namespace FinanceApi.Repositories.Interfaces
     {
         Budget GetById(int budgetId, bool tracking);
         ICollection<Budget> GetAllOfUser(string userId);
+        ICollection<Budget> GetAllOfUserByCategoryId(string userId, int categoryId);
         bool ExistsById(string userId, int budgetId);
         bool Create(Budget budget);
         bool Update(Budget budget);

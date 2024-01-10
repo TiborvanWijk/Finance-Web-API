@@ -145,9 +145,7 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            expenseAmount = categoryRepository.GetTotalExpenseAmount(categoryId);
-
-
+            expenseAmount = expenseRepository.GetAllOfUserByCategoryId(user.Id, categoryId).Sum(e => e.Amount);
 
             return true;
         }

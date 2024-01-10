@@ -204,7 +204,7 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            incomes = incomeRepository.GetAllOfUser(user.Id).Where(i => categoryRepository.GetIncomeCategories(user.Id, i.Id).Any(ic => ic.CategoryId == categoryId)).ToList();
+            incomes = incomeRepository.GetAllOfUserByCategoryId(user.Id, categoryId);
 
             return true;
         }

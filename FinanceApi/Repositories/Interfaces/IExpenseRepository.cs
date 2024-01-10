@@ -6,6 +6,7 @@ namespace FinanceApi.Repositories.Interfaces
     {
         Expense GetById(int expenseId, bool tracking);
         ICollection<Expense> GetAllOfUser(string userId);
+        ICollection<Expense> GetAllOfUserByCategoryId(string userId, int categoryId);
         bool AddCategory(ExpenseCategory expenseCategory);
         bool ExistsById(string userId, int expenseId);
         bool Create(Expense expense);
