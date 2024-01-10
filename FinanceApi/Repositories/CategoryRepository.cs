@@ -56,14 +56,20 @@ namespace FinanceApi.Repositories
             return dataContext.Categories.AsNoTracking().FirstOrDefault(c => c.Id == categoryId);
         }
 
+        public ICollection<Category> GetCategoriesIncludingExpenseCategoriesAndExpense(string userId)
+        {
+            var categories = dataContext.Categories
+                .Include(c => c.ExpenseCategories)
+                .ThenInclude(ec => ec.Expense)
+                .Where(c => c.User.Id.Equals(userId) && c.ExpenseCategories != null && c.ExpenseCategories.All(ec => ec.Expense != null))
+                .ToList();
+
+            return categories;
+        }
+
         public ICollection<ExpenseCategory> GetExpenseCategories(string userId, int expenseId)
         {
             return dataContext.ExpenseCategories.Where(ec => ec.ExpenseId == expenseId && ec.Expense.User.Id.Equals(userId)).ToList();
-        }
-
-        public ICollection<ExpenseCategory> GetExpenseCategoriesByCategoryId(int categoryId)
-        {
-            return dataContext.ExpenseCategories.Where(ec => ec.CategoryId == categoryId).ToList();
         }
 
         public ICollection<GoalCategory> GetGoalCategories(string userId, int goalId)
@@ -74,6 +80,16 @@ namespace FinanceApi.Repositories
         public ICollection<IncomeCategory> GetIncomeCategories(string userId, int incomeId)
         {
             return dataContext.IncomeCategories.Where(ec => ec.IncomeId == incomeId && ec.Income.User.Id.Equals(userId)).ToList();
+        }
+
+        public decimal GetTotalExpenseAmount(int categoryId)
+        {
+            return dataContext.ExpenseCategories.Include(ec => ec.Expense).Where(ec => ec.CategoryId == categoryId).Select(ec => ec.Expense.Amount).Sum();
+        }
+
+        public bool HasExpenses(int categoryId)
+        {
+            return dataContext.ExpenseCategories.Any(ec => ec.CategoryId == categoryId);
         }
 
         public bool Save()

@@ -12,13 +12,11 @@ namespace FinanceApi.Services
     {
         private readonly ICategoryRepository categoryRepository;
         private readonly IExpenseRepository expenseRepository;
-        private readonly DataContext dataContext;
 
-        public CategoryService(ICategoryRepository categoryRepository, IExpenseRepository expenseRepository, DataContext dataContext)
+        public CategoryService(ICategoryRepository categoryRepository, IExpenseRepository expenseRepository)
         {
             this.categoryRepository = categoryRepository;
             this.expenseRepository = expenseRepository;
-            this.dataContext = dataContext;
         }
 
         public bool Create(User user, CategoryDto categoryDto, out int errorCode, out string errorMessage)
@@ -110,13 +108,10 @@ namespace FinanceApi.Services
 
 
             try
-            { 
-                categories = dataContext.Categories
-                    .Include(c => c.ExpenseCategories)
-                    .ThenInclude(ec => ec.Expense)
-                    .Where(c => c.ExpenseCategories != null && c.ExpenseCategories.All(ec => ec.Expense != null)) // Check for nulls
-                    .OrderByDescending(c => c.ExpenseCategories.Sum(ec => ec.Expense != null ? ec.Expense.Amount : 0))
-                    .ToList();
+            {
+                categories = categoryRepository.GetCategoriesIncludingExpenseCategoriesAndExpense(user.Id)
+                    .OrderByDescending(c => c.ExpenseCategories.Sum(ec => ec.Expense != null ? ec.Expense.Amount : 0)).ToList();
+
             }
             catch (Exception ex)
             {
@@ -124,6 +119,34 @@ namespace FinanceApi.Services
                 errorMessage = ex.Message;
                 return false;
             }
+
+
+            return true;
+        }
+
+        public bool TryGetCategoryExpenseAmount(User user, int categoryId, out decimal expenseAmount, out int errorCode, out string errorMessage)
+        {
+            errorCode = 0;
+            errorMessage = string.Empty;
+            expenseAmount = 0;
+
+            if(!categoryRepository.ExistsById(user.Id, categoryId))
+            {
+                errorCode = 404;
+                errorMessage = "Category not found.";
+                return false;
+            }
+
+
+            if (!categoryRepository.HasExpenses(categoryId))
+            {
+                errorCode = 400;
+                errorMessage = "Category has no expenses.";
+                return false;
+            }
+
+            expenseAmount = categoryRepository.GetTotalExpenseAmount(categoryId);
+
 
 
             return true;

@@ -64,6 +64,29 @@ namespace FinanceApi.Controllers
             return Ok(categoryDtos);
         }
 
+        [HttpGet("CategoryExpenseAmount/{categoryId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult GetCategoryExpenseAmount(int categoryId)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var user = userService.GetById(userId, true);
+
+            int errorCode;
+            string errorMessage;
+            decimal expenseAmount;
+
+            if (!categoryService.TryGetCategoryExpenseAmount(user, categoryId, out expenseAmount, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok(expenseAmount);
+        }
+
 
 
         [HttpPost("Post")]
