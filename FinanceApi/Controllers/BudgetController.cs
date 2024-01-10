@@ -150,6 +150,28 @@ namespace FinanceApi.Controllers
         }
 
 
+        [HttpDelete("delete/{budgetId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult DeleteBudget(int budgetId)
+        {
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var user = userService.GetById(userId, true);
+
+            int errorCode;
+            string errorMessage;
+
+            if(!budgetService.TryDeleteBudget(user, budgetId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok("Budget succesfuly deleted.");
+        }
+
 
     }
 }

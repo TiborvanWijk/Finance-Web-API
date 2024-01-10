@@ -234,5 +234,29 @@ namespace FinanceApi.Services
 
             return true;
         }
+
+        public bool TryDeleteBudget(User user, int budgetId, out int errorCode, out string errorMessage)
+        {
+            errorCode = 0;
+            errorMessage = string.Empty;
+
+
+            if (!budgetRepository.ExistsById(user.Id, budgetId)){
+                errorCode = 404;
+                errorMessage = "Budget not found.";
+                return false;
+            }
+
+            var budget = budgetRepository.GetById(budgetId, true);
+
+            if (!budgetRepository.Delete(budget))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while deleting budget.";
+                return false;
+            }
+
+            return true;
+        }
     }
 }
