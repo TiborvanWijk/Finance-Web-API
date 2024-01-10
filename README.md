@@ -78,23 +78,21 @@ The `appsettings.Development.json` file is used for development specific configu
 
 ### 3. `launchSettings.json` (Visual Studio Only)
 
-The `launchSettings.json` file is used to configure the behavior of the Visual Studio debugger and other runtime behaviors during development.
+The `launchSettings.json` file is used to configure the behavior of the Visual Studio debugger and other runtime behaviors during development. 
 
-**Example `launchSettings.json`:**
+**Example (For swagger) `launchSettings.json`:**
 
 ```json
-{
-  "profiles": {
-    "FinanceWebAPI": {
+    "https": {
       "commandName": "Project",
+      "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:5001;http://localhost:5000",
+      "launchUrl": "swagger",
+      "applicationUrl": "https://localhost:7190;http://localhost:5015",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
-  }
-}
 ```
 
 
