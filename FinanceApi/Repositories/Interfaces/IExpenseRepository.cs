@@ -13,5 +13,6 @@ namespace FinanceApi.Repositories.Interfaces
         bool Update(Expense expense);
         bool Delete(Expense expense);
         bool Save();
+        bool DeleteExpenseCategoryWithId(string userId, int categoryId, int expenseId);
     }
 }

@@ -282,7 +282,7 @@ namespace FinanceApi.Services
             foreach (var categoryId in categoryIds)
             {
 
-                if (!incomeRepository.DeleteIncomeCategoryWithId(user.Id, categoryId))
+                if (!incomeRepository.DeleteIncomeCategoryWithId(user.Id, categoryId, incomeId))
                 {
                     errorCode = 500;
                     errorMessage = "Something went wrong while deleting income category.";
