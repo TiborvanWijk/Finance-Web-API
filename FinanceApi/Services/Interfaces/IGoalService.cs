@@ -18,5 +18,6 @@ namespace FinanceApi.Services.Interfaces
         bool AddCategories(string userId, int goalId, ICollection<int> categoryIds, out string errorMessage, out int errorCode);
         bool TryGetGoalsById(User user, int categoryId, out ICollection<Goal> goals, out int errorCode, out string errorMessage);
         bool TryDeleteGoal(User user, int goalId, out int errorCode, out string errorMessage);
+        bool TryRemoveCategories(User user, int goalId, ICollection<int> categoryIds, out int errorCode, out string errorMessage);
     }
 }

@@ -172,5 +172,34 @@ namespace FinanceApi.Controllers
             return Ok("Goal deleted succesfully.");
         }
 
+
+        [HttpDelete("RemoveCategories/{goalId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult RemoveCategories(int goalId, ICollection<int> categoryIds)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = userService.GetById(userId, true);
+
+            int errorCode;
+            string errorMessage;
+
+            if(!goalService.TryRemoveCategories(user, goalId, categoryIds, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok("Categories removed succesfully.");
+        }
+
     }
 }

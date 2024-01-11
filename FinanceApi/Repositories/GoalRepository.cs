@@ -32,6 +32,14 @@ namespace FinanceApi.Repositories
             return Save();
         }
 
+        public bool DeleteGoalCategoryWithId(string userId, int categoryId, int goalId)
+        {
+            dataContext.GoalCategories.Remove(dataContext.GoalCategories.First(gc =>
+                       gc.Goal.User.Id.Equals(userId) && gc.CategoryId == categoryId && gc.GoalId == goalId));
+
+            return Save();
+        }
+
         public bool ExistsById(string userId, int goalId)
         {
             return dataContext.Goals.Any(g => g.Id == goalId && g.User.Id.Equals(userId));
