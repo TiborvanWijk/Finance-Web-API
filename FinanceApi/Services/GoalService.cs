@@ -244,5 +244,30 @@ namespace FinanceApi.Services
 
             return true;
         }
+
+        public bool TryDeleteGoal(User user, int goalId, out int errorCode, out string errorMessage)
+        {
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+
+            if(!goalRepository.ExistsById(user.Id, goalId))
+            {
+                errorCode = 404;
+                errorMessage = "Goal not found";
+                return false;
+            }
+
+            var goal = goalRepository.GetById(goalId, true);
+
+            if (!goalRepository.Delete(goal))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while deleting goal.";
+                return false;
+            }
+
+            return true;
+        }
     }
 }

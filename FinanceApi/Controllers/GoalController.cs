@@ -147,5 +147,30 @@ namespace FinanceApi.Controllers
 
             return Ok("Goal updated succesfully.");
         }
+
+
+
+        [HttpDelete("Delete/{goalId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult DeleteGoal(int goalId)
+        {
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var user = userService.GetById(userId, true);
+
+            int errorCode;
+            string errorMessage;
+
+            if (!goalService.TryDeleteGoal(user, goalId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok("Goal deleted succesfully.");
+        }
+
     }
 }
