@@ -270,13 +270,16 @@ namespace FinanceApi.Services
                 return false;
             }
 
+            var budget = budgetRepository.GetById(budgetId, false);
 
             var expenses = expenseRepository.GetAllOfUserByBudgetId(user.Id, budgetId);
-
-
+ 
             foreach (var expense in expenses)
             {
-                spending += expense.Amount;
+                if(expense.Date >= budget.StartDate && expense.Date <= budget.EndDate)
+                {
+                    spending += expense.Amount;
+                }
             }
             
             return true;
