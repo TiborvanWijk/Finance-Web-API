@@ -43,6 +43,35 @@ namespace FinanceApi.Controllers
             return Ok(budgets);
         }
 
+
+        [HttpGet("BudgetSpending/{budgetId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult GetBudgetSpending(int budgetId)
+        {
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var user = userService.GetById(userId, true);
+
+            int errorCode;
+            string errorMessage;
+            decimal spending;
+
+            if(!budgetService.TryGetBudgetSpending(user, budgetId, out spending, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok(spending);
+        }
+
+
+
+
+
         
         [HttpGet("current/budgets/{categoryId}")]
         [ProducesResponseType(200)]

@@ -14,11 +14,13 @@ namespace FinanceApi.Services
     {
         private readonly IBudgetRepository budgetRepository;
         private readonly ICategoryRepository categoryRepository;
+        private readonly IExpenseRepository expenseRepository;
 
-        public BudgetService(IBudgetRepository budgetRepository, ICategoryRepository categoryRepository)
+        public BudgetService(IBudgetRepository budgetRepository, ICategoryRepository categoryRepository, IExpenseRepository expenseRepository)
         {
             this.budgetRepository = budgetRepository;
             this.categoryRepository = categoryRepository;
+            this.expenseRepository = expenseRepository;
         }
 
         public bool Create (User user, BudgetDto budgetDto, out int errorCode, out string errorMessage)
@@ -251,6 +253,32 @@ namespace FinanceApi.Services
                 return false;
             }
 
+            return true;
+        }
+
+        public bool TryGetBudgetSpending(User user, int budgetId, out decimal spending, out int errorCode, out string errorMessage)
+        {
+            errorCode = 0;
+            errorMessage = string.Empty;
+            spending = 0;
+
+
+            if(!budgetRepository.ExistsById(user.Id, budgetId))
+            {
+                errorCode = 404;
+                errorMessage = "Budget not found.";
+                return false;
+            }
+
+
+            var expenses = expenseRepository.GetAllOfUserByBudgetId(user.Id, budgetId);
+
+
+            foreach (var expense in expenses)
+            {
+                spending += expense.Amount;
+            }
+            
             return true;
         }
     }
