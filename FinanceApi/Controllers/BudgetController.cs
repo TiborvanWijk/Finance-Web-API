@@ -202,5 +202,36 @@ namespace FinanceApi.Controllers
         }
 
 
+
+        [HttpDelete("RemoveCategories/{budgetId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult actionResult(int budgetId, [FromBody] ICollection<int> categoryIds)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var user = userService.GetById(userId, true);
+
+            int errorCode;
+            string errorMessage;
+
+
+            if (!budgetService.TryRemoveCategories(user, budgetId, categoryIds, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok("Categories deleted succesfully.");
+        }
+
+
     }
 }
