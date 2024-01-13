@@ -153,22 +153,16 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool Update(User user, IncomeDto incomeDto, out int errorCode, out string errorMessage, out decimal prevAmount)
+        public bool Update(User user, IncomeDto incomeDto, out int errorCode, out string errorMessage)
         {
             errorCode = 0;
             errorMessage = string.Empty;
-            prevAmount = 0;
 
             if (!incomeRepository.ExistsById(user.Id, incomeDto.Id))
             {
                 errorCode = 404;
                 errorMessage = "Income not found.";
                 return false;
-            }
-
-            if (incomeRepository.GetById(incomeDto.Id, false).IsPaid)
-            {
-                prevAmount = incomeRepository.GetById(incomeDto.Id, false).Amount;
             }
 
             if (!ValidateIncome(incomeDto, out errorCode, out errorMessage))
@@ -209,12 +203,11 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool TryDeleteIncome(User user, int incomeId, out decimal prevAmount, out int errorCode, out string errorMessage)
+        public bool TryDeleteIncome(User user, int incomeId, out int errorCode, out string errorMessage)
         {
 
             errorCode = 0;
             errorMessage = string.Empty;
-            prevAmount = 0;
 
             if(!incomeRepository.ExistsById(user.Id, incomeId))
             {
@@ -224,11 +217,6 @@ namespace FinanceApi.Services
             }
 
             var income = incomeRepository.GetById(incomeId, true);
-
-            if (income.IsPaid)
-            {
-                prevAmount = income.Amount;
-            }
 
             if (!incomeRepository.Delete(income))
             {

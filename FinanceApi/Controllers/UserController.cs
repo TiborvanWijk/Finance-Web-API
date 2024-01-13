@@ -1,4 +1,5 @@
 ﻿using Azure;
+using FinanceApi.Controllers.ApiResponseHelpers;
 using FinanceApi.Data.Dtos;
 using FinanceApi.Mapper;
 using FinanceApi.Models;
@@ -30,14 +31,23 @@ namespace FinanceApi.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (userId == null || !userService.ExistsById(userId))
+            if (!userService.ExistsById(userId))
             {
                 return NotFound();
             }
 
-
             UserDto userDto = Map.ToUserDto(userService.GetById(userId, false));
 
+            int errorCode;
+            string errorMessage;
+            decimal balance;
+
+            if(!userService.TryGetUserBalance(userId, out balance, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+            userDto.Balance = balance;
+            
             return Ok(userDto);
         }
     }

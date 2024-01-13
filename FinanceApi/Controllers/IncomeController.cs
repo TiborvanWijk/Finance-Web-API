@@ -103,12 +103,6 @@ namespace FinanceApi.Controllers
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-
-            if (incomeDto.IsPaid && !userService.UpdateBalance(user, incomeDto.Amount))
-            {
-                ModelState.AddModelError("UpdatingError", "Something went wrong while updating userbalance.");
-            }
-
             return Ok("Income created succesfully.");
         }
 
@@ -150,18 +144,10 @@ namespace FinanceApi.Controllers
 
             int errorCode;
             string errorMessage;
-            decimal prevAmount;
 
-            if (!incomeService.Update(user, incomeDto, out errorCode, out errorMessage, out prevAmount))
+            if (!incomeService.Update(user, incomeDto, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
-            }
-
-            decimal balance = incomeDto.IsPaid ? incomeDto.Amount - prevAmount : -prevAmount;
-
-            if (!userService.UpdateBalance(user, balance))
-            {
-                return StatusCode(500, "Something went wrong with updating users balance.");
             }
 
             return Ok("Updated income succesfully.");
@@ -178,18 +164,12 @@ namespace FinanceApi.Controllers
 
             var user = userService.GetById(userId, true);
 
-            decimal prevAmount;
             int errorCode;
             string errorMessage;
 
-            if(!incomeService.TryDeleteIncome(user, incomeId, out prevAmount, out errorCode, out errorMessage))
+            if(!incomeService.TryDeleteIncome(user, incomeId, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
-            }
-
-            if(!userService.UpdateBalance(user, -prevAmount))
-            {
-                return StatusCode(500, "Something went wrong while updating users balance.");
             }
 
             return Ok("Income deleted succesfully.");

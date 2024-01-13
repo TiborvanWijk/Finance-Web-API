@@ -12,10 +12,10 @@ namespace FinanceApi.Services.Interfaces
         bool ValidateExpense(ExpenseDto expenseDto, out int errorCode, out string errorMessage);
         bool ExistsById(string userId, int expenseId);
         bool Create(User user, ExpenseDto expenseDto, out int errorCode, out string errorMessage);
-        bool Update(User user, ExpenseDto expenseDto, out int errorCode, out string errorMessage, out decimal prevAmount);
+        bool Update(User user, ExpenseDto expenseDto, out int errorCode, out string errorMessage);
         bool Delete(Expense expense);
         bool tryGetExpensesWithCategoryId(User user, int categoryId, out ICollection<Expense> expenses, out int errorCode, out string errorMessage);
-        bool TryDeleteExpense(User user, int expenseId, out decimal prevAmount, out int errorCode, out string errorMessage);
+        bool TryDeleteExpense(User user, int expenseId, out int errorCode, out string errorMessage);
         bool TryRemoveCategories(User user, int expenseId, ICollection<int> categoryIds, out int errorCode, out string errorMessage);
     }
 }

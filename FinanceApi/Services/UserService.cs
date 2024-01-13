@@ -7,16 +7,14 @@ namespace FinanceApi.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository userRepository;
+        private readonly IExpenseRepository expenseRepository;
+        private readonly IIncomeRepository incomeRepository;
 
-        public UserService(IUserRepository userRepository)
+        public UserService(IUserRepository userRepository, IExpenseRepository expenseRepository, IIncomeRepository incomeRepository)
         {
             this.userRepository = userRepository;
-        }
-
-        public bool UpdateBalance(User user, decimal amount)
-        {
-            user.Balance += amount;
-            return userRepository.Update(user);
+            this.expenseRepository = expenseRepository;
+            this.incomeRepository = incomeRepository;
         }
 
         public bool Create(User user)
@@ -47,6 +45,43 @@ namespace FinanceApi.Services
         public User GetByUsername(string username)
         {
             return userRepository.GetByUsername(username);
+        }
+
+        public bool TryGetUserBalance(string userId, out decimal balance, out int errorCode, out string errorMessage)
+        {
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+            balance = 0;
+
+            if (!userRepository.ExistsById(userId))
+            {
+                errorCode = 404;
+                errorMessage = "User not found.";
+                return false;
+            }
+
+            var expenseTotal = expenseRepository.GetAllOfUser(userId)
+                .Where(e => e.Date <= DateTime.Now)
+                .Select(e => e.Amount)
+                .Sum();
+
+            var incomeTotal = incomeRepository.GetAllOfUser(userId)
+                .Where(e => e.Date <= DateTime.Now)
+                .Select(i => i.Amount)
+                .Sum();
+
+            try
+            {
+                balance = incomeTotal - expenseTotal;
+            }
+            catch (Exception ex)
+            {
+                errorCode = 500;
+                errorMessage = $"Something unexpected happen with calculating:  {ex.Message}";
+                return false;
+            }
+            return true;
         }
 
         public bool Update(User user)

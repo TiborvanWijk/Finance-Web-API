@@ -94,12 +94,11 @@ namespace FinanceApi.Services
             return expenseRepository.GetAllOfUser(userId);
         }
 
-        public bool Update(User user, ExpenseDto expenseDto, out int errorCode, out string errorMessage, out decimal prevAmount)
+        public bool Update(User user, ExpenseDto expenseDto, out int errorCode, out string errorMessage)
         {
 
             errorCode = 0;
             errorMessage = string.Empty;
-            prevAmount = 0;
 
             if(!expenseRepository.ExistsById(user.Id, expenseDto.Id))
             {
@@ -108,18 +107,10 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            var prevExpense = expenseRepository.GetById(expenseDto.Id, false);
-
-            if (prevExpense.IsPaid)
-            {
-                prevAmount = prevExpense.Amount;
-            }
-
             if (!ValidateExpense(expenseDto, out errorCode, out errorMessage))
             {
                 return false;
             }
-
 
             var expense = Map.ToExpense(expenseDto);
             expense.Currency = expense.Currency.ToUpper();
@@ -221,12 +212,10 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool TryDeleteExpense(User user, int expenseId, out decimal prevAmount, out int errorCode, out string errorMessage)
+        public bool TryDeleteExpense(User user, int expenseId, out int errorCode, out string errorMessage)
         {
             errorCode = 0;
             errorMessage = string.Empty;
-            prevAmount = 0;
-
 
             if (!expenseRepository.ExistsById(user.Id, expenseId))
             {
@@ -236,10 +225,6 @@ namespace FinanceApi.Services
             }
 
             var expense = expenseRepository.GetById(expenseId, true);
-            if (expense.IsPaid)
-            {
-                prevAmount = expense.Amount;
-            }
 
             if (!expenseRepository.Delete(expense))
             {

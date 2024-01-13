@@ -5,7 +5,6 @@ namespace FinanceApi.Models
 {
     public class User : IdentityUser
     {
-        public decimal Balance { get; set; } = 0;
         public string Currency { get; set; } = RegionInfo.CurrentRegion.ISOCurrencySymbol;
         public ICollection<Expense> Expenses{ get; set; }
         public ICollection<Income> Incomes { get; set; }

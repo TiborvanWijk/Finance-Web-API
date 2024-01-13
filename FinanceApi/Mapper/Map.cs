@@ -12,7 +12,6 @@ namespace FinanceApi.Mapper
             {
                 Id = userDto.Id,
                 UserName = userDto.Username,
-                Balance = userDto.Balance,
                 Currency = userDto.Currency,
             };
             return user;
@@ -24,7 +23,6 @@ namespace FinanceApi.Mapper
             {
                 Id = user.Id,
                 Username = user.UserName,
-                Balance = user.Balance,
                 Currency = user.Currency,
 
             };
@@ -42,7 +40,6 @@ namespace FinanceApi.Mapper
                 Amount = incomeDto.Amount,
                 Currency = incomeDto.Currency,
                 DocumentUrl = incomeDto.DocumentUrl,
-                IsPaid = incomeDto.IsPaid,
                 Date = incomeDto.Date,
             };
             return income;
@@ -58,7 +55,6 @@ namespace FinanceApi.Mapper
                 Currency = income.Currency,
                 Amount = income.Amount,
                 DocumentUrl = income.DocumentUrl,
-                IsPaid = income.IsPaid,
                 Date = income.Date,
             };
             return incomeDto;
@@ -73,7 +69,6 @@ namespace FinanceApi.Mapper
                 Description = expenseDto.Description,
                 Urgency = expenseDto.Urgency,
                 DocumentUrl = expenseDto.DocumentUrl,
-                IsPaid = expenseDto.IsPaid,
                 Date = expenseDto.Date,
                 Currency = expenseDto.Currency,
                 Amount = expenseDto.Amount,
@@ -91,7 +86,6 @@ namespace FinanceApi.Mapper
                 Description = expense.Description,
                 Urgency = expense.Urgency,
                 DocumentUrl = expense.DocumentUrl,
-                IsPaid = expense.IsPaid,
                 Date = expense.Date,
                 Currency = expense.Currency,
                 Amount = expense.Amount,

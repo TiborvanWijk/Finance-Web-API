@@ -7,10 +7,10 @@ namespace FinanceApi.Services.Interfaces
         bool ExistsById(string userId);
         User GetById(string userId, bool tracking);
         User GetByUsername(string username);
-        bool UpdateBalance(User user, decimal amount);
         bool ExistsByUsername(string username);
         bool Create(User user);
         bool Update(User user);
         bool Delete(User user);
+        bool TryGetUserBalance(string userId, out decimal balance, out int errorCode, out string errorMessage);
     }
 }

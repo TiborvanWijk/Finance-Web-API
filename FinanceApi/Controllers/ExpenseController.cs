@@ -102,12 +102,6 @@ namespace FinanceApi.Controllers
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            if(expenseDto.IsPaid && !userService.UpdateBalance(user, -expenseDto.Amount))
-            {
-                ModelState.AddModelError("UpdatingError", "Something went wrong while updating userbalance.");
-                return StatusCode(500, ModelState);
-            }
-
             return Ok("Expense created succesfully.");
         }
 
@@ -156,16 +150,9 @@ namespace FinanceApi.Controllers
             string errorMessage;
             decimal prevAmount;
 
-            if (!expenseService.Update(user, expenseDto, out errorCode, out errorMessage, out prevAmount))
+            if (!expenseService.Update(user, expenseDto, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
-            }
-
-            decimal balance = expenseDto.IsPaid ? -(expenseDto.Amount - prevAmount) : prevAmount;
-
-            if (!userService.UpdateBalance(user, balance))
-            {
-                return StatusCode(500, "Something went wrong with updating users balance.");
             }
 
             return Ok("Updated income succesfully.");
@@ -182,19 +169,12 @@ namespace FinanceApi.Controllers
 
             var user = userService.GetById(userId, true);
 
-            decimal prevAmount;
             int errorCode;
             string errorMessage;
 
-            if (!expenseService.TryDeleteExpense(user, expenseId, out prevAmount, out errorCode, out errorMessage))
+            if (!expenseService.TryDeleteExpense(user, expenseId, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
-            }
-
-
-            if (!userService.UpdateBalance(user, prevAmount))
-            {
-                return StatusCode(500, "something went wrong while updating users balance.");
             }
 
             return Ok("Expense succesfully deleted.");
