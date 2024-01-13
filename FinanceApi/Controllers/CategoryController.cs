@@ -24,7 +24,7 @@ namespace FinanceApi.Controllers
         }
 
 
-        [HttpGet("Current")]
+        [HttpGet("current")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult GetAllCategories()
@@ -40,7 +40,7 @@ namespace FinanceApi.Controllers
             return Ok(categoryDtos);
         }
 
-        [HttpGet("CurrentByExpenseAmount")]
+        [HttpGet("current_by_expenseAmount")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult GetCategoriesSortedByExpenseAmount()
@@ -64,7 +64,7 @@ namespace FinanceApi.Controllers
             return Ok(categoryDtos);
         }
 
-        [HttpGet("CategoryExpenseAmount/{categoryId}")]
+        [HttpGet("category_expense_amount/{categoryId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -89,7 +89,7 @@ namespace FinanceApi.Controllers
 
 
 
-        [HttpPost("Post")]
+        [HttpPost("post")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
@@ -148,7 +148,7 @@ namespace FinanceApi.Controllers
 
 
 
-        [HttpDelete("Delete/{categoryId}")]
+        [HttpDelete("delete/{categoryId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]

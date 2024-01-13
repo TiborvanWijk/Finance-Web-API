@@ -1,4 +1,5 @@
-﻿using FinanceApi.Services.Interfaces;
+﻿using FinanceApi.Repositories.Interfaces;
+using FinanceApi.Services.Interfaces;
 using FinanceApi.Validators;
 using Microsoft.IdentityModel.Tokens;
 
@@ -6,17 +7,23 @@ namespace FinanceApi.Services
 {
     public class FinancialService : IFinancialService
     {
-        private readonly IExpenseService expenseService;
-        private readonly IIncomeService incomeService;
+        private readonly IIncomeRepository incomeRepository;
+        private readonly IExpenseRepository expenseRepository;
+        private readonly IUserRepository userRepository;
 
-        public FinancialService(IExpenseService expenseService, IIncomeService incomeService)
+        public FinancialService(IIncomeRepository incomeRepository, IExpenseRepository expenseRepository, IUserRepository userRepository)
         {
-            this.expenseService = expenseService;
-            this.incomeService = incomeService;
+            this.incomeRepository = incomeRepository;
+            this.expenseRepository = expenseRepository;
+            this.userRepository = userRepository;
         }
 
-        public decimal AverageSpendingPerMonth(string userId, DateTime? startDate, DateTime? endDate)
+        public bool TryAverageSpendingPerMonth(string userId, DateTime? startDate, DateTime? endDate, out int errorCode, out string errorMessage)
         {
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+
             throw new NotImplementedException();
         }
 
@@ -29,9 +36,9 @@ namespace FinanceApi.Services
 
             try
             {
-                var totalIncomeAmount = incomeService.GetAllOfUser(userId).Select(i => i.Amount).Sum();
+                var totalIncomeAmount = incomeRepository.GetAllOfUser(userId).Select(i => i.Amount).Sum();
 
-                var totalExpenseAmount = expenseService.GetAllOfUser(userId).Select(e => e.Amount).Sum();
+                var totalExpenseAmount = expenseRepository.GetAllOfUser(userId).Select(e => e.Amount).Sum();
 
                 if (totalIncomeAmount == 0 || totalExpenseAmount == 0)
                 {
@@ -66,9 +73,9 @@ namespace FinanceApi.Services
 
             try
             {
-                var totalIncomeAmount = incomeService.GetAllOfUser(userId).Where(i => i.Date >= startDate && i.Date <= endDate).Select(i => i.Amount).Sum();
+                var totalIncomeAmount = incomeRepository.GetAllOfUser(userId).Where(i => i.Date >= startDate && i.Date <= endDate).Select(i => i.Amount).Sum();
 
-                var totalExpenseAmount = expenseService.GetAllOfUser(userId).Where(e => e.Date >= startDate && e.Date <= endDate).Select(e => e.Amount).Sum();
+                var totalExpenseAmount = expenseRepository.GetAllOfUser(userId).Where(e => e.Date >= startDate && e.Date <= endDate).Select(e => e.Amount).Sum();
 
             
                 if(totalIncomeAmount == 0 || totalExpenseAmount == 0)
@@ -102,9 +109,9 @@ namespace FinanceApi.Services
 
             try
             {
-                var totalIncomeAmount = incomeService.GetAllOfUser(userId).Where(i => i.Date >= startDate && i.Date <= endDate).Select(i => i.Amount).Sum();
+                var totalIncomeAmount = incomeRepository.GetAllOfUser(userId).Where(i => i.Date >= startDate && i.Date <= endDate).Select(i => i.Amount).Sum();
 
-                var totalExpenseAmount = expenseService.GetAllOfUser(userId).Where(e => e.Date >= startDate && e.Date <= endDate).Select(e => e.Amount).Sum();
+                var totalExpenseAmount = expenseRepository.GetAllOfUser(userId).Where(e => e.Date >= startDate && e.Date <= endDate).Select(e => e.Amount).Sum();
 
                 netIncome = Math.Round(totalIncomeAmount - totalExpenseAmount, 2);
 

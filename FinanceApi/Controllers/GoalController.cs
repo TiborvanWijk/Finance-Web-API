@@ -70,7 +70,7 @@ namespace FinanceApi.Controllers
         
 
 
-        [HttpPost("Post")]
+        [HttpPost("post")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -98,7 +98,7 @@ namespace FinanceApi.Controllers
             return Ok("Goal created succesfully.");
         }
 
-        [HttpPost("AssociateCategories/{goalId}")]
+        [HttpPost("associate_categories/{goalId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -150,7 +150,7 @@ namespace FinanceApi.Controllers
 
 
 
-        [HttpDelete("Delete/{goalId}")]
+        [HttpDelete("delete/{goalId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -173,7 +173,7 @@ namespace FinanceApi.Controllers
         }
 
 
-        [HttpDelete("RemoveCategories/{goalId}")]
+        [HttpDelete("remove_categories/{goalId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]

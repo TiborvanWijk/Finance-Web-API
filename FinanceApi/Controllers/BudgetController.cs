@@ -44,7 +44,7 @@ namespace FinanceApi.Controllers
         }
 
 
-        [HttpGet("BudgetSpending/{budgetId}")]
+        [HttpGet("budget_spending/{budgetId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -129,7 +129,7 @@ namespace FinanceApi.Controllers
             return Ok("Budget created succesfully.");
         }
 
-        [HttpPost("AssociateCategories/{budgetId}")]
+        [HttpPost("associate_categories/{budgetId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -203,7 +203,7 @@ namespace FinanceApi.Controllers
 
 
 
-        [HttpDelete("RemoveCategories/{budgetId}")]
+        [HttpDelete("remove_categories/{budgetId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]

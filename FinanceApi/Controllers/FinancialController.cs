@@ -24,7 +24,7 @@ namespace FinanceApi.Controllers
 
 
 
-        [HttpGet("NetIncome")]
+        [HttpGet("netincome")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult GetNetIncome([FromQuery] DateTime? startdate, [FromQuery] DateTime? endDate)
@@ -44,7 +44,7 @@ namespace FinanceApi.Controllers
             return Ok(netIncome);
         }
 
-        [HttpGet("GetSavingsRate")]
+        [HttpGet("get_savings_rate")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult GetSavingsRate()
@@ -63,7 +63,7 @@ namespace FinanceApi.Controllers
             return Ok(savingsRate);            
         }
 
-        [HttpGet("GetSavingsRateInTimePeriod")]
+        [HttpGet("get_savings_rate_in_timeperiod")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult GetSavingsRateInTimePeriod([FromQuery] DateTime? startdate, [FromQuery] DateTime? endDate)

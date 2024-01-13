@@ -27,7 +27,7 @@ namespace FinanceApi.Controllers
             this.userService = userService;
         }
 
-        [HttpGet("current/incomes")]
+        [HttpGet("current")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -77,7 +77,7 @@ namespace FinanceApi.Controllers
         }
 
 
-        [HttpPost("Post")]
+        [HttpPost("post")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
@@ -108,7 +108,7 @@ namespace FinanceApi.Controllers
 
 
 
-        [HttpPost("AssociateCategories/{incomeId}")]
+        [HttpPost("associate_categories/{incomeId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -153,7 +153,7 @@ namespace FinanceApi.Controllers
             return Ok("Updated income succesfully.");
         }
 
-        [HttpDelete("Delete/{incomeId}")]
+        [HttpDelete("delete/{incomeId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -177,7 +177,7 @@ namespace FinanceApi.Controllers
 
 
 
-        [HttpDelete("RemoveCategories/{incomeId}")]
+        [HttpDelete("remove_categories/{incomeId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]

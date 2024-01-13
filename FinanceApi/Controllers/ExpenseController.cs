@@ -77,7 +77,7 @@ namespace FinanceApi.Controllers
 
 
 
-        [HttpPost("Post")]
+        [HttpPost("post")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
@@ -106,7 +106,7 @@ namespace FinanceApi.Controllers
         }
 
 
-        [HttpPost("AssociateCategories/{expenseId}")]
+        [HttpPost("associate_categories/{expenseId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -158,7 +158,7 @@ namespace FinanceApi.Controllers
             return Ok("Updated income succesfully.");
         }
 
-        [HttpDelete("Delete/{expenseId}")]
+        [HttpDelete("delete/{expenseId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -180,7 +180,7 @@ namespace FinanceApi.Controllers
             return Ok("Expense succesfully deleted.");
         }
 
-        [HttpDelete("RemoveCategories/{expenseId}")]
+        [HttpDelete("removeCategories/{expenseId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
