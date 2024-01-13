@@ -31,16 +31,25 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult GetUsersIncomes()
+        public IActionResult GetUsersIncomes([FromQuery] DateTime? from, [FromQuery] DateTime? to)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            ICollection<IncomeDto> incomeDtos = incomeService.GetAllOfUser(userId).Select(Map.ToIncomeDto).ToList();
-
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            int errorCode;
+            string errorMessage;
+            ICollection<Income> incomes;
+
+            if(!incomeService.TryGetIncomesFilteredOrDefault(userId, out incomes, from, to, out errorCode, out errorMessage)){
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var incomeDtos = incomes.Select(Map.ToIncomeDto).ToList();
 
             return Ok(incomeDtos);
         }

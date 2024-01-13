@@ -25,7 +25,7 @@ namespace FinanceApi.Validators
             errorCode = 0;
             errorMessage = string.Empty;
 
-            if (!startDate.HasValue || !endDate.HasValue)
+            if (startDate == null || endDate == null)
             {
                 errorCode = 400;
                 errorMessage = "Invalid date format.";

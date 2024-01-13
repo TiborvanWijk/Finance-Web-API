@@ -33,16 +33,28 @@ namespace FinanceApi.Controllers
         [HttpGet("current")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetExpenses()
+        public IActionResult GetExpenses([FromQuery] DateTime? from, [FromQuery] DateTime? to)
         {
 
-            var expenses = expenseService.GetAllOfUser(User.FindFirst(ClaimTypes.NameIdentifier)?.Value).Select(Map.ToExpenseDto);
-
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            return Ok(expenses);
+
+            int errorCode;
+            string errorMessage;
+            ICollection<Expense> expenses;
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!expenseService.TryGetExpensesFilteredOrDefault(userId, out expenses, from, to, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var expenseDtos = expenses.Select(Map.ToExpenseDto);
+
+            return Ok(expenseDtos);
         }
 
         [HttpGet("current/expenses/{categoryId}")]
@@ -148,14 +160,13 @@ namespace FinanceApi.Controllers
 
             int errorCode;
             string errorMessage;
-            decimal prevAmount;
 
             if (!expenseService.Update(user, expenseDto, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            return Ok("Updated income succesfully.");
+            return Ok("Updated expense succesfully.");
         }
 
         [HttpDelete("delete/{expenseId}")]
@@ -180,7 +191,7 @@ namespace FinanceApi.Controllers
             return Ok("Expense succesfully deleted.");
         }
 
-        [HttpDelete("removeCategories/{expenseId}")]
+        [HttpDelete("remove_categories/{expenseId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]

@@ -6,9 +6,9 @@ namespace FinanceApi.Services.Interfaces
     public interface IExpenseService
     {
         Expense GetById(int expenseId, bool tracking);
-        ICollection<Expense> GetAllOfUser(string userId);
+        bool TryGetExpensesFilteredOrDefault(string userId, out ICollection<Expense> expense, DateTime? startDate, DateTime? endDate, out int errorCode, out string errorMessage);
         bool AddCategory(ExpenseCategory expenseCategory);
-        public bool AddCategories(string userId, int expenseId, ICollection<int> categoryIds, out string errorMessage, out int errorCode);
+        bool AddCategories(string userId, int expenseId, ICollection<int> categoryIds, out string errorMessage, out int errorCode);
         bool ValidateExpense(ExpenseDto expenseDto, out int errorCode, out string errorMessage);
         bool ExistsById(string userId, int expenseId);
         bool Create(User user, ExpenseDto expenseDto, out int errorCode, out string errorMessage);

@@ -97,9 +97,31 @@ namespace FinanceApi.Services
             return incomeRepository.ExistsById(userId, incomeId);
         }
 
-        public ICollection<Income> GetAllOfUser(string userId)
+        public bool TryGetIncomesFilteredOrDefault(string userId,
+            out ICollection<Income> incomes,
+            DateTime? startDate,
+            DateTime? endDate,
+            out int errorCode,
+            out string errorMessage)
         {
-            return incomeRepository.GetAllOfUser(userId);
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+
+            incomes = incomeRepository.GetAllOfUser(userId).OrderByDescending(i => i.Date).ToList();
+
+
+            if(startDate != null || endDate != null)
+            {
+                if(!Validator.ValidateTimePeriod(startDate, endDate, out errorCode, out errorMessage))
+                {
+                    return false;
+                }
+
+                incomes = incomes.Where(i => i.Date >= startDate && i.Date <= endDate).ToList();
+            }
+
+            return true;
         }
 
         public Income GetById(int incomeId, bool tracking)

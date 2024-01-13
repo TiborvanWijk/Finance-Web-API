@@ -89,9 +89,31 @@ namespace FinanceApi.Services
             return expenseRepository.ExistsById(userId, expenseId);
         }
 
-        public ICollection<Expense> GetAllOfUser(string userId)
+        public bool TryGetExpensesFilteredOrDefault(string userId,
+            out ICollection<Expense> expense,
+            DateTime? startDate,
+            DateTime? endDate,
+            out int errorCode,
+            out string errorMessage)
         {
-            return expenseRepository.GetAllOfUser(userId);
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+
+            expense = expenseRepository.GetAllOfUser(userId).OrderByDescending(i => i.Date).ToList();
+
+
+            if (startDate != null || endDate != null)
+            {
+                if (!Validator.ValidateTimePeriod(startDate, endDate, out errorCode, out errorMessage))
+                {
+                    return false;
+                }
+
+                expense = expense.Where(i => i.Date >= startDate && i.Date <= endDate).ToList();
+            }
+
+            return true;
         }
 
         public bool Update(User user, ExpenseDto expenseDto, out int errorCode, out string errorMessage)
