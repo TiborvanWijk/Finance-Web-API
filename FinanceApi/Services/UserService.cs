@@ -1,6 +1,7 @@
 ﻿using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services.Interfaces;
+using FinanceApi.Validators;
 
 namespace FinanceApi.Services
 {
@@ -73,7 +74,7 @@ namespace FinanceApi.Services
 
             try
             {
-                balance = incomeTotal - expenseTotal;
+                balance = Math.Round(incomeTotal - expenseTotal,2);
             }
             catch (Exception ex)
             {
@@ -81,6 +82,40 @@ namespace FinanceApi.Services
                 errorMessage = $"Something unexpected happen with calculating:  {ex.Message}";
                 return false;
             }
+            return true;
+        }
+
+        public bool TryUpdateUserCurrency(string userId, string currency, out int errorCode, out string errorMessage)
+        {
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+
+            if (!userRepository.ExistsById(userId))
+            {
+                errorCode = 404;
+                errorMessage = "User not found.";
+                return false;
+            }
+
+            if (!Validator.IsValidCurrencyCode(currency))
+            {
+                errorCode = 400;
+                errorMessage = "Currency ISOcode is not valid.";
+                return false;
+            }
+
+            var user = userRepository.GetById(userId, true);
+            user.Currency = currency.ToUpper();
+
+
+            if (!userRepository.Update(user))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while updating currency of user.";
+                return false;
+            }
+
             return true;
         }
 

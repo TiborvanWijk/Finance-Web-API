@@ -10,6 +10,7 @@ using System.Security.Claims;
 
 namespace FinanceApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class UserController : Controller
@@ -23,7 +24,6 @@ namespace FinanceApi.Controllers
         }
 
 
-        [Authorize]
         [HttpGet("current")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
@@ -49,6 +49,27 @@ namespace FinanceApi.Controllers
             userDto.Balance = balance;
             
             return Ok(userDto);
+        }
+
+        [HttpPatch("patch_currency/{currency}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult UpdateUsersCurrency(string currency)
+        {
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            int errorCode;
+            string errorMessage;
+
+            if (!userService.TryUpdateUserCurrency(userId, currency, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok("Updated users currency succesfully.");
         }
     }
 }

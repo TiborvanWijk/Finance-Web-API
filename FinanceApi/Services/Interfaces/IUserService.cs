@@ -12,5 +12,6 @@ namespace FinanceApi.Services.Interfaces
         bool Update(User user);
         bool Delete(User user);
         bool TryGetUserBalance(string userId, out decimal balance, out int errorCode, out string errorMessage);
+        bool TryUpdateUserCurrency(string userId, string currency, out int errorCode, out string errorMessage);
     }
 }
