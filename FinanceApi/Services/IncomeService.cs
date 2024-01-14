@@ -123,23 +123,20 @@ namespace FinanceApi.Services
                 incomes = incomes.Where(i => i.Date >= startDate && i.Date <= endDate).ToList();
             }
 
-            if (list_order_by != null)
-            {
-                incomes = (list_dir != null && list_dir.Equals("desc")) ?
-                    (list_order_by switch
-                    {
-                        "title" => incomes.OrderByDescending(i => i.Title),
-                        "amount" => incomes.OrderByDescending(i => i.Amount),
-                        _ => incomes.OrderByDescending(i => i.Date),
-                    }).ToList() 
-                    :
-                    (list_order_by switch
-                    {
-                        "title" => incomes.OrderBy(i => i.Title),
-                        "amount" => incomes.OrderBy(i => i.Amount),
-                        _ => incomes.OrderBy(i => i.Date),
-                    }).ToList();
-            }
+            incomes = (list_dir != null && list_dir.Equals("desc")) ?
+                (list_order_by switch
+                {
+                    "title" => incomes.OrderByDescending(i => i.Title),
+                    "amount" => incomes.OrderByDescending(i => i.Amount),
+                    _ => incomes.OrderByDescending(i => i.Date),
+                }).ToList()
+                :
+                (list_order_by switch
+                {
+                    "title" => incomes.OrderBy(i => i.Title),
+                    "amount" => incomes.OrderBy(i => i.Amount),
+                    _ => incomes.OrderBy(i => i.Date),
+                }).ToList();
 
 
 

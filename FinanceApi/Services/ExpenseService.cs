@@ -90,9 +90,11 @@ namespace FinanceApi.Services
         }
 
         public bool TryGetExpensesFilteredOrDefault(string userId,
-            out ICollection<Expense> expense,
+            out ICollection<Expense> expenses,
             DateTime? startDate,
             DateTime? endDate,
+            string? list_order_by,
+            string? list_dir,
             out int errorCode,
             out string errorMessage)
         {
@@ -100,7 +102,7 @@ namespace FinanceApi.Services
             errorCode = 0;
             errorMessage = string.Empty;
 
-            expense = expenseRepository.GetAllOfUser(userId).OrderByDescending(i => i.Date).ToList();
+            expenses = expenseRepository.GetAllOfUser(userId).OrderByDescending(i => i.Date).ToList();
 
 
             if (startDate != null || endDate != null)
@@ -110,8 +112,26 @@ namespace FinanceApi.Services
                     return false;
                 }
 
-                expense = expense.Where(i => i.Date >= startDate && i.Date <= endDate).ToList();
+                expenses = expenses.Where(i => i.Date >= startDate && i.Date <= endDate).ToList();
             }
+
+
+            expenses = (list_dir != null && list_dir.Equals("desc")) ?
+                (list_order_by switch
+                {
+                    "title" => expenses.OrderByDescending(i => i.Title),
+                    "amount" => expenses.OrderByDescending(i => i.Amount),
+                    "urgency" => expenses.OrderBy(i => i.Urgency),
+                    _ => expenses.OrderByDescending(i => i.Date),
+                }).ToList()
+                :
+                (list_order_by switch
+                {
+                    "title" => expenses.OrderBy(i => i.Title),
+                    "amount" => expenses.OrderBy(i => i.Amount),
+                    "urgency" => expenses.OrderBy(i => i.Urgency),
+                    _ => expenses.OrderBy(i => i.Date),
+                }).ToList();
 
             return true;
         }
@@ -122,7 +142,7 @@ namespace FinanceApi.Services
             errorCode = 0;
             errorMessage = string.Empty;
 
-            if(!expenseRepository.ExistsById(user.Id, expenseDto.Id))
+            if (!expenseRepository.ExistsById(user.Id, expenseDto.Id))
             {
                 errorCode = 404;
                 errorMessage = "Expense not found";
@@ -178,7 +198,7 @@ namespace FinanceApi.Services
                     errorCode = 404;
                     return false;
                 }
-                else if(expenseCategories.Any(ec => ec.CategoryId == categoryId))
+                else if (expenseCategories.Any(ec => ec.CategoryId == categoryId))
                 {
                     errorMessage = "Category already added.";
                     errorCode = 400;

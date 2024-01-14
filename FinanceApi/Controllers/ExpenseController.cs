@@ -33,7 +33,8 @@ namespace FinanceApi.Controllers
         [HttpGet("current")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetExpenses([FromQuery] DateTime? from, [FromQuery] DateTime? to)
+        public IActionResult GetExpenses([FromQuery] DateTime? from, [FromQuery] DateTime? to,
+            [FromQuery] string? list_order_by, [FromQuery] string? list_dir)
         {
 
             if (!ModelState.IsValid)
@@ -47,7 +48,7 @@ namespace FinanceApi.Controllers
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (!expenseService.TryGetExpensesFilteredOrDefault(userId, out expenses, from, to, out errorCode, out errorMessage))
+            if (!expenseService.TryGetExpensesFilteredOrDefault(userId, out expenses, from, to, list_order_by, list_dir, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
