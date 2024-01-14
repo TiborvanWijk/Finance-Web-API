@@ -31,7 +31,8 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult GetUsersIncomes([FromQuery] DateTime? from, [FromQuery] DateTime? to)
+        public IActionResult GetUsersIncomes([FromQuery] DateTime? from, [FromQuery] DateTime? to,
+            [FromQuery] string? list_order_by, [FromQuery] string? list_dir)
         {
 
             if (!ModelState.IsValid)
@@ -45,7 +46,7 @@ namespace FinanceApi.Controllers
             string errorMessage;
             ICollection<Income> incomes;
 
-            if(!incomeService.TryGetIncomesFilteredOrDefault(userId, out incomes, from, to, out errorCode, out errorMessage)){
+            if(!incomeService.TryGetIncomesFilteredOrDefault(userId, out incomes, from, to, list_order_by, list_dir, out errorCode, out errorMessage)){
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 

@@ -101,6 +101,8 @@ namespace FinanceApi.Services
             out ICollection<Income> incomes,
             DateTime? startDate,
             DateTime? endDate,
+            string? list_order_by,
+            string? list_dir,
             out int errorCode,
             out string errorMessage)
         {
@@ -108,18 +110,38 @@ namespace FinanceApi.Services
             errorCode = 0;
             errorMessage = string.Empty;
 
-            incomes = incomeRepository.GetAllOfUser(userId).OrderByDescending(i => i.Date).ToList();
+            incomes = incomeRepository.GetAllOfUser(userId);
 
 
-            if(startDate != null || endDate != null)
+            if (startDate != null || endDate != null)
             {
-                if(!Validator.ValidateTimePeriod(startDate, endDate, out errorCode, out errorMessage))
+                if (!Validator.ValidateTimePeriod(startDate, endDate, out errorCode, out errorMessage))
                 {
                     return false;
                 }
 
                 incomes = incomes.Where(i => i.Date >= startDate && i.Date <= endDate).ToList();
             }
+
+            if (list_order_by != null)
+            {
+                incomes = (list_dir != null && list_dir.Equals("desc")) ?
+                    (list_order_by switch
+                    {
+                        "title" => incomes.OrderByDescending(i => i.Title),
+                        "amount" => incomes.OrderByDescending(i => i.Amount),
+                        _ => incomes.OrderByDescending(i => i.Date),
+                    }).ToList() 
+                    :
+                    (list_order_by switch
+                    {
+                        "title" => incomes.OrderBy(i => i.Title),
+                        "amount" => incomes.OrderBy(i => i.Amount),
+                        _ => incomes.OrderBy(i => i.Date),
+                    }).ToList();
+            }
+
+
 
             return true;
         }
@@ -141,7 +163,7 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            if (incomeDto.Amount <= 0 || incomeDto.Amount > 100000000) 
+            if (incomeDto.Amount <= 0 || incomeDto.Amount > 100000000)
             {
                 errorCode = 400;
                 errorMessage = "Amount must be more then '0' and smaller then '100000000'.";
@@ -231,7 +253,7 @@ namespace FinanceApi.Services
             errorCode = 0;
             errorMessage = string.Empty;
 
-            if(!incomeRepository.ExistsById(user.Id, incomeId))
+            if (!incomeRepository.ExistsById(user.Id, incomeId))
             {
                 errorCode = 404;
                 errorMessage = "Income not found.";
@@ -256,7 +278,7 @@ namespace FinanceApi.Services
             errorCode = 0;
             errorMessage = string.Empty;
 
-            if(!incomeRepository.ExistsById(user.Id, incomeId))
+            if (!incomeRepository.ExistsById(user.Id, incomeId))
             {
                 errorCode = 404;
                 errorMessage = "Income not found.";
@@ -281,7 +303,7 @@ namespace FinanceApi.Services
                     return false;
                 }
 
-                if(!incomeCategories.Any(ic => ic.CategoryId == categoryId))
+                if (!incomeCategories.Any(ic => ic.CategoryId == categoryId))
                 {
                     errorCode = 400;
                     errorMessage = "Income does not have this category";
