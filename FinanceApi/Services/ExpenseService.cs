@@ -121,7 +121,7 @@ namespace FinanceApi.Services
                 {
                     "title" => expenses.OrderByDescending(i => i.Title),
                     "amount" => expenses.OrderByDescending(i => i.Amount),
-                    "urgency" => expenses.OrderBy(i => i.Urgency),
+                    "urgency" => expenses.OrderByDescending(i => i.Urgency),
                     _ => expenses.OrderByDescending(i => i.Date),
                 }).ToList()
                 :

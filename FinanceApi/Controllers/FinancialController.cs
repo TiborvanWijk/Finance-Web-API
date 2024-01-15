@@ -47,7 +47,7 @@ namespace FinanceApi.Controllers
         [HttpGet("get_savings_rate")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetSavingsRate()
+        public IActionResult GetSavingsRate([FromQuery] DateTime? startdate, [FromQuery] DateTime? endDate)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
@@ -55,38 +55,12 @@ namespace FinanceApi.Controllers
             int errorCode;
             string errorMessage;
 
-            if (!financialService.tryGetSavingsRate(userId, out savingsRate, out errorCode, out errorMessage))
+            if (!financialService.tryGetSavingsRate(userId, out savingsRate, startdate, endDate, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
             return Ok(savingsRate);            
         }
-
-        [HttpGet("get_savings_rate_in_timeperiod")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        public IActionResult GetSavingsRateInTimePeriod([FromQuery] DateTime? startdate, [FromQuery] DateTime? endDate)
-        {
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            decimal savingsRate;
-            int errorCode;
-            string errorMessage;
-
-            if(!financialService.TryGetSavingsRateInTimePeriod(userId, startdate, endDate, out savingsRate, out errorCode, out errorMessage))
-            {
-                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
-            }
-
-            return Ok(savingsRate);
-        }
-
     }
 }
