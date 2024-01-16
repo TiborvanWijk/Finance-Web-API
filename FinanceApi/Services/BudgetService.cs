@@ -23,7 +23,7 @@ namespace FinanceApi.Services
             this.expenseRepository = expenseRepository;
         }
 
-        public bool Create (User user, BudgetDto budgetDto, out int errorCode, out string errorMessage)
+        public bool Create(User user, BudgetDto budgetDto, out int errorCode, out string errorMessage)
         {
             errorCode = 0;
             errorMessage = string.Empty;
@@ -115,7 +115,7 @@ namespace FinanceApi.Services
             errorCode = 0;
             errorMessage = string.Empty;
 
-            if(!budgetRepository.ExistsById(user.Id, budgetDto.Id))
+            if (!budgetRepository.ExistsById(user.Id, budgetDto.Id))
             {
                 errorCode = 404;
                 errorMessage = "Budget not found.";
@@ -219,7 +219,7 @@ namespace FinanceApi.Services
             budgets = new List<Budget>();
 
 
-            if(!categoryRepository.ExistsById(user.Id, categoryId))
+            if (!categoryRepository.ExistsById(user.Id, categoryId))
             {
                 errorCode = 404;
                 errorMessage = "Category not found.";
@@ -238,7 +238,8 @@ namespace FinanceApi.Services
             errorMessage = string.Empty;
 
 
-            if (!budgetRepository.ExistsById(user.Id, budgetId)){
+            if (!budgetRepository.ExistsById(user.Id, budgetId))
+            {
                 errorCode = 404;
                 errorMessage = "Budget not found.";
                 return false;
@@ -263,31 +264,40 @@ namespace FinanceApi.Services
             spending = 0;
 
 
-            if(!budgetRepository.ExistsById(user.Id, budgetId))
+            if (!budgetRepository.ExistsById(user.Id, budgetId))
             {
                 errorCode = 404;
                 errorMessage = "Budget not found.";
                 return false;
             }
 
+            spending = GetBudgetSpending(user.Id, budgetId);
+
+            return true;
+        }
+
+        private decimal GetBudgetSpending(string userId, int budgetId)
+        {
+            decimal spending = 0;
             var budget = budgetRepository.GetById(budgetId, false);
 
-            var expenses = expenseRepository.GetAllOfUserByBudgetId(user.Id, budgetId);
- 
+            var expenses = expenseRepository.GetAllOfUserByBudgetId(userId, budgetId);
+
             foreach (var expense in expenses)
             {
-                if(expense.Date >= budget.StartDate && expense.Date <= budget.EndDate)
+                if (expense.Date >= budget.StartDate && expense.Date <= budget.EndDate)
                 {
                     spending += expense.Amount;
                 }
             }
-            
-            return true;
+
+            return spending;
         }
+
 
         public bool TryRemoveCategories(User user, int budgetId, ICollection<int> categoryIds, out int errorCode, out string errorMessage)
         {
-        
+
             errorCode = 0;
             errorMessage = string.Empty;
 
@@ -337,5 +347,64 @@ namespace FinanceApi.Services
 
             return true;
         }
+
+        public bool TryGetAllOrderedOrDefault(string userId, out ICollection<Budget> budgets, out int errorCode, out string errorMessage, DateTime? startDate, DateTime? endDate, string? listOrderBy, string? listDir)
+        {
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+            budgets = null;
+
+
+            try
+            {
+
+
+                budgets = budgetRepository.GetAllOfUser(userId);
+
+                if (startDate != null || endDate != null)
+                {
+                    if (!Validator.ValidateTimePeriod(startDate, endDate, out errorCode, out errorMessage))
+                    {
+                        return false;
+                    }
+                    budgets = budgets.Where(b => b.StartDate >= startDate && b.EndDate <= endDate).ToList();
+                }
+
+
+                budgets = listDir != null && listDir.Equals("desc") ?
+                    (listOrderBy switch
+                    {
+
+                        "title" => budgets.OrderByDescending(b => b.Title),
+                        "urgency" => budgets.OrderByDescending(b => b.Urgency),
+                        "limitAmount" => budgets.OrderByDescending(b => b.LimitAmount),
+                        "spending" => budgets.OrderByDescending(b => GetBudgetSpending(userId, b.Id)),
+                        _ => budgets.OrderByDescending(b => b.EndDate),
+
+                    }).ToList()
+                    :
+                    (listOrderBy switch
+                    {
+
+                        "title" => budgets.OrderBy(b => b.Title),
+                        "urgency" => budgets.OrderBy(b => b.Urgency),
+                        "limitAmount" => budgets.OrderBy(b => b.LimitAmount),
+                        "spending" => budgets.OrderBy(b => GetBudgetSpending(userId, b.Id)),
+                        _ => budgets.OrderBy(b => b.EndDate),
+
+                    }).ToList();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errorCode = 500;
+                errorMessage = "Something unexpected happened";
+                return false;
+            }
+
+        }
+
     }
 }

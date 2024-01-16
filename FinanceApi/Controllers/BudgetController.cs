@@ -2,7 +2,6 @@
 using FinanceApi.Data.Dtos;
 using FinanceApi.Mapper;
 using FinanceApi.Models;
-using FinanceApi.Services;
 using FinanceApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,18 +28,24 @@ namespace FinanceApi.Controllers
         [HttpGet("current")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetAllBudgets()
+        public IActionResult GetAllBudgets([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate, [FromQuery] string? listOrderBy, string? listDir)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var budgets = budgetService.GetAllOfUser(userId).Select(Map.ToBudgetDto);
 
-            if (!ModelState.IsValid)
+            int errorCode;
+            string errorMessage;
+            ICollection<Budget> budgets;
+
+
+            if(!budgetService.TryGetAllOrderedOrDefault(userId, out budgets, out errorCode, out errorMessage, startDate, endDate, listOrderBy, listDir))
             {
-                return BadRequest(ModelState);
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
+
+            var budgetDtos = budgets.Select(Map.ToBudgetDto);
             
-            return Ok(budgets);
+            return Ok(budgetDtos);
         }
 
 
