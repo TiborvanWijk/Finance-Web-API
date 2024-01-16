@@ -2,8 +2,10 @@
 using FinanceApi.Data.Dtos;
 using FinanceApi.Mapper;
 using FinanceApi.Models;
+using FinanceApi.Repositories;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services.Interfaces;
+using FinanceApi.Validators;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApi.Services
@@ -12,11 +14,13 @@ namespace FinanceApi.Services
     {
         private readonly ICategoryRepository categoryRepository;
         private readonly IExpenseRepository expenseRepository;
+        private readonly IUserRepository userRepository;
 
-        public CategoryService(ICategoryRepository categoryRepository, IExpenseRepository expenseRepository)
+        public CategoryService(ICategoryRepository categoryRepository, IExpenseRepository expenseRepository, IUserRepository userRepository)
         {
             this.categoryRepository = categoryRepository;
             this.expenseRepository = expenseRepository;
+            this.userRepository = userRepository;
         }
 
         public bool Create(User user, CategoryDto categoryDto, out int errorCode, out string errorMessage)
@@ -84,38 +88,9 @@ namespace FinanceApi.Services
             return categoryRepository.ExistsBytitle(userId, title);
         }
 
-        public ICollection<Category> GetAllOfUser(string userId)
-        {
-            return categoryRepository.GetAllOfUser(userId);
-        }
-
         public Category GetById(int categoryId, bool tracking)
         {
             return categoryRepository.GetById(categoryId, tracking);
-        }
-
-        public bool TryGetCategoriesSortedByExpenseAmount(User user, out ICollection<Category> categories, out int errorCode, out string errorMessage)
-        {
-            errorCode = 0;
-            errorMessage = string.Empty;
-            categories = new List<Category>();
-
-
-            try
-            {
-                categories = categoryRepository.GetCategoriesIncludingExpenseCategoriesAndExpense(user.Id)
-                    .OrderByDescending(c => c.ExpenseCategories.Sum(ec => ec.Expense != null ? ec.Expense.Amount : 0)).ToList();
-
-            }
-            catch (Exception ex)
-            {
-                errorCode = 500;
-                errorMessage = ex.Message;
-                return false;
-            }
-
-
-            return true;
         }
 
         public bool TryGetCategoryExpenseAmount(User user, int categoryId, out decimal expenseAmount, out int errorCode, out string errorMessage)
@@ -168,6 +143,57 @@ namespace FinanceApi.Services
             }
 
             return true;
+        }
+
+        public bool TryGetCategoriesFilteredOrDefault(string userId, out ICollection<Category> categories, out int errorCode, out string errorMessage, string ListOrderBy, string listDir)
+        {
+            errorCode = 0;
+            errorMessage = string.Empty;
+            categories = new List<Category>();
+
+            if (!userRepository.ExistsById(userId))
+            {
+                errorCode = 401;
+                errorMessage = "Unauthorized.";
+                return false;
+            }
+
+            try
+            {
+
+                var user = userRepository.GetById(userId, true);
+
+                categories = categoryRepository.GetAllOfUser(userId);
+
+                categories = listDir != null && listDir.Equals("desc") ?
+                    (ListOrderBy switch
+                    {
+                        "title" => categories.OrderByDescending(c => c.Title),
+                        "expense" => categoryRepository.GetCategoriesIncludingExpenseCategoriesAndExpense(user.Id)
+                                .OrderByDescending(c => c.ExpenseCategories.Sum(ec => ec.Expense != null ? ec.Expense.Amount : 0)),
+                                _ => categories.OrderByDescending(c => c.Id),
+                                
+                    }).ToList()
+                    :
+                    (ListOrderBy switch
+                    {
+                        "expense" => categories.OrderBy(c => c.Title),
+                        "spending" => categoryRepository.GetCategoriesIncludingExpenseCategoriesAndExpense(user.Id)
+                                .OrderBy(c => c.ExpenseCategories.Sum(ec => ec.Expense != null ? ec.Expense.Amount : 0)),
+                        _ => categories.OrderBy(c => c.Id),
+
+                    }).ToList();
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
+
+
         }
     }
 }

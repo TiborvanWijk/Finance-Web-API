@@ -27,40 +27,22 @@ namespace FinanceApi.Controllers
         [HttpGet("current")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetAllCategories()
+        public IActionResult GetAllCategories([FromQuery] string? listOrderBy, [FromQuery] string? listDir)
         {
-
-            var categoryDtos = categoryService.GetAllOfUser(User.FindFirst(ClaimTypes.NameIdentifier).Value).Select(Map.ToCategoryDto);
-
-            if(!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            return Ok(categoryDtos);
-        }
-
-        [HttpGet("current_by_expenseAmount")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        public IActionResult GetCategoriesSortedByExpenseAmount()
-        {
-
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var user = userService.GetById(userId, true);
-
+            ICollection<Category> categories;
             int errorCode;
             string errorMessage;
-            ICollection<Category> categories;
 
-            if(!categoryService.TryGetCategoriesSortedByExpenseAmount(user, out categories, out errorCode, out errorMessage))
+            if (!categoryService.TryGetCategoriesFilteredOrDefault(userId, out categories, out errorCode, out errorMessage, listOrderBy, listDir))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
             var categoryDtos = categories.Select(Map.ToCategoryDto);
+
             return Ok(categoryDtos);
         }
 
