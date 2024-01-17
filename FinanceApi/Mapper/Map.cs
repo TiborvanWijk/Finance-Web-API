@@ -125,7 +125,24 @@ namespace FinanceApi.Mapper
             return budgetDto;
         }
 
-        internal static Goal ToGoal(GoalDto goalDto)
+
+        internal static Budget ToBudgetFromBudgetManageDto(BudgetManageDto budgetDto)
+        {
+            var budget = new Budget()
+            {
+                Id = budgetDto.Id,
+                Title = budgetDto.Title,
+                Description = budgetDto.Description,
+                LimitAmount = budgetDto.LimitAmount,
+                Currency = budgetDto.Currency,
+                Urgency = budgetDto.Urgency,
+                StartDate = budgetDto.StartDate,
+                EndDate = budgetDto.EndDate,
+            };
+            return budget;
+        }
+
+        internal static Goal ToGoalFromGoalManageDto(GoalManageDto goalDto)
         {
             var goal = new Goal()
             {
@@ -134,8 +151,23 @@ namespace FinanceApi.Mapper
                 Description = goalDto.Description,
                 Amount = goalDto.Amount,
                 Currency = goalDto.Currency,
-                Progress = goalDto.Progress,
-                TargetDate = goalDto.TargetDate,
+                StartDate = goalDto.StartDate,
+                EndDate = goalDto.EndDate,
+            };
+            return goal;
+        }
+
+        internal static Goal ToGoalFromGoalDto(GoalDto goalDto)
+        {
+            var goal = new Goal()
+            {
+                Id = goalDto.Id,
+                Title = goalDto.Title,
+                Description = goalDto.Description,
+                Amount = goalDto.Amount,
+                Currency = goalDto.Currency,
+                StartDate= goalDto.StartDate,
+                EndDate = goalDto.EndDate,
             };
             return goal;
         }
@@ -149,8 +181,8 @@ namespace FinanceApi.Mapper
                 Description = goal.Description,
                 Amount = goal.Amount,
                 Currency = goal.Currency,
-                Progress = goal.Progress,
-                TargetDate = goal.TargetDate,
+                StartDate = goal.StartDate,
+                EndDate = goal.EndDate,
             };
             return goalDto;
         }
@@ -164,7 +196,8 @@ namespace FinanceApi.Mapper
                 Description = goal.Description,
                 Amount = goal.Amount,
                 Currency = goal.Currency,
-                TargetDate = goal.TargetDate
+                StartDate = goal.StartDate,
+                EndDate = goal.EndDate
             };
 
             return goalDto;
@@ -201,7 +234,8 @@ namespace FinanceApi.Mapper
                 Description = goalManageDto.Description,
                 Amount = goalManageDto.Amount,
                 Currency = goalManageDto.Currency,
-                TargetDate = goalManageDto.TargetDate
+                StartDate = goalManageDto.StartDate,
+                EndDate = goalManageDto.EndDate
             };
 
             return goal;

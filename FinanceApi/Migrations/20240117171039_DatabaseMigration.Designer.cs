@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceApi.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240113111354_DatabaseMigration")]
+    [Migration("20240117171039_DatabaseMigration")]
     partial class DatabaseMigration
     {
         /// <inheritdoc />
@@ -185,10 +185,10 @@ namespace FinanceApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Progress")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("TargetDate")
+                    b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Title")

@@ -3,13 +3,12 @@ using System.Text.Json.Serialization;
 
 namespace FinanceApi.Data.Dtos
 {
-    public class BudgetDto
+    public class BudgetManageDto
     {
         public int Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public decimal LimitAmount { get; set; }
-        public decimal Spending { get; set; }
         public string Currency { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public Urgency Urgency { get; set; }

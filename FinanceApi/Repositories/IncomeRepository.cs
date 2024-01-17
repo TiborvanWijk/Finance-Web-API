@@ -49,6 +49,14 @@ namespace FinanceApi.Repositories
             return dataContext.Incomes.Where(i => i.User.Id == userId).ToList();
         }
 
+        public ICollection<Income> GetAllOfUserByGoalId(string userId, int goalId)
+        {
+            return dataContext.Incomes
+                .Where(i => i.User.Id.Equals(userId) && i.IncomeCategories
+                .Any(ic => ic.Category.GoalCategories.Any(gc => gc.GoalId == goalId))
+            ).ToList();
+        }
+
         public ICollection<Income> GetAllOfUserByCategoryId(string userId, int categoryId)
         {
             return dataContext.Incomes.Where(i => i.User.Id.Equals(userId) && i.IncomeCategories.Any(ic => ic.CategoryId == categoryId)).ToList();

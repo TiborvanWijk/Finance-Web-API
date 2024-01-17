@@ -28,17 +28,33 @@ namespace FinanceApi.Controllers
         [HttpGet("current")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetGoals()
+        public IActionResult GetGoals([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate, [FromQuery] string? listOrderBy, [FromQuery] string? listDir)
         {
-
-            var goals = goalService.GetAllOfUser(User.FindFirst(ClaimTypes.NameIdentifier).Value).Select(Map.ToGoalDto);
 
             if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            return Ok(goals);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            int errorCode;
+            string errorMessage;
+            ICollection<Goal> goals;
+
+            if(!goalService.TryGetAllOrderedOrDefault(userId, out goals, out errorCode, out errorMessage, startDate, endDate, listOrderBy, listDir))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var goalDtos = goals.Select(Map.ToGoalDto).ToList();
+
+            for(int i = 0; i < goalDtos.Count(); ++i)
+            {
+                goalDtos[i].Progress = goalService.GetProgressAmountOfGoal(userId, goalDtos[i].Id); 
+            }
+
+            return Ok(goalDtos);
         }
 
         [HttpGet("current/goals/{categoryId}")]
@@ -57,7 +73,7 @@ namespace FinanceApi.Controllers
             int errorCode;
             string errorMessage;
 
-            if(!goalService.TryGetGoalsById(user, categoryId, out goals, out errorCode, out errorMessage))
+            if(!goalService.TryGetGoalsByCategoryId(user, categoryId, out goals, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }

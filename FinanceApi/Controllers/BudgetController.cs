@@ -43,40 +43,15 @@ namespace FinanceApi.Controllers
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            var budgetDtos = budgets.Select(Map.ToBudgetDto);
+            var budgetDtos = budgets.Select(Map.ToBudgetDto).ToList();
+
+            for(int i = 0; i < budgetDtos.Count(); ++i)
+            {
+                budgetDtos[i].Spending = budgetService.GetBudgetSpending(userId, budgetDtos[i].Id);
+            }
             
             return Ok(budgetDtos);
         }
-
-
-        [HttpGet("budget_spending/{budgetId}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(500)]
-        public IActionResult GetBudgetSpending(int budgetId)
-        {
-
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            var user = userService.GetById(userId, true);
-
-            int errorCode;
-            string errorMessage;
-            decimal spending;
-
-            if(!budgetService.TryGetBudgetSpending(user, budgetId, out spending, out errorCode, out errorMessage))
-            {
-                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
-            }
-
-            return Ok(spending);
-        }
-
-
-
-
-
         
         [HttpGet("current/budgets/{categoryId}")]
         [ProducesResponseType(200)]
@@ -109,7 +84,7 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public IActionResult CreateBudget([FromBody] BudgetDto budgetDto)
+        public IActionResult CreateBudget([FromBody] BudgetManageDto budgetDto)
         {
 
             if (!ModelState.IsValid)
@@ -161,7 +136,7 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult UpdateBudget([FromBody] BudgetDto budgetDto)
+        public IActionResult UpdateBudget([FromBody] BudgetManageDto budgetDto)
         {
             if (!ModelState.IsValid)
             {

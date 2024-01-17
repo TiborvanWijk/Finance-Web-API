@@ -8,6 +8,7 @@
         public decimal Amount { get; set; }
         public string Currency { get; set; }
         public decimal Progress { get; set; }
-        public DateTime TargetDate { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
     }
 }

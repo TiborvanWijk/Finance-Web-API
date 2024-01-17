@@ -23,7 +23,7 @@ namespace FinanceApi.Services
             this.expenseRepository = expenseRepository;
         }
 
-        public bool Create(User user, BudgetDto budgetDto, out int errorCode, out string errorMessage)
+        public bool Create(User user, BudgetManageDto budgetDto, out int errorCode, out string errorMessage)
         {
             errorCode = 0;
             errorMessage = string.Empty;
@@ -40,7 +40,7 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            var budget = Map.ToBudget(budgetDto);
+            var budget = Map.ToBudgetFromBudgetManageDto(budgetDto);
             budget.Currency = budget.Currency.ToUpper();
             budget.User = user;
 
@@ -54,7 +54,7 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool ValidateBudget(BudgetDto budgetDto, out int errorCode, out string errorMessage, string userId)
+        public bool ValidateBudget(BudgetManageDto budgetDto, out int errorCode, out string errorMessage, string userId)
         {
             errorCode = 0;
             errorMessage = string.Empty;
@@ -110,7 +110,7 @@ namespace FinanceApi.Services
             return budgetRepository.GetById(budgetId, tracking);
         }
 
-        public bool Update(User user, BudgetDto budgetDto, out int errorCode, out string errorMessage)
+        public bool Update(User user, BudgetManageDto budgetDto, out int errorCode, out string errorMessage)
         {
             errorCode = 0;
             errorMessage = string.Empty;
@@ -135,7 +135,7 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            var budget = Map.ToBudget(budgetDto);
+            var budget = Map.ToBudgetFromBudgetManageDto(budgetDto);
             budget.Currency = budget.Currency.ToUpper();
 
             if (!budgetRepository.Update(budget))
@@ -257,26 +257,7 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool TryGetBudgetSpending(User user, int budgetId, out decimal spending, out int errorCode, out string errorMessage)
-        {
-            errorCode = 0;
-            errorMessage = string.Empty;
-            spending = 0;
-
-
-            if (!budgetRepository.ExistsById(user.Id, budgetId))
-            {
-                errorCode = 404;
-                errorMessage = "Budget not found.";
-                return false;
-            }
-
-            spending = GetBudgetSpending(user.Id, budgetId);
-
-            return true;
-        }
-
-        private decimal GetBudgetSpending(string userId, int budgetId)
+        public decimal GetBudgetSpending(string userId, int budgetId)
         {
             decimal spending = 0;
             var budget = budgetRepository.GetById(budgetId, false);
@@ -285,7 +266,7 @@ namespace FinanceApi.Services
 
             foreach (var expense in expenses)
             {
-                if (expense.Date >= budget.StartDate && expense.Date <= budget.EndDate)
+                if (expense.Date <= DateTime.Now && expense.Date >= budget.StartDate && expense.Date <= budget.EndDate)
                 {
                     spending += expense.Amount;
                 }

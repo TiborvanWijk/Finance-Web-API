@@ -12,11 +12,13 @@ namespace FinanceApi.Services
     {
         private readonly IGoalRepository goalRepository;
         private readonly ICategoryRepository categoryRepository;
+        private readonly IIncomeRepository incomeRepository;
 
-        public GoalService(IGoalRepository goalRepository, ICategoryRepository categoryRepository)
+        public GoalService(IGoalRepository goalRepository, ICategoryRepository categoryRepository, IIncomeRepository incomeRepository)
         {
             this.goalRepository = goalRepository;
             this.categoryRepository = categoryRepository;
+            this.incomeRepository = incomeRepository;
         }
 
         public bool Create(User user, GoalManageDto goalManageDto, out int errorCode, out string errorMessage)
@@ -70,7 +72,12 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            if(goalDto.TargetDate <= DateTime.Today)
+            if(!Validator.ValidateTimePeriod(goalDto.StartDate, goalDto.EndDate, out errorCode, out errorMessage))
+            {
+                return false;
+            }
+
+            if(goalDto.EndDate <= DateTime.Today)
             {
                 errorCode = 400;
                 errorMessage = "Target date must be later then today.";
@@ -93,11 +100,6 @@ namespace FinanceApi.Services
         public bool ExistsByTitle(string userId, string title)
         {
             return goalRepository.ExistsByTitle(userId, title);
-        }
-
-        public ICollection<Goal> GetAllOfUser(string userId)
-        {
-            return goalRepository.GetAllOfUser(userId);
         }
 
         public Goal GetById(int goalId, bool tracking)
@@ -207,13 +209,8 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            var goal = goalRepository.GetById(goalManageDto.Id, true);
-
-            goal.Title = goalManageDto.Title;
-            goal.Description = goalManageDto.Description;
-            goal.Amount = goalManageDto.Amount;
+            var goal = Map.ToGoalFromGoalManageDto(goalManageDto);
             goal.Currency = goalManageDto.Currency.ToUpper();
-            goal.TargetDate = goalManageDto.TargetDate;
 
             if (!goalRepository.Update(goal))
             {
@@ -225,7 +222,7 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool TryGetGoalsById(User user, int categoryId, out ICollection<Goal> goals, out int errorCode, out string errorMessage)
+        public bool TryGetGoalsByCategoryId(User user, int categoryId, out ICollection<Goal> goals, out int errorCode, out string errorMessage)
         {
 
             errorCode = 0;
@@ -320,6 +317,80 @@ namespace FinanceApi.Services
             }
 
             return true;
+        }
+
+        public decimal GetProgressAmountOfGoal(string userId, int goalId)
+        {
+            decimal amount = 0;
+
+            var goal = goalRepository.GetById(goalId, false);
+
+            var incomes = incomeRepository.GetAllOfUserByGoalId(userId, goalId);
+
+            foreach (var income in incomes)
+            {
+                if(income.Date <= DateTime.Now && income.Date >= goal.StartDate && income.Date <= goal.EndDate)
+                {
+                    amount += income.Amount;
+                }
+            }
+
+            return amount;
+        }
+
+        public bool TryGetAllOrderedOrDefault(string userId, out ICollection<Goal> goals, out int errorCode, out string errorMessage, DateTime? startDate, DateTime? endDate, string? listOrderBy, string? listDir)
+        {
+            errorCode = 0;
+            errorMessage = string.Empty;
+            goals = null;
+
+
+            try
+            {
+
+
+                goals = goalRepository.GetAllOfUser(userId);
+
+                if (startDate != null || endDate != null)
+                {
+                    if (!Validator.ValidateTimePeriod(startDate, endDate, out errorCode, out errorMessage))
+                    {
+                        return false;
+                    }
+                    goals = goals.Where(g => g.StartDate >= startDate && g.EndDate <= endDate).ToList();
+                }
+
+
+                goals = listDir != null && listDir.Equals("desc") ?
+                    (listOrderBy switch
+                    {
+
+                        "title" => goals.OrderByDescending(g => g.Title),
+                        "amount" => goals.OrderByDescending(g => g.Amount),
+                        "progress" => goals.OrderByDescending(g => GetProgressAmountOfGoal(userId, g.Id)),
+                        _ => goals.OrderByDescending(g => g.EndDate),
+
+                    }).ToList()
+                    :
+                    (listOrderBy switch
+                    {
+
+                        "title" => goals.OrderBy(g => g.Title),
+                        "amount" => goals.OrderBy(g => g.Amount),
+                        "progress" => goals.OrderBy(g => GetProgressAmountOfGoal(userId, g.Id)),
+                        _ => goals.OrderBy(g => g.EndDate),
+
+                    }).ToList();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errorCode = 500;
+                errorMessage = "Something unexpected happened";
+                return false;
+            }
+
         }
     }
 }

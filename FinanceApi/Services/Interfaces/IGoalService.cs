@@ -6,7 +6,9 @@ namespace FinanceApi.Services.Interfaces
     public interface IGoalService
     {
         Goal GetById(int goalId, bool tracking);
-        ICollection<Goal> GetAllOfUser(string userId);
+        bool TryGetAllOrderedOrDefault(string userId, out ICollection<Goal> goals, out int errorCode,
+            out string errorMessage, DateTime? startDate, DateTime? endDate, string? listOrderBy, string? listDir);
+        decimal GetProgressAmountOfGoal(string userId, int goalId);
         bool HasGoals(string userId);
         bool ExistsById(string userId, int goalId);
         bool ExistsByTitle(string userId, string title);
@@ -16,7 +18,7 @@ namespace FinanceApi.Services.Interfaces
         bool Update(User user, GoalManageDto goalDto, out int errorCode, out string errorMessage);
         bool Create(User user, GoalManageDto goalDto, out int errorCode, out string errorMessage);
         bool AddCategories(string userId, int goalId, ICollection<int> categoryIds, out string errorMessage, out int errorCode);
-        bool TryGetGoalsById(User user, int categoryId, out ICollection<Goal> goals, out int errorCode, out string errorMessage);
+        bool TryGetGoalsByCategoryId(User user, int categoryId, out ICollection<Goal> goals, out int errorCode, out string errorMessage);
         bool TryDeleteGoal(User user, int goalId, out int errorCode, out string errorMessage);
         bool TryRemoveCategories(User user, int goalId, ICollection<int> categoryIds, out int errorCode, out string errorMessage);
     }
