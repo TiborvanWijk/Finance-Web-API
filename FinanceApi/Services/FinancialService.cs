@@ -18,15 +18,6 @@ namespace FinanceApi.Services
             this.userRepository = userRepository;
         }
 
-        public bool TryAverageSpendingPerMonth(string userId, DateTime? startDate, DateTime? endDate, out int errorCode, out string errorMessage)
-        {
-
-            errorCode = 0;
-            errorMessage = string.Empty;
-
-            throw new NotImplementedException();
-        }
-
         public bool tryGetSavingsRate(string userId, out decimal savingsRate, DateTime? startDate, DateTime? endDate, out int errorCode, out string errorMessage)
         {
 
