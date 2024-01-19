@@ -24,7 +24,8 @@ namespace FinanceApi.Data
         public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
         public DbSet<GoalCategory> GoalCategories { get; set; }
         public DbSet<IncomeCategory> IncomeCategories { get; set; }
-        public DbSet<FinancialPartners> FinancialPartners { get; set; }
+        public DbSet<AuthorizedUsers> FinancialPartners { get; set; }
+        public DbSet<AuthorizeUserRequest> AuthorizationRequests { get; set; }
 
 
 
@@ -80,19 +81,32 @@ namespace FinanceApi.Data
                 .WithMany(bc => bc.IncomeCategories)
                 .HasForeignKey(b => b.CategoryId);
 
-            builder.Entity<FinancialPartners>()
-                .HasKey(fp => new { fp.UserOneId, fp.UserTwoId });
-            builder.Entity<FinancialPartners>()
-                .HasOne(fp => fp.UserOne)
+            builder.Entity<AuthorizedUsers>()
+                .HasKey(fp => new { fp.OwnerId, fp.AuthorizedUserId});
+            builder.Entity<AuthorizedUsers>()
+                .HasOne(fp => fp.Owner)
                 .WithMany(u1 => u1.FinancialPartners)
-                .HasForeignKey(fp => fp.UserOneId)
+                .HasForeignKey(fp => fp.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<FinancialPartners>()
-                .HasOne(fp => fp.UserTwo)
+            builder.Entity<AuthorizedUsers>()
+                .HasOne(fp => fp.AuthorizedUser)
                 .WithMany()
-                .HasForeignKey(fp => fp.UserTwoId)
+                .HasForeignKey(fp => fp.AuthorizedUserId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<AuthorizeUserRequest>()
+                .HasKey(fp => new { fp.OwnerId, fp.AuthorizedUserId });
+            builder.Entity<AuthorizeUserRequest>()
+                .HasOne(fp => fp.Owner)
+                .WithMany(owner => owner.AuthorizationRequests)
+                .HasForeignKey(fp => fp.OwnerId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<AuthorizeUserRequest>()
+                .HasOne(fp => fp.AuthorizedUser)
+                .WithMany()
+                .HasForeignKey(authorizedUser => authorizedUser.AuthorizedUserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
 
         }
     }

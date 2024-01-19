@@ -10,6 +10,7 @@ namespace FinanceApi.Models
         public ICollection<Income> Incomes { get; set; }
         public ICollection<Budget> Budgets { get; set; }
         public ICollection<Goal> Goals { get; set; }
-        public ICollection<FinancialPartners> FinancialPartners { get; set; }
+        public ICollection<AuthorizedUsers> FinancialPartners { get; set; }
+        public ICollection<AuthorizeUserRequest> AuthorizationRequests { get; set; }
     }
 }

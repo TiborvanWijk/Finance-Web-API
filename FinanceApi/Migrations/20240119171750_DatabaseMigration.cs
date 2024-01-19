@@ -12,20 +12,6 @@ namespace FinanceApi.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "AspNetRoles",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetRoles", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetUsers",
                 columns: table => new
                 {
@@ -49,27 +35,6 @@ namespace FinanceApi.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetRoleClaims",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetRoleClaims", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -114,30 +79,6 @@ namespace FinanceApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUserRoles",
-                columns: table => new
-                {
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
@@ -152,6 +93,31 @@ namespace FinanceApi.Migrations
                     table.ForeignKey(
                         name: "FK_AspNetUserTokens_AspNetUsers_UserId",
                         column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AuthorizationRequests",
+                columns: table => new
+                {
+                    OwnerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    AuthorizedUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuthorizationRequests", x => new { x.OwnerId, x.AuthorizedUserId });
+                    table.ForeignKey(
+                        name: "FK_AuthorizationRequests_AspNetUsers_AuthorizedUserId",
+                        column: x => x.AuthorizedUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_AuthorizationRequests_AspNetUsers_OwnerId",
+                        column: x => x.OwnerId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -231,23 +197,23 @@ namespace FinanceApi.Migrations
                 name: "FinancialPartners",
                 columns: table => new
                 {
-                    UserOneId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserTwoId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    OwnerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    AuthorizedUserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FinancialPartners", x => new { x.UserOneId, x.UserTwoId });
+                    table.PrimaryKey("PK_FinancialPartners", x => new { x.OwnerId, x.AuthorizedUserId });
                     table.ForeignKey(
-                        name: "FK_FinancialPartners_AspNetUsers_UserOneId",
-                        column: x => x.UserOneId,
+                        name: "FK_FinancialPartners_AspNetUsers_AuthorizedUserId",
+                        column: x => x.AuthorizedUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_FinancialPartners_AspNetUsers_OwnerId",
+                        column: x => x.OwnerId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_FinancialPartners_AspNetUsers_UserTwoId",
-                        column: x => x.UserTwoId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -347,6 +313,34 @@ namespace FinanceApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AspNetRoles",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    AuthorizeUserRequestAuthorizedUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    AuthorizeUserRequestOwnerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    AuthorizedUsersAuthorizedUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    AuthorizedUsersOwnerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetRoles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AspNetRoles_AuthorizationRequests_AuthorizeUserRequestOwnerId_AuthorizeUserRequestAuthorizedUserId",
+                        columns: x => new { x.AuthorizeUserRequestOwnerId, x.AuthorizeUserRequestAuthorizedUserId },
+                        principalTable: "AuthorizationRequests",
+                        principalColumns: new[] { "OwnerId", "AuthorizedUserId" });
+                    table.ForeignKey(
+                        name: "FK_AspNetRoles_FinancialPartners_AuthorizedUsersOwnerId_AuthorizedUsersAuthorizedUserId",
+                        columns: x => new { x.AuthorizedUsersOwnerId, x.AuthorizedUsersAuthorizedUserId },
+                        principalTable: "FinancialPartners",
+                        principalColumns: new[] { "OwnerId", "AuthorizedUserId" });
+                });
+
+            migrationBuilder.CreateTable(
                 name: "GoalCategories",
                 columns: table => new
                 {
@@ -394,10 +388,65 @@ namespace FinanceApi.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "AspNetRoleClaims",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetRoleClaims", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserRoles",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
+                    table.ForeignKey(
+                        name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AspNetUserRoles_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
                 column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetRoles_AuthorizedUsersOwnerId_AuthorizedUsersAuthorizedUserId",
+                table: "AspNetRoles",
+                columns: new[] { "AuthorizedUsersOwnerId", "AuthorizedUsersAuthorizedUserId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetRoles_AuthorizeUserRequestOwnerId_AuthorizeUserRequestAuthorizedUserId",
+                table: "AspNetRoles",
+                columns: new[] { "AuthorizeUserRequestOwnerId", "AuthorizeUserRequestAuthorizedUserId" });
 
             migrationBuilder.CreateIndex(
                 name: "RoleNameIndex",
@@ -434,6 +483,11 @@ namespace FinanceApi.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AuthorizationRequests_AuthorizedUserId",
+                table: "AuthorizationRequests",
+                column: "AuthorizedUserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_BudgetCategories_CategoryId",
                 table: "BudgetCategories",
                 column: "CategoryId");
@@ -459,9 +513,9 @@ namespace FinanceApi.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FinancialPartners_UserTwoId",
+                name: "IX_FinancialPartners_AuthorizedUserId",
                 table: "FinancialPartners",
-                column: "UserTwoId");
+                column: "AuthorizedUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GoalCategories_CategoryId",
@@ -509,9 +563,6 @@ namespace FinanceApi.Migrations
                 name: "ExpenseCategories");
 
             migrationBuilder.DropTable(
-                name: "FinancialPartners");
-
-            migrationBuilder.DropTable(
                 name: "GoalCategories");
 
             migrationBuilder.DropTable(
@@ -534,6 +585,12 @@ namespace FinanceApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "Incomes");
+
+            migrationBuilder.DropTable(
+                name: "AuthorizationRequests");
+
+            migrationBuilder.DropTable(
+                name: "FinancialPartners");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

@@ -22,6 +22,44 @@ namespace FinanceApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("FinanceApi.Models.AuthorizeUserRequest", b =>
+                {
+                    b.Property<string>("OwnerId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AuthorizedUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("OwnerId", "AuthorizedUserId");
+
+                    b.HasIndex("AuthorizedUserId");
+
+                    b.ToTable("AuthorizationRequests");
+                });
+
+            modelBuilder.Entity("FinanceApi.Models.AuthorizedUsers", b =>
+                {
+                    b.Property<string>("OwnerId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AuthorizedUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("OwnerId", "AuthorizedUserId");
+
+                    b.HasIndex("AuthorizedUserId");
+
+                    b.ToTable("FinancialPartners");
+                });
+
             modelBuilder.Entity("FinanceApi.Models.Budget", b =>
                 {
                     b.Property<int>("Id")
@@ -161,21 +199,6 @@ namespace FinanceApi.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("ExpenseCategories");
-                });
-
-            modelBuilder.Entity("FinanceApi.Models.FinancialPartners", b =>
-                {
-                    b.Property<string>("UserOneId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserTwoId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("UserOneId", "UserTwoId");
-
-                    b.HasIndex("UserTwoId");
-
-                    b.ToTable("FinancialPartners");
                 });
 
             modelBuilder.Entity("FinanceApi.Models.Goal", b =>
@@ -361,6 +384,18 @@ namespace FinanceApi.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("AuthorizeUserRequestAuthorizedUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AuthorizeUserRequestOwnerId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AuthorizedUsersAuthorizedUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AuthorizedUsersOwnerId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -379,6 +414,10 @@ namespace FinanceApi.Migrations
                         .IsUnique()
                         .HasDatabaseName("RoleNameIndex")
                         .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.HasIndex("AuthorizeUserRequestOwnerId", "AuthorizeUserRequestAuthorizedUserId");
+
+                    b.HasIndex("AuthorizedUsersOwnerId", "AuthorizedUsersAuthorizedUserId");
 
                     b.ToTable("AspNetRoles", (string)null);
                 });
@@ -489,6 +528,44 @@ namespace FinanceApi.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("FinanceApi.Models.AuthorizeUserRequest", b =>
+                {
+                    b.HasOne("FinanceApi.Models.User", "AuthorizedUser")
+                        .WithMany()
+                        .HasForeignKey("AuthorizedUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("FinanceApi.Models.User", "Owner")
+                        .WithMany("AuthorizationRequests")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AuthorizedUser");
+
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("FinanceApi.Models.AuthorizedUsers", b =>
+                {
+                    b.HasOne("FinanceApi.Models.User", "AuthorizedUser")
+                        .WithMany()
+                        .HasForeignKey("AuthorizedUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("FinanceApi.Models.User", "Owner")
+                        .WithMany("FinancialPartners")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AuthorizedUser");
+
+                    b.Navigation("Owner");
+                });
+
             modelBuilder.Entity("FinanceApi.Models.Budget", b =>
                 {
                     b.HasOne("FinanceApi.Models.User", "User")
@@ -554,25 +631,6 @@ namespace FinanceApi.Migrations
                     b.Navigation("Expense");
                 });
 
-            modelBuilder.Entity("FinanceApi.Models.FinancialPartners", b =>
-                {
-                    b.HasOne("FinanceApi.Models.User", "UserOne")
-                        .WithMany("FinancialPartners")
-                        .HasForeignKey("UserOneId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FinanceApi.Models.User", "UserTwo")
-                        .WithMany()
-                        .HasForeignKey("UserTwoId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("UserOne");
-
-                    b.Navigation("UserTwo");
-                });
-
             modelBuilder.Entity("FinanceApi.Models.Goal", b =>
                 {
                     b.HasOne("FinanceApi.Models.User", "User")
@@ -629,6 +687,17 @@ namespace FinanceApi.Migrations
                     b.Navigation("Income");
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                {
+                    b.HasOne("FinanceApi.Models.AuthorizeUserRequest", null)
+                        .WithMany("Roles")
+                        .HasForeignKey("AuthorizeUserRequestOwnerId", "AuthorizeUserRequestAuthorizedUserId");
+
+                    b.HasOne("FinanceApi.Models.AuthorizedUsers", null)
+                        .WithMany("Roles")
+                        .HasForeignKey("AuthorizedUsersOwnerId", "AuthorizedUsersAuthorizedUserId");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -680,6 +749,16 @@ namespace FinanceApi.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FinanceApi.Models.AuthorizeUserRequest", b =>
+                {
+                    b.Navigation("Roles");
+                });
+
+            modelBuilder.Entity("FinanceApi.Models.AuthorizedUsers", b =>
+                {
+                    b.Navigation("Roles");
+                });
+
             modelBuilder.Entity("FinanceApi.Models.Budget", b =>
                 {
                     b.Navigation("BudgetCategories");
@@ -713,6 +792,8 @@ namespace FinanceApi.Migrations
 
             modelBuilder.Entity("FinanceApi.Models.User", b =>
                 {
+                    b.Navigation("AuthorizationRequests");
+
                     b.Navigation("Budgets");
 
                     b.Navigation("Expenses");
