@@ -82,5 +82,10 @@ namespace FinanceApi.Repositories
             dataContext.Incomes.Update(income);
             return Save();
         }
+
+        public async Task<ICollection<Income>> GetAllOfUserAsync(string userId)
+        {
+            return await dataContext.Incomes.Where(i => i.User.Id == userId).ToListAsync();
+        }
     }
 }

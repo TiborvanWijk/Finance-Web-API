@@ -18,12 +18,8 @@ namespace FinanceApi.Services
             this.userRepository = userRepository;
         }
 
-        public bool tryGetSavingsRate(string userId, out decimal savingsRate, DateTime? startDate, DateTime? endDate, out int errorCode, out string errorMessage)
+        public async Task<decimal?> tryGetSavingsRateAsync(string userId, bool validDateTime, DateTime? startDate, DateTime? endDate)
         {
-
-            errorCode = 0;
-            errorMessage = string.Empty;
-            savingsRate = 0;
 
             try
             {
@@ -31,39 +27,37 @@ namespace FinanceApi.Services
                 decimal totalExpenseAmount;
                 decimal totalIncomeAmount;
 
-                if (startDate != null || endDate != null)
-                {
-                    if (!Validator.ValidateTimePeriod(startDate, endDate, out errorCode, out errorMessage))
-                    {
-                        return false;
-                    }
 
-                    totalIncomeAmount = incomeRepository.GetAllOfUser(userId).Where(i => i.Date >= startDate && i.Date <= endDate).Select(i => i.Amount).Sum();
-                    totalExpenseAmount = expenseRepository.GetAllOfUser(userId).Where(e => e.Date >= startDate && e.Date <= endDate).Select(e => e.Amount).Sum();
+                if (validDateTime)
+                {
+                    var incomes = await incomeRepository.GetAllOfUserAsync(userId);
+
+                    var expenses = await expenseRepository.GetAllOfUserAsync(userId);
+
+                    totalIncomeAmount = incomes.Where(i => i.Date >= startDate && i.Date <= endDate).Select(i => i.Amount).Sum();
+                    totalExpenseAmount = expenses.Where(e => e.Date >= startDate && e.Date <= endDate).Select(e => e.Amount).Sum();
                 }
                 else
                 {
+                    var incomes = await incomeRepository.GetAllOfUserAsync(userId);
 
-                    totalIncomeAmount = incomeRepository.GetAllOfUser(userId).Select(i => i.Amount).Sum();
-                    totalExpenseAmount = expenseRepository.GetAllOfUser(userId).Select(e => e.Amount).Sum();
+                    var expenses = await expenseRepository.GetAllOfUserAsync(userId);
+
+                    totalIncomeAmount = incomes.Select(i => i.Amount).Sum();
+                    totalExpenseAmount = expenses.Select(e => e.Amount).Sum();
                 }
 
 
                 if (totalIncomeAmount == 0 || totalExpenseAmount == 0)
                 {
-                    savingsRate = totalIncomeAmount == 0 ? 0 : 100;
-                    return true;
+                    return totalIncomeAmount == 0 ? 0 : 100;
                 }
 
-                savingsRate = Math.Round(100 - (totalExpenseAmount / (totalIncomeAmount / 100)), 2);
-
-                return true;
+                return Math.Round(100 - (totalExpenseAmount / (totalIncomeAmount / 100)), 2);
             }
             catch (Exception ex)
             {
-                errorCode = 500;
-                errorMessage = $"Error while calculating net income: {ex.Message}";
-                return false;
+                return null;
             }
         }
 

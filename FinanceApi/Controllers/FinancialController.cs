@@ -1,5 +1,6 @@
 ﻿using FinanceApi.Controllers.ApiResponseHelpers;
 using FinanceApi.Services.Interfaces;
+using FinanceApi.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -47,17 +48,31 @@ namespace FinanceApi.Controllers
         [HttpGet("get_savings_rate")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetSavingsRate([FromQuery] DateTime? startdate, [FromQuery] DateTime? endDate)
+        public async Task<IActionResult> GetSavingsRate([FromQuery] DateTime? startdate, [FromQuery] DateTime? endDate)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            decimal savingsRate;
+
             int errorCode;
             string errorMessage;
+            bool validDate = false;
 
-            if (!financialService.tryGetSavingsRate(userId, out savingsRate, startdate, endDate, out errorCode, out errorMessage))
+
+            if(startdate != null || endDate != null)
             {
-                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+                if(!Validator.ValidateTimePeriod(startdate, endDate, out errorCode, out errorMessage))
+                {
+                    return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+                }
+                validDate = true;
+            }
+
+            decimal? savingsRate = await financialService.tryGetSavingsRateAsync(userId, validDate, startdate, endDate);
+
+
+            if(savingsRate == null)
+            {
+                return ApiResponseHelper.HandleErrorResponse(500, "CalculationError");
             }
 
             return Ok(savingsRate);            

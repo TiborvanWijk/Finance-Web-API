@@ -15,5 +15,6 @@ namespace FinanceApi.Repositories.Interfaces
         bool Delete(Expense expense);
         bool Save();
         bool DeleteExpenseCategoryWithId(string userId, int categoryId, int expenseId);
+        Task<ICollection<Expense>> GetAllOfUserAsync(string userId);
     }
 }

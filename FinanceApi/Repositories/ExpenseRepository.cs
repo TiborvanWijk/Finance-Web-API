@@ -49,6 +49,11 @@ namespace FinanceApi.Repositories
             return dataContext.Expenses.Where(e => e.User.Id.Equals(userId)).ToList();
         }
 
+        public async Task<ICollection<Expense>> GetAllOfUserAsync(string userId)
+        {
+            return await dataContext.Expenses.Where(e => e.User.Id.Equals(userId)).ToListAsync();
+        }
+
         public ICollection<Expense> GetAllOfUserByBudgetId(string userId, int budgetId)
         {
             return dataContext.Expenses
