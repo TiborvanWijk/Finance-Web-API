@@ -24,7 +24,7 @@ namespace FinanceApi.Data
         public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
         public DbSet<GoalCategory> GoalCategories { get; set; }
         public DbSet<IncomeCategory> IncomeCategories { get; set; }
-
+        public DbSet<FinancialPartners> FinancialPartners { get; set; }
 
 
 
@@ -79,6 +79,20 @@ namespace FinanceApi.Data
                 .HasOne(b => b.Category)
                 .WithMany(bc => bc.IncomeCategories)
                 .HasForeignKey(b => b.CategoryId);
+
+            builder.Entity<FinancialPartners>()
+                .HasKey(fp => new { fp.UserOneId, fp.UserTwoId });
+            builder.Entity<FinancialPartners>()
+                .HasOne(fp => fp.UserOne)
+                .WithMany(u1 => u1.FinancialPartners)
+                .HasForeignKey(fp => fp.UserOneId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<FinancialPartners>()
+                .HasOne(fp => fp.UserTwo)
+                .WithMany()
+                .HasForeignKey(fp => fp.UserTwoId)
+                .OnDelete(DeleteBehavior.NoAction);
 
         }
     }

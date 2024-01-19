@@ -163,6 +163,21 @@ namespace FinanceApi.Migrations
                     b.ToTable("ExpenseCategories");
                 });
 
+            modelBuilder.Entity("FinanceApi.Models.FinancialPartners", b =>
+                {
+                    b.Property<string>("UserOneId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserTwoId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("UserOneId", "UserTwoId");
+
+                    b.HasIndex("UserTwoId");
+
+                    b.ToTable("FinancialPartners");
+                });
+
             modelBuilder.Entity("FinanceApi.Models.Goal", b =>
                 {
                     b.Property<int>("Id")
@@ -539,6 +554,25 @@ namespace FinanceApi.Migrations
                     b.Navigation("Expense");
                 });
 
+            modelBuilder.Entity("FinanceApi.Models.FinancialPartners", b =>
+                {
+                    b.HasOne("FinanceApi.Models.User", "UserOne")
+                        .WithMany("FinancialPartners")
+                        .HasForeignKey("UserOneId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FinanceApi.Models.User", "UserTwo")
+                        .WithMany()
+                        .HasForeignKey("UserTwoId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("UserOne");
+
+                    b.Navigation("UserTwo");
+                });
+
             modelBuilder.Entity("FinanceApi.Models.Goal", b =>
                 {
                     b.HasOne("FinanceApi.Models.User", "User")
@@ -682,6 +716,8 @@ namespace FinanceApi.Migrations
                     b.Navigation("Budgets");
 
                     b.Navigation("Expenses");
+
+                    b.Navigation("FinancialPartners");
 
                     b.Navigation("Goals");
 

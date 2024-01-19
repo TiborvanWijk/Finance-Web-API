@@ -228,6 +228,29 @@ namespace FinanceApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "FinancialPartners",
+                columns: table => new
+                {
+                    UserOneId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserTwoId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FinancialPartners", x => new { x.UserOneId, x.UserTwoId });
+                    table.ForeignKey(
+                        name: "FK_FinancialPartners_AspNetUsers_UserOneId",
+                        column: x => x.UserOneId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_FinancialPartners_AspNetUsers_UserTwoId",
+                        column: x => x.UserTwoId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Goals",
                 columns: table => new
                 {
@@ -436,6 +459,11 @@ namespace FinanceApi.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_FinancialPartners_UserTwoId",
+                table: "FinancialPartners",
+                column: "UserTwoId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_GoalCategories_CategoryId",
                 table: "GoalCategories",
                 column: "CategoryId");
@@ -479,6 +507,9 @@ namespace FinanceApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "ExpenseCategories");
+
+            migrationBuilder.DropTable(
+                name: "FinancialPartners");
 
             migrationBuilder.DropTable(
                 name: "GoalCategories");
