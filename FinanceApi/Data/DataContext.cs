@@ -24,8 +24,8 @@ namespace FinanceApi.Data
         public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
         public DbSet<GoalCategory> GoalCategories { get; set; }
         public DbSet<IncomeCategory> IncomeCategories { get; set; }
-        public DbSet<AuthorizedUsers> FinancialPartners { get; set; }
-        public DbSet<AuthorizeUserRequest> AuthorizationRequests { get; set; }
+        public DbSet<AuthorizedUserJoin> AuthorizedUsers { get; set; }
+        public DbSet<AuthorizeUserInvite> AuthorizeUserInvite { get; set; }
 
 
 
@@ -81,27 +81,27 @@ namespace FinanceApi.Data
                 .WithMany(bc => bc.IncomeCategories)
                 .HasForeignKey(b => b.CategoryId);
 
-            builder.Entity<AuthorizedUsers>()
+            builder.Entity<AuthorizedUserJoin>()
                 .HasKey(fp => new { fp.OwnerId, fp.AuthorizedUserId});
-            builder.Entity<AuthorizedUsers>()
+            builder.Entity<AuthorizedUserJoin>()
                 .HasOne(fp => fp.Owner)
                 .WithMany(u1 => u1.FinancialPartners)
                 .HasForeignKey(fp => fp.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.Entity<AuthorizedUsers>()
+            builder.Entity<AuthorizedUserJoin>()
                 .HasOne(fp => fp.AuthorizedUser)
                 .WithMany()
                 .HasForeignKey(fp => fp.AuthorizedUserId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            builder.Entity<AuthorizeUserRequest>()
+            builder.Entity<AuthorizeUserInvite>()
                 .HasKey(fp => new { fp.OwnerId, fp.AuthorizedUserId });
-            builder.Entity<AuthorizeUserRequest>()
+            builder.Entity<AuthorizeUserInvite>()
                 .HasOne(fp => fp.Owner)
                 .WithMany(owner => owner.AuthorizationRequests)
                 .HasForeignKey(fp => fp.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.Entity<AuthorizeUserRequest>()
+            builder.Entity<AuthorizeUserInvite>()
                 .HasOne(fp => fp.AuthorizedUser)
                 .WithMany()
                 .HasForeignKey(authorizedUser => authorizedUser.AuthorizedUserId)
