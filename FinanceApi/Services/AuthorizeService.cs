@@ -8,22 +8,21 @@ namespace FinanceApi.Services
     public class AuthorizeService : IAuthorizeService
     {
         private readonly IAuthorizeRepository authorizeRepository;
-        private readonly IAuthorizationRequestRepository authorizationRequestRepository;
+        private readonly IAuthorizationInviteRepository authorizationInviteRepository;
         private readonly IUserRepository userRepository;
         private readonly IRoleRepository roleRepository;
 
-        public AuthorizeService(IAuthorizeRepository authorizeRepository, IAuthorizationRequestRepository authorizationRequestRepository,
+        public AuthorizeService(IAuthorizeRepository authorizeRepository, IAuthorizationInviteRepository authorizationInviteRepository,
             IUserRepository userRepository, IRoleRepository roleRepository)
         {
             this.authorizeRepository = authorizeRepository;
-            this.authorizationRequestRepository = authorizationRequestRepository;
+            this.authorizationInviteRepository = authorizationInviteRepository;
             this.userRepository = userRepository;
             this.roleRepository = roleRepository;
         }
 
-        public IUserRepository UserRepository { get; }
 
-        public bool TryAuthorize(string ownerId, string authorizedUserId, out int errorCode, out string errorMessage)
+        public bool TryAcceptAuthorizationInvite(string ownerId, string authorizedUserId, out int errorCode, out string errorMessage)
         {
 
             errorCode = 0;
@@ -36,10 +35,10 @@ namespace FinanceApi.Services
                 return false;            
             }
 
-            if(!authorizationRequestRepository.RequestExists(ownerId, authorizedUserId))
+            if(!authorizationInviteRepository.RequestExists(ownerId, authorizedUserId))
             {
                 errorCode = 404;
-                errorMessage = "User has not sent you a authorize request.";
+                errorMessage = "User has not sent you a authorize invite.";
                 return false;
             }
 
@@ -63,7 +62,7 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            if(!authorizationRequestRepository.Delete(ownerId, authorizedUserId))
+            if(!authorizationInviteRepository.Delete(ownerId, authorizedUserId))
             {
                 errorCode = 500;
                 errorMessage = "Something went wrong while deleting authorization request.";
@@ -83,9 +82,63 @@ namespace FinanceApi.Services
             throw new NotImplementedException();
         }
 
-        public bool TrySendAuthRequest(string ownerId, string authorizedUserId, string title, string description, out int errorCode, out string errorMessage)
+        public bool TrySendAuthRequest(string ownerId, string authorizedUserId, string title, string message, out int errorCode, out string errorMessage)
         {
-            throw new NotImplementedException();
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+
+
+            if(title.Length > 40)
+            {
+                errorCode = 400;
+                errorMessage = "Title too long must be in range of 0 and 40";
+                return false;
+            }
+
+            if (message.Length > 250)
+            {
+                errorCode = 400;
+                errorMessage = "Message too long must be in range of 0 and 250";
+                return false;
+            }
+
+
+            if (!userRepository.ExistsById(ownerId) || !userRepository.ExistsById(authorizedUserId))
+            {
+                errorCode = 404;
+                errorMessage = "User not found.";
+                return false;
+            }
+
+            if (authorizationInviteRepository.RequestExists(ownerId, authorizedUserId))
+            {
+                errorCode = 400;
+                errorMessage = "Authorization invite already sent.";
+                return false;
+            }
+
+            
+
+
+            var authorizeInvite = new AuthorizeUserInvite()
+            {
+                Owner = userRepository.GetById(ownerId, true),
+                OwnerId = ownerId,
+                AuthorizedUser = userRepository.GetById(authorizedUserId, true),
+                AuthorizedUserId = authorizedUserId,
+                Title = title,
+                Message = message,
+            };
+
+            if (!authorizationInviteRepository.Create(authorizeInvite))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while creating authorization invite.";
+                return false;
+            }
+            
+            return true;
         }
     }
 }

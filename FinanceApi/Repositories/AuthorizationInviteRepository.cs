@@ -4,16 +4,16 @@ using FinanceApi.Repositories.Interfaces;
 
 namespace FinanceApi.Repositories
 {
-    public class AuthorizationRepository : IAuthorizationRequestRepository
+    public class AuthorizationInviteRepository : IAuthorizationInviteRepository
     {
         private readonly DataContext dataContext;
 
-        public AuthorizationRepository(DataContext dataContext)
+        public AuthorizationInviteRepository(DataContext dataContext)
         {
             this.dataContext = dataContext;
         }
 
-        public bool Add(AuthorizeUserInvite authorizationRequest)
+        public bool Create(AuthorizeUserInvite authorizationRequest)
         {
             dataContext.AuthorizeUserInvite.Add(authorizationRequest);
             return Save();

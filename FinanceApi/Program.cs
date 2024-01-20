@@ -23,6 +23,10 @@ builder.Services.AddScoped<IGoalRepository, GoalRepository>();
 builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
+builder.Services.AddScoped<IAuthorizationInviteRepository, AuthorizationInviteRepository>();
+builder.Services.AddScoped<IAuthorizeRepository, AuthorizeRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IIncomeService, IncomeService>();
 builder.Services.AddScoped<IGoalService, GoalService>();
@@ -30,7 +34,7 @@ builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IBudgetService, BudgetService>();
 builder.Services.AddScoped<IFinancialService, FinancialService>();
-
+builder.Services.AddScoped<IAuthorizeService, AuthorizeService>();
 
 
 
@@ -54,8 +58,8 @@ builder.Services.AddDbContext<DataContext>(options =>
     );
 
 builder.Services.AddAuthorization();
-
-builder.Services.AddIdentityApiEndpoints<User>(options => options.SignIn.RequireConfirmedAccount = true)
+//RequireConfirmedAccount set to false just for development purposes.
+builder.Services.AddIdentityApiEndpoints<User>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<DataContext>();
 

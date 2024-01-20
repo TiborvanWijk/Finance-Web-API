@@ -2,12 +2,12 @@
 
 namespace FinanceApi.Repositories.Interfaces
 {
-    public interface IAuthorizationRequestRepository
+    public interface IAuthorizationInviteRepository
     {
         ICollection<AuthorizeUserInvite> GetAllSentRequest(string ownerId);
         ICollection<AuthorizeUserInvite> GetPendingRequestsForUser(string userId);
         bool RequestExists(string ownerId, string authorizedUserId);
-        bool Add(AuthorizeUserInvite authorizationRequest);
+        bool Create(AuthorizeUserInvite authorizationRequest);
         bool Delete(string ownerId, string authorizedUserId);
         bool Save();
     }
