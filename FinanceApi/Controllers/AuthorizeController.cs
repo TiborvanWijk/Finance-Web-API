@@ -1,4 +1,7 @@
 ﻿using FinanceApi.Controllers.ApiResponseHelpers;
+using FinanceApi.Data.Dtos;
+using FinanceApi.Mapper;
+using FinanceApi.Models;
 using FinanceApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,11 +22,36 @@ namespace FinanceApi.Controllers
         }
 
 
+        [HttpGet("get_all_authorization_invites")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(500)]
+        public IActionResult GetAllAuthorizationInvites()
+        {
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            int errorCode;
+            string errorMessage;
+
+            ICollection<AuthorizeUserInvite> invites;
+
+            if(!authorizeService.TryGetAllAuthorizationInvites(userId, out invites, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var inviteDtos = invites.Select(Map.ToAuthorizeUserInviteDto).ToList();
+
+            return Ok(inviteDtos);
+        }
+
+
         [HttpPost("create_authorize_invite/{authorizedUserId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult AuthorizeUser(string authorizedUserId, [FromQuery] string title, [FromQuery] string message)
+        public IActionResult AuthorizeUser(string authorizedUserId, [FromBody] AuthorizeUserInviteDto authorizeUserInviteDto)
         {
 
             if(!ModelState.IsValid)
@@ -36,7 +64,7 @@ namespace FinanceApi.Controllers
             int errorCode;
             string errorMessage;
 
-            if (!authorizeService.TrySendAuthRequest(userId, authorizedUserId, title, message, out errorCode, out errorMessage))
+            if (!authorizeService.TrySendAuthRequest(userId, authorizedUserId, authorizeUserInviteDto, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }

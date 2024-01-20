@@ -240,5 +240,16 @@ namespace FinanceApi.Mapper
 
             return goal;
         }
+
+        internal static AuthorizeUserInviteDto ToAuthorizeUserInviteDto(AuthorizeUserInvite authorizeUserInvite)
+        {
+            var authorizeUserInviteDto = new AuthorizeUserInviteDto()
+            {
+                Title = authorizeUserInvite.Title,
+                Message = authorizeUserInvite.Message,
+            };
+
+            return authorizeUserInviteDto;
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using FinanceApi.Models;
+﻿using FinanceApi.Data.Dtos;
+using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -82,21 +83,40 @@ namespace FinanceApi.Services
             throw new NotImplementedException();
         }
 
-        public bool TrySendAuthRequest(string ownerId, string authorizedUserId, string title, string message, out int errorCode, out string errorMessage)
+        public bool TryGetAllAuthorizationInvites(string userId, out ICollection<AuthorizeUserInvite> invites, out int errorCode, out string errorMessage)
+        {
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+            invites = new List<AuthorizeUserInvite>();
+
+            if(!userRepository.ExistsById(userId))
+            {
+                errorCode = 401;
+                errorMessage = "Unauthorized.";
+                return false;
+            }
+
+            invites = authorizationInviteRepository.GetPendingRequestsForUser(userId);
+
+            return true;
+        }
+
+        public bool TrySendAuthRequest(string ownerId, string authorizedUserId, AuthorizeUserInviteDto authorizeUserInviteDto, out int errorCode, out string errorMessage)
         {
 
             errorCode = 0;
             errorMessage = string.Empty;
 
 
-            if(title.Length > 40)
+            if(authorizeUserInviteDto.Title.Length > 40)
             {
                 errorCode = 400;
                 errorMessage = "Title too long must be in range of 0 and 40";
                 return false;
             }
 
-            if (message.Length > 250)
+            if (authorizeUserInviteDto.Message.Length > 250)
             {
                 errorCode = 400;
                 errorMessage = "Message too long must be in range of 0 and 250";
@@ -127,8 +147,8 @@ namespace FinanceApi.Services
                 OwnerId = ownerId,
                 AuthorizedUser = userRepository.GetById(authorizedUserId, true),
                 AuthorizedUserId = authorizedUserId,
-                Title = title,
-                Message = message,
+                Title = authorizeUserInviteDto.Title,
+                Message = authorizeUserInviteDto.Message,
             };
 
             if (!authorizationInviteRepository.Create(authorizeInvite))
