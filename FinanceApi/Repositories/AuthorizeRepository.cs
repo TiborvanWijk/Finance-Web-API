@@ -40,5 +40,11 @@ namespace FinanceApi.Repositories
             var saved = dataContext.SaveChanges();
             return saved > 0;
         }
+
+        public bool update(AuthorizedUserJoin authorizedUserJoin)
+        {
+            dataContext.AuthorizedUsers.Update(authorizedUserJoin);
+            return Save();
+        }
     }
 }

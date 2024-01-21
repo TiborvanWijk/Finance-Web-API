@@ -20,19 +20,25 @@ namespace FinanceApi.Controllers
     {
         private readonly IIncomeService incomeService;
         private readonly IUserService userService;
+        private readonly IAuthorizeService authorizeService;
 
-        public IncomeController(IIncomeService incomeService, IUserService userService)
+        public IncomeController(IIncomeService incomeService, IUserService userService, IAuthorizeService authorizeService)
         {
             this.incomeService = incomeService;
             this.userService = userService;
+            this.authorizeService = authorizeService;
         }
 
         [HttpGet("current")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult GetUsersIncomes([FromQuery] DateTime? from, [FromQuery] DateTime? to,
-            [FromQuery] string? list_order_by, [FromQuery] string? list_dir)
+        public IActionResult GetUsersIncomes(
+            [FromQuery] DateTime? from,
+            [FromQuery] DateTime? to,
+            [FromQuery] string? list_order_by,
+            [FromQuery] string? list_dir,
+            [FromQuery] string? userId)
         {
 
             if (!ModelState.IsValid)
@@ -40,13 +46,31 @@ namespace FinanceApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var currUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            string userLookupId;
+
+            if (userId != null && !authorizeService.IsAuthorized(userId, currUserId))
+            {
+                return ApiResponseHelper.HandleErrorResponse(403, "Forbiden.");
+            }
+            else if(userId != null)
+            {
+                userLookupId = userId;
+            }
+            else
+            {
+                userLookupId = currUserId;
+            }
+            
+
+
 
             int errorCode;
             string errorMessage;
             ICollection<Income> incomes;
 
-            if(!incomeService.TryGetIncomesFilteredOrDefault(userId, out incomes, from, to, list_order_by, list_dir, out errorCode, out errorMessage)){
+            if(!incomeService.TryGetIncomesFilteredOrDefault(userLookupId, out incomes, from, to, list_order_by, list_dir, out errorCode, out errorMessage)){
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 

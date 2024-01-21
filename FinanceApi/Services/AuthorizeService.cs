@@ -22,6 +22,10 @@ namespace FinanceApi.Services
             this.roleRepository = roleRepository;
         }
 
+        public bool IsAuthorized(string ownerId, string authorizedUserId)
+        {
+            return authorizeRepository.IsAuthorized(ownerId, authorizedUserId);
+        }
 
         public bool TryAcceptAuthorizationInvite(string ownerId, string authorizedUserId, out int errorCode, out string errorMessage)
         {
@@ -43,9 +47,6 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            ICollection<IdentityRole> roles = new List<IdentityRole>();
-            var role = roleRepository.GetByName("View", true);
-            roles.Add(role);
 
             var authorizedUser = new AuthorizedUserJoin()
             {
@@ -53,7 +54,7 @@ namespace FinanceApi.Services
                 Owner = userRepository.GetById(ownerId, true),
                 AuthorizedUserId = authorizedUserId,
                 AuthorizedUser = userRepository.GetById(authorizedUserId, true),
-                Roles = roles, 
+                CanEdit = false,
             };
 
             if (!authorizeRepository.Authorize(authorizedUser))
@@ -102,7 +103,48 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool TrySendAuthRequest(string ownerId, string authorizedUserId, AuthorizeUserInviteDto authorizeUserInviteDto, out int errorCode, out string errorMessage)
+        public bool TryGiveEditPermission(string userId, string authorizedUserId, out int errorCode, out string errorMessage)
+        {
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+
+
+            if(!userRepository.ExistsById(authorizedUserId))
+            {
+                errorCode = 404;
+                errorMessage = "User not found.";
+                return false;
+            }
+
+            if(!authorizeRepository.IsAuthorized(userId, authorizedUserId))
+            {
+                errorCode = 400;
+                errorMessage = "User is not authorized.";
+                return false;
+            }
+
+            var authorizedUserJoin = authorizeRepository.GetAuthorizedUsers(userId).First(au => au.AuthorizedUserId.Equals(authorizedUserId));
+
+            if (authorizedUserJoin.CanEdit)
+            {
+                errorCode = 400;
+                errorMessage = "User is already allowed to edit.";
+                return false;
+            }
+            authorizedUserJoin.CanEdit = true;
+
+            if (!authorizeRepository.update(authorizedUserJoin))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while updating users privilege";
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool TrySendAuthRequest(string ownerId, AuthorizeUserInviteDto authorizeUserInviteDto, out int errorCode, out string errorMessage)
         {
 
             errorCode = 0;
@@ -124,29 +166,26 @@ namespace FinanceApi.Services
             }
 
 
-            if (!userRepository.ExistsById(ownerId) || !userRepository.ExistsById(authorizedUserId))
+            if (!userRepository.ExistsById(ownerId) || !userRepository.ExistsById(authorizeUserInviteDto.UserId))
             {
                 errorCode = 404;
                 errorMessage = "User not found.";
                 return false;
             }
 
-            if (authorizationInviteRepository.RequestExists(ownerId, authorizedUserId))
+            if (authorizationInviteRepository.RequestExists(ownerId, authorizeUserInviteDto.UserId))
             {
                 errorCode = 400;
                 errorMessage = "Authorization invite already sent.";
                 return false;
             }
 
-            
-
-
             var authorizeInvite = new AuthorizeUserInvite()
             {
                 Owner = userRepository.GetById(ownerId, true),
                 OwnerId = ownerId,
-                AuthorizedUser = userRepository.GetById(authorizedUserId, true),
-                AuthorizedUserId = authorizedUserId,
+                AuthorizedUser = userRepository.GetById(authorizeUserInviteDto.UserId, true),
+                AuthorizedUserId = authorizeUserInviteDto.UserId,
                 Title = authorizeUserInviteDto.Title,
                 Message = authorizeUserInviteDto.Message,
             };

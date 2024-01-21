@@ -53,6 +53,9 @@ namespace FinanceApi.Migrations
                     b.Property<string>("AuthorizedUserId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<bool>("CanEdit")
+                        .HasColumnType("bit");
+
                     b.HasKey("OwnerId", "AuthorizedUserId");
 
                     b.HasIndex("AuthorizedUserId");
@@ -384,12 +387,6 @@ namespace FinanceApi.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("AuthorizedUserJoinAuthorizedUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("AuthorizedUserJoinOwnerId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -408,8 +405,6 @@ namespace FinanceApi.Migrations
                         .IsUnique()
                         .HasDatabaseName("RoleNameIndex")
                         .HasFilter("[NormalizedName] IS NOT NULL");
-
-                    b.HasIndex("AuthorizedUserJoinOwnerId", "AuthorizedUserJoinAuthorizedUserId");
 
                     b.ToTable("AspNetRoles", (string)null);
                 });
@@ -679,13 +674,6 @@ namespace FinanceApi.Migrations
                     b.Navigation("Income");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.HasOne("FinanceApi.Models.AuthorizedUserJoin", null)
-                        .WithMany("Roles")
-                        .HasForeignKey("AuthorizedUserJoinOwnerId", "AuthorizedUserJoinAuthorizedUserId");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -735,11 +723,6 @@ namespace FinanceApi.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("FinanceApi.Models.AuthorizedUserJoin", b =>
-                {
-                    b.Navigation("Roles");
                 });
 
             modelBuilder.Entity("FinanceApi.Models.Budget", b =>

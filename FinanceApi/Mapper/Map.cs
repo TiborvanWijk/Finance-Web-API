@@ -245,6 +245,7 @@ namespace FinanceApi.Mapper
         {
             var authorizeUserInviteDto = new AuthorizeUserInviteDto()
             {
+                UserId = authorizeUserInvite.OwnerId,
                 Title = authorizeUserInvite.Title,
                 Message = authorizeUserInvite.Message,
             };

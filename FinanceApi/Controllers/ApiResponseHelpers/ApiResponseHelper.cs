@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceApi.Controllers.ApiResponseHelpers
 {
@@ -10,6 +11,10 @@ namespace FinanceApi.Controllers.ApiResponseHelpers
             {
                 case 400:
                     return new BadRequestObjectResult(new { Error = errorMessage });
+                case 401:
+                    return new UnauthorizedObjectResult(new { Error = errorMessage });
+                case 403:
+                    return new ForbidResult();
                 case 404:
                     return new NotFoundObjectResult(new { Error = errorMessage });
                 case 500:
@@ -23,6 +28,7 @@ namespace FinanceApi.Controllers.ApiResponseHelpers
                         StatusCode = 500,
                     };
             }
+
         }
     }
 

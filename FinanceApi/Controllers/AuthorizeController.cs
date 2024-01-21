@@ -47,11 +47,11 @@ namespace FinanceApi.Controllers
         }
 
 
-        [HttpPost("create_authorize_invite/{authorizedUserId}")]
+        [HttpPost("create_authorize_invite")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult AuthorizeUser(string authorizedUserId, [FromBody] AuthorizeUserInviteDto authorizeUserInviteDto)
+        public IActionResult AuthorizeUser([FromBody] AuthorizeUserInviteDto authorizeUserInviteDto)
         {
 
             if(!ModelState.IsValid)
@@ -64,7 +64,7 @@ namespace FinanceApi.Controllers
             int errorCode;
             string errorMessage;
 
-            if (!authorizeService.TrySendAuthRequest(userId, authorizedUserId, authorizeUserInviteDto, out errorCode, out errorMessage))
+            if (!authorizeService.TrySendAuthRequest(userId, authorizeUserInviteDto, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
@@ -91,6 +91,29 @@ namespace FinanceApi.Controllers
             }
 
             return Ok("Succesfully authorized.");        
+        }
+
+
+        [HttpPatch("give_edit_permission/{authorizedUserId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult GiveEditPermission(string authorizedUserId)
+        {
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            int errorCode;
+            string errorMessage;
+
+            if (!authorizeService.TryGiveEditPermission(userId, authorizedUserId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok("Succesfully given edit permission.");
         }
 
 

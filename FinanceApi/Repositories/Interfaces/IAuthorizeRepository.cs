@@ -9,5 +9,6 @@ namespace FinanceApi.Repositories.Interfaces
         bool Authorize(AuthorizedUserJoin authorizedUser);
         bool Remove(string ownerId, string authorizedUserId);
         bool Save();
+        bool update(AuthorizedUserJoin authorizedUserJoin);
     }
 }
