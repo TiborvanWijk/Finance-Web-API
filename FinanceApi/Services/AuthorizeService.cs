@@ -76,12 +76,63 @@ namespace FinanceApi.Services
 
         public bool TryDeleteAuthorization(string ownerId, string authorizedUserId, out int errorCode, out string errorMessage)
         {
-            throw new NotImplementedException();
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+
+            if (!userRepository.ExistsById(ownerId) || !userRepository.ExistsById(authorizedUserId))
+            {
+                errorCode = 404;
+                errorMessage = "User not found.";
+                return false;
+            }
+
+            if (!authorizeRepository.IsAuthorized(ownerId, authorizedUserId))
+            {
+                errorCode = 400;
+                errorMessage = "User is not authorized";
+                return false;
+            }
+
+            if(!authorizeRepository.Remove(ownerId, authorizedUserId))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while deleting authorization.";
+                return false;
+            }
+
+            return true;
         }
 
-        public bool TryDeleteAuthRequest(string ownerId, string authorizedUserId, out int errorCode, out string errorMessage)
+        public bool TryDeleteAuthInvite(string ownerId, string authorizedUserId, out int errorCode, out string errorMessage)
         {
-            throw new NotImplementedException();
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+
+            if (!userRepository.ExistsById(ownerId) || !userRepository.ExistsById(authorizedUserId))
+            {
+                errorCode = 404;
+                errorMessage = "User not found.";
+                return false;
+            }
+
+            if (!authorizationInviteRepository.RequestExists(ownerId, authorizedUserId))
+            {
+                errorCode = 404;
+                errorMessage = "Invite not found.";
+                return false;
+            }
+
+
+            if(!authorizationInviteRepository.Delete(ownerId, authorizedUserId))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while deleting invite.";
+                return false;
+            }
+
+            return true;
         }
 
         public bool TryGetAllAuthorizationInvites(string userId, out ICollection<AuthorizeUserInvite> invites, out int errorCode, out string errorMessage)
@@ -103,7 +154,7 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool TryGiveEditPermission(string userId, string authorizedUserId, out int errorCode, out string errorMessage)
+        public bool TryEditPermission(string userId, string authorizedUserId, bool canEdit, out int errorCode, out string errorMessage)
         {
 
             errorCode = 0;
@@ -126,13 +177,7 @@ namespace FinanceApi.Services
 
             var authorizedUserJoin = authorizeRepository.GetAuthorizedUsers(userId).First(au => au.AuthorizedUserId.Equals(authorizedUserId));
 
-            if (authorizedUserJoin.CanEdit)
-            {
-                errorCode = 400;
-                errorMessage = "User is already allowed to edit.";
-                return false;
-            }
-            authorizedUserJoin.CanEdit = true;
+            authorizedUserJoin.CanEdit = canEdit;
 
             if (!authorizeRepository.update(authorizedUserJoin))
             {
@@ -149,6 +194,7 @@ namespace FinanceApi.Services
 
             errorCode = 0;
             errorMessage = string.Empty;
+
 
 
             if(authorizeUserInviteDto.Title.Length > 40)
@@ -170,6 +216,13 @@ namespace FinanceApi.Services
             {
                 errorCode = 404;
                 errorMessage = "User not found.";
+                return false;
+            }
+
+            if(authorizeRepository.IsAuthorized(ownerId, authorizeUserInviteDto.UserId))
+            {
+                errorCode = 400;
+                errorMessage = "User is already authorized.";
                 return false;
             }
 

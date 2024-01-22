@@ -36,7 +36,7 @@ namespace FinanceApi.Controllers
 
             ICollection<AuthorizeUserInvite> invites;
 
-            if(!authorizeService.TryGetAllAuthorizationInvites(userId, out invites, out errorCode, out errorMessage))
+            if (!authorizeService.TryGetAllAuthorizationInvites(userId, out invites, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
@@ -54,7 +54,7 @@ namespace FinanceApi.Controllers
         public IActionResult AuthorizeUser([FromBody] AuthorizeUserInviteDto authorizeUserInviteDto)
         {
 
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -77,45 +77,129 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult AcceptAuthorization(string ownerId) 
+        public IActionResult AcceptAuthorization(string ownerId)
         {
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-        
+
             int errorCode;
             string errorMessage;
-            
-            if(!authorizeService.TryAcceptAuthorizationInvite(ownerId, userId, out errorCode, out errorMessage))
+
+            if (!authorizeService.TryAcceptAuthorizationInvite(ownerId, userId, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            return Ok("Succesfully authorized.");        
+            return Ok("Succesfully authorized.");
         }
 
 
-        [HttpPatch("give_edit_permission/{authorizedUserId}")]
+        [HttpPatch("edit_permission/{authorizedUserId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult GiveEditPermission(string authorizedUserId)
+        public IActionResult GiveEditPermission(string authorizedUserId, [FromBody] bool canEdit)
         {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
             int errorCode;
             string errorMessage;
 
-            if (!authorizeService.TryGiveEditPermission(userId, authorizedUserId, out errorCode, out errorMessage))
+            if (!authorizeService.TryEditPermission(userId, authorizedUserId, canEdit, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            return Ok("Succesfully given edit permission.");
+            return Ok("Succesfully updated permission.");
         }
 
 
+
+        [HttpDelete("delete_authorization/{authorizedUserId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult DeleteAuthorization(string authorizedUserId)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var currUser = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            int errorCode;
+            string errorMessage;
+
+            if(!authorizeService.TryDeleteAuthorization(currUser, authorizedUserId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok("Authorization deleted succesfully.");
+        }
+
+        [HttpDelete("delete_authorization_invite/{userId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult DeleteAuthorizationInvite(string userId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var currUser = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            int errorCode;
+            string errorMessage;
+
+            if (!authorizeService.TryDeleteAuthInvite(currUser, userId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok("Authorization invite deleted succesfully.");
+        }
+
+
+
+        [HttpDelete("decline_authorization_invite/{userId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult DeclineAuthorizationInvite(string userId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var currUser = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            int errorCode;
+            string errorMessage;
+
+            if (!authorizeService.TryDeleteAuthInvite(userId, currUser, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            return Ok("Authorization invite declined succesfully.");
+        }
     }
 }
