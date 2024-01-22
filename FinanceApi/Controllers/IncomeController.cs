@@ -38,7 +38,7 @@ namespace FinanceApi.Controllers
             [FromQuery] DateTime? to,
             [FromQuery] string? list_order_by,
             [FromQuery] string? list_dir,
-            [FromQuery] string? userId)
+            [FromQuery] string? optionalOwnerId)
         {
 
             if (!ModelState.IsValid)
@@ -48,26 +48,16 @@ namespace FinanceApi.Controllers
 
             var currUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            string userLookupId;
-
-            if (userId != null && !authorizeService.IsAuthorized(userId, currUserId))
-            {
-                return ApiResponseHelper.HandleErrorResponse(403, "Forbiden.");
-            }
-            else if(userId != null)
-            {
-                userLookupId = userId;
-            }
-            else
-            {
-                userLookupId = currUserId;
-            }
-            
-
-
-
             int errorCode;
             string errorMessage;
+            string userLookupId;
+
+            if(!authorizeService.TryGetUserLookupIdWithValidation(HttpContext, currUserId, optionalOwnerId, out userLookupId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }      
+
+           
             ICollection<Income> incomes;
 
             if(!incomeService.TryGetIncomesFilteredOrDefault(userLookupId, out incomes, from, to, list_order_by, list_dir, out errorCode, out errorMessage)){

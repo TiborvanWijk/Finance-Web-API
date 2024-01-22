@@ -252,5 +252,54 @@ namespace FinanceApi.Services
             
             return true;
         }
+
+        public bool TryGetUserLookupIdWithValidation(HttpContext httpContext, string currUserId, string? optionalOwnerId, out string? userLookupId, out int errorCode, out string errorMessage)
+        {
+            errorCode = 0;
+            errorMessage = string.Empty;
+            userLookupId = null;
+
+            if (!userRepository.ExistsById(currUserId))
+            {
+                errorCode = 401;
+                errorMessage = "Unauthorized.";
+                return false;
+            }
+
+            if (optionalOwnerId == null)
+            {
+                userLookupId = currUserId;
+                return true;
+            }
+
+            if (!userRepository.ExistsById(optionalOwnerId))
+            {
+                errorCode = 404;
+                errorMessage = "User not found.";
+                return false;
+            }
+
+            if (!authorizeRepository.IsAuthorized(optionalOwnerId, currUserId))
+            {
+                errorCode = 403;
+                errorMessage = "Forbidden.";
+                return false;
+            }
+
+            if(httpContext.Request.Method == HttpMethods.Post || httpContext.Request.Method == HttpMethods.Patch)
+            {
+                var authConnection = authorizeRepository.GetAuthorizedUsers(optionalOwnerId).First(au => au.AuthorizedUserId.Equals(currUserId));
+                if (!authConnection.CanEdit)
+                {
+                    errorCode = 403;
+                    errorMessage = "Forbidden.";
+                    return false;
+                }
+            }
+
+            userLookupId = optionalOwnerId;
+
+            return true;
+        }
     }
 }

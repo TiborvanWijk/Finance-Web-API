@@ -5,6 +5,7 @@ namespace FinanceApi.Services.Interfaces
 {
     public interface IAuthorizeService
     {
+        bool TryGetUserLookupIdWithValidation(HttpContext httpContext, string currUserId, string? optionalOwnerId, out string userLookupId, out int errorCode, out string errorMessage);
         bool IsAuthorized(string ownerId, string authorizedUserId);
         bool TrySendAuthRequest(string ownerId, AuthorizeUserInviteDto authorizeUserInviteDto, out int errorCode, out string errorMessage);
         bool TryDeleteAuthInvite(string ownerId, string authorizedUserId, out int errorCode, out string errorMessage);
