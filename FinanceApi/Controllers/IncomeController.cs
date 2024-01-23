@@ -50,13 +50,13 @@ namespace FinanceApi.Controllers
 
             int errorCode;
             string errorMessage;
-            string userLookupId;
 
-            if(!authorizeService.TryGetUserLookupIdWithValidation(HttpContext, currUserId, optionalOwnerId, out userLookupId, out errorCode, out errorMessage))
+            if(!authorizeService.ValidateUsers(HttpContext, currUserId, optionalOwnerId, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
-            }      
+            }
 
+            var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
            
             ICollection<Income> incomes;
 
@@ -81,13 +81,12 @@ namespace FinanceApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            var user = userService.GetById(userId, true);
-
+            var currUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             int errorCode;
             string errorMessage;
+
+            var user = userService.GetById(currUserId, true);
             ICollection<Income> incomes;
 
             if(!incomeService.tryGetIncomesWithCategoryId(user, categoryId, out incomes, out errorCode, out errorMessage))
@@ -105,7 +104,7 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public IActionResult CreateIncome([FromBody] IncomeDto incomeDto)
+        public IActionResult CreateIncome([FromBody] IncomeDto incomeDto, [FromQuery] string? optionalOwnerId)
         {
 
             if (!ModelState.IsValid)
@@ -115,12 +114,22 @@ namespace FinanceApi.Controllers
 
             incomeDto.Id = 0;
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var currUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var user = userService.GetById(userId, true);
 
             int errorCode;
             string errorMessage;
+
+            if (!authorizeService.ValidateUsers(HttpContext, currUserId, optionalOwnerId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
+
+
+            var user = userService.GetById(userLookupId, true);
+
 
             if (!incomeService.Create(user, incomeDto, out errorCode, out errorMessage))
             {

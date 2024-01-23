@@ -253,11 +253,10 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool TryGetUserLookupIdWithValidation(HttpContext httpContext, string currUserId, string? optionalOwnerId, out string? userLookupId, out int errorCode, out string errorMessage)
+        public bool ValidateUsers(HttpContext httpContext, string currUserId, string? optionalOwnerId, out int errorCode, out string errorMessage)
         {
             errorCode = 0;
             errorMessage = string.Empty;
-            userLookupId = null;
 
             if (!userRepository.ExistsById(currUserId))
             {
@@ -265,10 +264,8 @@ namespace FinanceApi.Services
                 errorMessage = "Unauthorized.";
                 return false;
             }
-
-            if (optionalOwnerId == null)
+            else if(optionalOwnerId == null)
             {
-                userLookupId = currUserId;
                 return true;
             }
 
@@ -296,8 +293,6 @@ namespace FinanceApi.Services
                     return false;
                 }
             }
-
-            userLookupId = optionalOwnerId;
 
             return true;
         }

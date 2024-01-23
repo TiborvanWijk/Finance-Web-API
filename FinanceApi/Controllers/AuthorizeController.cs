@@ -47,6 +47,28 @@ namespace FinanceApi.Controllers
         }
 
 
+        [HttpGet("get_all_authorized_users")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult GetAllAuthorizedUsers()
+        {
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            int errorCode;
+            string errorMessage;
+            ICollection<int> 
+
+            if(!authorizeService.TryGetAllAuthorizedUsersIds(userId, ))
+
+
+
+
+
+        }
+
+
+
         [HttpPost("create_authorize_invite")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
