@@ -331,3 +331,15 @@ $RECYCLE.BIN/
 
 #other
 *.v2
+# Exclude user-specific project files
+**/*.csproj.user
+
+# Xunit test files
+*.TestResults/
+TestResults/
+testStore/
+*.trx
+xunit.runner.json
+*.visualstudio
+*.testsettings
+coverlet/
