@@ -195,7 +195,12 @@ namespace FinanceApi.Services
             errorCode = 0;
             errorMessage = string.Empty;
 
-
+            if (ownerId.Equals(authorizeUserInviteDto.UserId))
+            {
+                errorCode = 400;
+                errorMessage = "User id is the same as current user's id.";
+                return false;
+            }
 
             if(authorizeUserInviteDto.Title.Length > 40)
             {
@@ -295,6 +300,34 @@ namespace FinanceApi.Services
             }
 
             return true;
+        }
+
+        public bool TryGetAllAuthorizedUsers(string userId, out ICollection<User> authorizedUsers, out int errorCode, out string errorMessage)
+        {
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+            authorizedUsers = new List<User>();
+
+            if(!userRepository.ExistsById(userId))
+            {
+                errorCode = 401;
+                errorMessage = "Unauthorized";
+                return false;
+            }
+
+            try
+            {
+                authorizedUsers = authorizeRepository.GetAuthorizedUsers(userId).Select(au => au.AuthorizedUser).ToList();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errorCode = 500;
+                errorMessage = $"Something went wrong while fetching authorized users: {ex}";
+                return false;
+            }
+
         }
     }
 }

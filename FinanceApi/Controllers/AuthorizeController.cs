@@ -57,14 +57,16 @@ namespace FinanceApi.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             int errorCode;
             string errorMessage;
-            ICollection<int> 
+            ICollection<User> authorizedUsers;
 
-            if(!authorizeService.TryGetAllAuthorizedUsersIds(userId, ))
+            if(!authorizeService.TryGetAllAuthorizedUsers(userId, out authorizedUsers, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
 
+            var authorizedUserDtos = authorizedUsers.Select(Map.ToAuthorizedUserDto).ToList();
 
-
-
-
+            return Ok(authorizedUserDtos);
         }
 
 

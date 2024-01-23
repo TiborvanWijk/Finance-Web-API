@@ -1,6 +1,7 @@
 ﻿using FinanceApi.Data;
 using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApi.Repositories
 {
@@ -21,7 +22,7 @@ namespace FinanceApi.Repositories
 
         public ICollection<AuthorizedUserJoin> GetAuthorizedUsers(string userId)
         {
-            return dataContext.AuthorizedUsers.Where(au => au.OwnerId.Equals(userId)).ToList();
+            return dataContext.AuthorizedUsers.Include(au => au.Owner).Include(au => au.AuthorizedUser).Where(au => au.OwnerId.Equals(userId)).ToList();
         }
 
         public bool IsAuthorized(string ownerId, string authorizedUserId)

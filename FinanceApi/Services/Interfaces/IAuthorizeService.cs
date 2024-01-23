@@ -13,5 +13,6 @@ namespace FinanceApi.Services.Interfaces
         bool TryDeleteAuthorization(string ownerId, string authorizedUserId, out int errorCode, out string errorMessage);
         bool TryGetAllAuthorizationInvites(string userId, out ICollection<AuthorizeUserInvite> invites, out int errorCode, out string errorMessage);
         bool TryEditPermission(string userId, string authorizedUserId, bool canEdit, out int errorCode, out string errorMessage);
+        bool TryGetAllAuthorizedUsers(string userId, out ICollection<User> authorizedUsers, out int errorCode, out string errorMessage);
     }
 }

@@ -252,5 +252,15 @@ namespace FinanceApi.Mapper
 
             return authorizeUserInviteDto;
         }
+
+        internal static AuthorizedUserDto ToAuthorizedUserDto(User user)
+        {
+            var authorizedUserDto = new AuthorizedUserDto()
+            {
+                UserId = user.Id,
+                Username = user.UserName
+            };
+            return authorizedUserDto;
+        }
     }
 }
