@@ -47,6 +47,32 @@ namespace FinanceApi.Controllers
         }
 
 
+        [HttpGet("get_all_outgoing_authorization_invites")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(500)]
+        public IActionResult GetOutgoingAuthorizationInvites() 
+        {
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            int errorCode;
+            string errorMessage;
+
+            ICollection<AuthorizeUserInvite> invites;
+
+            if(!authorizeService.tryGetAllOutGoingInvites(userId, out invites, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var inviteDtos = invites.Select(Map.ToAuthorizeUserInviteDto).ToList();
+
+            return Ok(inviteDtos);
+        }
+
+
+
         [HttpGet("get_all_authorized_users")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -124,7 +150,7 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult GiveEditPermission(string authorizedUserId, [FromBody] bool canEdit)
+        public IActionResult GiveEditPermission(string authorizedUserId, [FromQuery] bool canEdit)
         {
 
             if (!ModelState.IsValid)

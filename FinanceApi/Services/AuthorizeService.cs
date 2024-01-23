@@ -22,11 +22,6 @@ namespace FinanceApi.Services
             this.roleRepository = roleRepository;
         }
 
-        public bool IsAuthorized(string ownerId, string authorizedUserId)
-        {
-            return authorizeRepository.IsAuthorized(ownerId, authorizedUserId);
-        }
-
         public bool TryAcceptAuthorizationInvite(string ownerId, string authorizedUserId, out int errorCode, out string errorMessage)
         {
 
@@ -328,6 +323,24 @@ namespace FinanceApi.Services
                 return false;
             }
 
+        }
+
+        public bool tryGetAllOutGoingInvites(string userId, out ICollection<AuthorizeUserInvite> invites, out int errorCode, out string errorMessage)
+        {
+
+            errorCode = 0;
+            errorMessage = string.Empty;
+            invites = new List<AuthorizeUserInvite>();
+
+            if (!userRepository.ExistsById(userId))
+            {
+                errorCode = 401;
+                errorMessage = "Unauthorized.";
+                return false;
+            }
+
+            invites = authorizationInviteRepository.GetAllSentRequest(userId);
+            return true;
         }
     }
 }
