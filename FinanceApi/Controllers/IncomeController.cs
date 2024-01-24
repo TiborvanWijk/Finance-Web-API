@@ -73,7 +73,7 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult GetUsersIncomesByCategoryId(int categoryId)
+        public IActionResult GetUsersIncomesByCategoryId(int categoryId, [FromQuery] string? optionalOwnerId)
         {
 
             if(!ModelState.IsValid)
@@ -81,12 +81,20 @@ namespace FinanceApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var currUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var currUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
             int errorCode;
             string errorMessage;
 
-            var user = userService.GetById(currUserId, true);
+            if (!authorizeService.ValidateUsers(HttpContext, currUserId, optionalOwnerId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
+
+            var user = userService.GetById(userLookupId, true);
+
             ICollection<Income> incomes;
 
             if(!incomeService.tryGetIncomesWithCategoryId(user, categoryId, out incomes, out errorCode, out errorMessage))
@@ -146,11 +154,23 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult AddCategoryToIncome(int incomeId, [FromBody] ICollection<int> categoryIds)
+        public IActionResult AddCategoryToIncome(int incomeId, [FromBody] ICollection<int> categoryIds, [FromQuery] string? optionalOwnerId)
         {
-            string errorMessage;
+
+            var currUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
             int errorCode;
-            if (!incomeService.AddCategories(User.FindFirst(ClaimTypes.NameIdentifier).Value, incomeId, categoryIds, out errorMessage, out errorCode))
+            string errorMessage;
+
+            if (!authorizeService.ValidateUsers(HttpContext, currUserId, optionalOwnerId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
+
+
+            if (!incomeService.AddCategories(userLookupId, incomeId, categoryIds, out errorMessage, out errorCode))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
@@ -163,7 +183,7 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult UpdateIncome(IncomeDto incomeDto)
+        public IActionResult UpdateIncome(IncomeDto incomeDto, [FromQuery] string? optionalOwnerId)
         {
 
             if (!ModelState.IsValid)
@@ -171,12 +191,20 @@ namespace FinanceApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var currUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var user = userService.GetById(userId, true);
 
             int errorCode;
             string errorMessage;
+
+            if (!authorizeService.ValidateUsers(HttpContext, currUserId, optionalOwnerId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
+
+            var user = userService.GetById(userLookupId, true);
 
             if (!incomeService.Update(user, incomeDto, out errorCode, out errorMessage))
             {
@@ -190,17 +218,24 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult DeleteIncome(int incomeId)
+        public IActionResult DeleteIncome(int incomeId, [FromQuery] string? optionalOwnerId)
         {
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            var user = userService.GetById(userId, true);
+            var currUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
             int errorCode;
             string errorMessage;
 
-            if(!incomeService.TryDeleteIncome(user, incomeId, out errorCode, out errorMessage))
+            if (!authorizeService.ValidateUsers(HttpContext, currUserId, optionalOwnerId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
+
+            var user = userService.GetById(userLookupId, true);
+
+            if (!incomeService.TryDeleteIncome(user, incomeId, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
@@ -215,7 +250,7 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult RemoveCategoriesFromIncome(int incomeId, [FromBody] ICollection<int> categoryIds)
+        public IActionResult RemoveCategoriesFromIncome(int incomeId, [FromBody] ICollection<int> categoryIds, [FromQuery] string? optionalOwnerId)
         {
 
             if (!ModelState.IsValid)
@@ -223,15 +258,21 @@ namespace FinanceApi.Controllers
                 return BadRequest(ModelState);
             }
 
-
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            var user = userService.GetById(userId, true);
+            var currUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
             int errorCode;
             string errorMessage;
 
-            
+            if (!authorizeService.ValidateUsers(HttpContext, currUserId, optionalOwnerId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
+
+            var user = userService.GetById(userLookupId, true);
+
+
             if (!incomeService.TryRemoveCategories(user, incomeId, categoryIds, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
