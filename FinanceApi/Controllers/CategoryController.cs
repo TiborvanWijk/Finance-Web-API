@@ -16,27 +16,37 @@ namespace FinanceApi.Controllers
     {
         private readonly ICategoryService categoryService;
         private readonly IUserService userService;
+        private readonly IAuthorizeService authorizeService;
 
-        public CategoryController(ICategoryService categoryService, IUserService userService)
+        public CategoryController(ICategoryService categoryService, IUserService userService, IAuthorizeService authorizeService)
         {
             this.categoryService = categoryService;
             this.userService = userService;
+            this.authorizeService = authorizeService;
         }
 
 
         [HttpGet("current")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetAllCategories([FromQuery] string? listOrderBy, [FromQuery] string? listDir)
+        public IActionResult GetAllCategories([FromQuery] string? listOrderBy, [FromQuery] string? listDir, [FromQuery] string? optionalOwnerId)
         {
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var currUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            ICollection<Category> categories;
             int errorCode;
             string errorMessage;
 
-            if (!categoryService.TryGetCategoriesFilteredOrDefault(userId, out categories, out errorCode, out errorMessage, listOrderBy, listDir))
+            if (!authorizeService.ValidateUsers(HttpContext, currUserId, optionalOwnerId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId; 
+            
+            ICollection<Category> categories;
+
+            if (!categoryService.TryGetCategoriesFilteredOrDefault(userLookupId, out categories, out errorCode, out errorMessage, listOrderBy, listDir))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
@@ -51,14 +61,23 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult GetCategoryExpenseAmount(int categoryId)
+        public IActionResult GetCategoryExpenseAmount(int categoryId, [FromQuery] string? optionalOwnerId)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var user = userService.GetById(userId, true);
+            var currUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
             int errorCode;
             string errorMessage;
+
+            if (!authorizeService.ValidateUsers(HttpContext, currUserId, optionalOwnerId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
+
+            var user = userService.GetById(userLookupId, true);
+
             decimal expenseAmount;
 
             if (!categoryService.TryGetCategoryExpenseAmount(user, categoryId, out expenseAmount, out errorCode, out errorMessage))
@@ -75,7 +94,7 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public IActionResult CreateCategory([FromBody] CategoryDto categoryDto)
+        public IActionResult CreateCategory([FromBody] CategoryDto categoryDto, [FromQuery] string? optionalOwnerId)
         {
 
             if (!ModelState.IsValid)
@@ -84,13 +103,20 @@ namespace FinanceApi.Controllers
             }
 
             categoryDto.Id = 0;
+            var currUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            var user = userService.GetById(userId, true);
 
             int errorCode;
             string errorMessage;
+
+            if (!authorizeService.ValidateUsers(HttpContext, currUserId, optionalOwnerId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
+
+            var user = userService.GetById(userLookupId, true);
 
             if (!categoryService.Create(user, categoryDto, out errorCode, out errorMessage))
             {
@@ -105,20 +131,26 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult UpdateCategory([FromBody] CategoryDto categoryDto)
+        public IActionResult UpdateCategory([FromBody] CategoryDto categoryDto, [FromQuery] string? optionalOwnerId)
         { 
         
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+            var currUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            var user = userService.GetById(userId, true);
 
             int errorCode;
             string errorMessage;
+
+            if (!authorizeService.ValidateUsers(HttpContext, currUserId, optionalOwnerId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
+            var user = userService.GetById(userLookupId, true);
 
             if (!categoryService.Update(user, categoryDto, out errorCode, out errorMessage))
             {
@@ -134,17 +166,23 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult DeleteCategory(int categoryId)
+        public IActionResult DeleteCategory(int categoryId, [FromQuery] string? optionalOwnerId)
         {
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            var user = userService.GetById(userId, true);
+            var currUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
             int errorCode;
             string errorMessage;
 
-            if(!categoryService.TryDelete(user, categoryId, out errorCode, out errorMessage))
+            if (!authorizeService.ValidateUsers(HttpContext, currUserId, optionalOwnerId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
+
+            var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
+            var user = userService.GetById(userLookupId, true);
+
+            if (!categoryService.TryDelete(user, categoryId, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }

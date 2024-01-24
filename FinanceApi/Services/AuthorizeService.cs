@@ -283,7 +283,7 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            if(httpContext.Request.Method == HttpMethods.Post || httpContext.Request.Method == HttpMethods.Patch)
+            if(httpContext.Request.Method != HttpMethods.Get)
             {
                 var authConnection = authorizeRepository.GetAuthorizedUsers(optionalOwnerId).First(au => au.AuthorizedUserId.Equals(currUserId));
                 if (!authConnection.CanEdit)
