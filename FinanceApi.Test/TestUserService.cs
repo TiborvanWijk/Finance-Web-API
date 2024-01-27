@@ -114,5 +114,44 @@ namespace FinanceApi.Test
             Assert.Equal("Updated users currency succesfully.", okResult.Value);
         }
 
+        [Fact]
+        public void UpdateUsersCurrency_ReturnsNotFound_WhenUserDoesNotExist()
+        {
+            // Arrange
+
+
+            var userRepoMock = new Mock<IUserRepository>();
+            userRepoMock.Setup(x => x.ExistsById(It.IsAny<string>())).Returns(false);
+            var incomeRepoMock = new Mock<IIncomeRepository>();
+            var expenseRepoMock = new Mock<IExpenseRepository>();
+
+            var userService = new UserService(userRepoMock.Object,
+                expenseRepoMock.Object,
+                incomeRepoMock.Object);
+
+            var userController = new UserController(userService);
+
+            userController.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, "user123")
+                    }))
+                }
+            };
+
+            // Act
+
+            var result = userController.UpdateUsersCurrency("usd");
+
+            // Assert
+
+            Assert.IsType<NotFoundObjectResult>(result);
+        }
+
+
+
     }
 }
