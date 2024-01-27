@@ -13,7 +13,7 @@ using System.Security.Claims;
 
 namespace FinanceApi.Test
 {
-    public class TestUserService
+    public class TestUserController
     {
 
         [Fact]
@@ -151,6 +151,83 @@ namespace FinanceApi.Test
             Assert.IsType<NotFoundObjectResult>(result);
         }
 
+
+        [Fact]
+        public void UpdateUsersCurrency_ReturnsBadRequest_WhenCurrencyIsoCodeIsInvalid()
+        {
+            // Arrange
+            var userRepoMock = new Mock<IUserRepository>();
+            var expenseRepoMock = new Mock<IExpenseRepository>();
+            var incomeRepoMock = new Mock<IIncomeRepository>();
+
+            userRepoMock.Setup(x => x.ExistsById(It.IsAny<string>())).Returns(true);
+            
+            var userService = new UserService(userRepoMock.Object,
+                expenseRepoMock.Object,
+                incomeRepoMock.Object);
+            var userController = new UserController(userService);
+
+            userController.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, "user123")
+                    }))
+                }
+            };
+
+            // Act
+
+            var result = userController.UpdateUsersCurrency("WRONG CODE");
+
+            // Assert
+            
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        [Fact]
+        public void UpdateUsersCurrency_ReturnsObjectResult500_WhenUpdateFails()
+        {
+            // Arrange
+            var userRepoMock = new Mock<IUserRepository>();
+            var expenseRepoMock = new Mock<IExpenseRepository>();
+            var incomeRepoMock = new Mock<IIncomeRepository>();
+
+            userRepoMock.Setup(x => x.ExistsById(It.IsAny<string>())).Returns(true);
+            userRepoMock.Setup(x => x.Update(It.IsAny<User>())).Returns(false);
+            userRepoMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<bool>()))
+                .Returns(new User()
+                {
+                    Id = "ID",
+                    UserName = "user123",
+                    Currency = "EUR",
+                    Email = "email@email.com",
+                });
+            var userService = new UserService(userRepoMock.Object,
+                expenseRepoMock.Object,
+                incomeRepoMock.Object);
+            var userController = new UserController(userService);
+
+            userController.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, "user123")
+                    }))
+                }
+            };
+
+            // Act
+            var result = userController.UpdateUsersCurrency("usd");
+
+            // Assert
+
+            Assert.IsType<ObjectResult>(result);
+        }
 
 
     }
