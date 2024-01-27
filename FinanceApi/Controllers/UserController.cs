@@ -29,8 +29,7 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(404)]
         public IActionResult GetCurrentUser()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             if (!userService.ExistsById(userId))
             {
                 return NotFound();
