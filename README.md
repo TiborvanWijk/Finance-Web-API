@@ -22,7 +22,9 @@ To contribute, test or use the API, clone this repository and install the necess
 * Microsoft.EntityFrameworkCore.Tools (8.0.0)
 * Swashbuckle.AspNetCore (6.4.0)
 * Swashbuckle.AspNetCore.Filters (7.0.12)
-
+* Moq (4.20.70)
+* xunit (2.4.5)
+* coverlet.collector (6.0.0)
 
 ## Configuration Files
 
