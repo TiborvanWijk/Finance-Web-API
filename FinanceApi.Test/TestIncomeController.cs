@@ -21,8 +21,8 @@ namespace FinanceApi.Test
         public static IEnumerable<object[]> GetUsersIncomeValidInputsTestData()
         {
             yield return new object[] { new DateTime(2020, 1, 1), new DateTime(2024, 1, 1), "amount", null, "user123" };
-            yield return new object[] { new DateTime(2021, 1, 1), new DateTime(2023, 1, 1), "title", "Desc", "user123" };
-            yield return new object[] { null, null, null, "Desc", null };
+            yield return new object[] { new DateTime(2021, 1, 1), new DateTime(2023, 1, 1), "title", "desc", "user123" };
+            yield return new object[] { null, null, null, "desc", null };
             yield return new object[] { null, null, "amount", null, "user123" };
             yield return new object[] { null, null, "title", null, null };
         }
@@ -88,7 +88,7 @@ namespace FinanceApi.Test
                     },
                     new Income()
                     {
-                        Id = 5,
+                        Id = 4,
                         Title = "e-income",
                         Description = "additional description",
                         Amount = 180,
@@ -100,7 +100,7 @@ namespace FinanceApi.Test
                     },
                     new Income()
                     {
-                        Id = 6,
+                        Id = 5,
                         Title = "f-income",
                         Description = "final description",
                         Amount = 250,
@@ -112,7 +112,7 @@ namespace FinanceApi.Test
                     },
                     new Income()
                     {
-                        Id = 4,
+                        Id = 6,
                         Title = "d-income",
                         Description = "more description",
                         Amount = 120,
@@ -155,8 +155,37 @@ namespace FinanceApi.Test
 
             // Assert
             Assert.IsType<OkObjectResult>(result);
-            var okResult = (OkObjectResult)result;
-            Assert.IsType<List<IncomeDto>>(okResult.Value);
+            var okResult = ((OkObjectResult)result).Value;
+            Assert.IsType<List<IncomeDto>>(okResult);
+
+            var incomeDtos = (List<IncomeDto>)okResult;
+
+
+            var orderedIncomeList = new List<IncomeDto>(incomeDtos);
+            if (list_order_by != null || list_dir != null)
+            {
+                list_order_by = list_order_by ?? "DEFAULT (NO ORDERING)";
+                switch (list_order_by.ToLower())
+                {
+                    case "title":
+                        orderedIncomeList = (list_dir != null && list_dir.Equals("desc")) 
+                            ? orderedIncomeList.OrderByDescending(dto => dto.Title).ToList()
+                            : orderedIncomeList.OrderBy(dto => dto.Title).ToList();
+                        break;
+                    case "amount":
+                        orderedIncomeList = (list_dir != null && list_dir.Equals("desc"))
+                            ? orderedIncomeList.OrderByDescending(dto => dto.Amount).ToList()
+                            : orderedIncomeList.OrderBy(dto => dto.Amount).ToList();
+                        break;
+                    default:
+                        orderedIncomeList = (list_dir != null && list_dir.Equals("desc")) ?
+                            orderedIncomeList.OrderByDescending(dto => dto.Date).ToList()
+                            : orderedIncomeList.OrderBy(idto => idto.Date).ToList();
+                        break;
+                }
+            }
+
+            Assert.Equal(incomeDtos, orderedIncomeList);
         }
 
 
