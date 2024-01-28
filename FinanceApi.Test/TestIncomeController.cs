@@ -168,7 +168,7 @@ namespace FinanceApi.Test
                 switch (list_order_by.ToLower())
                 {
                     case "title":
-                        orderedIncomeList = (list_dir != null && list_dir.Equals("desc")) 
+                        orderedIncomeList = (list_dir != null && list_dir.Equals("desc"))
                             ? orderedIncomeList.OrderByDescending(dto => dto.Title).ToList()
                             : orderedIncomeList.OrderBy(dto => dto.Title).ToList();
                         break;
@@ -188,6 +188,69 @@ namespace FinanceApi.Test
             Assert.Equal(incomeDtos, orderedIncomeList);
         }
 
+        public static IEnumerable<object[]> GetUsersIncomeInvalidInputsTestData()
+        {
+            yield return new object[] { new DateTime(2020, 1, 1), null, null, null, null };   
+            yield return new object[] { null, new DateTime(2020, 1, 1), null, null, null };   
+        }
 
+
+        [Theory]
+        [MemberData(nameof(GetUsersIncomeInvalidInputsTestData))]
+        public void GetUsersIncomes_ReturnsBadRequest_WhenUserExistsAndHasInvalidInput(
+            DateTime? from,
+            DateTime? to,
+            string? list_order_by,
+            string? list_dir,
+            string? optionalOwnerId
+            )
+        {
+
+            // Arrange
+
+            var incomeRepoMock = new Mock<IIncomeRepository>();
+            var categoryRepoMock = new Mock<ICategoryRepository>();
+            var authServiceMock = new Mock<IAuthorizeService>();
+            var userServiceMock = new Mock<IUserService>();
+
+            authServiceMock.Setup(x => x.ValidateUsers(
+                It.IsAny<HttpContext>(), It.IsAny<string>(),
+                It.IsAny<string?>(), out It.Ref<int>.IsAny, out It.Ref<string>.IsAny
+                )).Returns(true);
+            incomeRepoMock.Setup(x => x.GetAllOfUser(It.IsAny<string>())).Returns(
+                new List<Income>()
+                );
+
+            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+
+            var incomeController = new IncomeController(incomeService, userServiceMock.Object,
+                authServiceMock.Object);
+
+            incomeController.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, "user1")
+                    }))
+                }
+            };
+
+            // Act
+
+
+            var result = incomeController.GetUsersIncomes(from,
+                to, list_order_by, list_dir, optionalOwnerId);
+
+
+            // Assert
+
+            Assert.IsType<BadRequestObjectResult>(result);
+
+            var badRequestResult = (BadRequestObjectResult)result;
+
+
+        }
     }
 }
