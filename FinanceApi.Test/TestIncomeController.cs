@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using System.Runtime.Serialization;
 using System.Security.Claims;
 using System.Security.Cryptography;
 
@@ -408,6 +409,50 @@ namespace FinanceApi.Test
             Assert.IsType<OkObjectResult>(result);
             ResetAllSetups();
         }
+
+        public static IEnumerable<object[]> CreateIncomeInvalidInputTestData()
+        {
+            yield return new object[] { new IncomeDto() { Id = 1, Title = "Title-1", Description = "Description-2", Amount = decimal.MinValue, Currency = "USD", Date = DateTime.Now, DocumentUrl = "URL" }, null };
+            yield return new object[] { new IncomeDto() { Id = 1, Title = "Title-1", Description = "Description-2", Amount = decimal.MaxValue, Currency = "USD", Date = DateTime.Now, DocumentUrl = "URL" }, null };
+            yield return new object[] { new IncomeDto() { Id = 1, Title = "Title-1", Description = "Description-2", Amount = -1, Currency = "INVALID", Date = DateTime.Now, DocumentUrl = "URL" }, null };
+            yield return new object[] { new IncomeDto() { Id = 1, Title = "Title-1", Description = "Description-2", Amount = 9, Currency = "INVALID", Date = DateTime.Now, DocumentUrl = "URL" }, null };
+        }
+
+        [Theory]
+        [MemberData(nameof(CreateIncomeInvalidInputTestData))]
+        public void CreateIncome_ReturnsBadRequestObjectResult_WhenInputIsInvalid(
+            IncomeDto incomeDto,
+            string? optionalOwnerId
+            )
+        {
+            // Arrange
+            authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<string>(),
+                out It.Ref<int>.IsAny, out It.Ref<string>.IsAny)).Returns(true);
+
+            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+
+            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+
+            incomeController.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, "CURRENT USER")
+                    }))
+                }
+            };
+
+            // Act
+
+            var result = incomeController.CreateIncome(incomeDto, optionalOwnerId);
+
+            // Assert
+
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
 
 
 
