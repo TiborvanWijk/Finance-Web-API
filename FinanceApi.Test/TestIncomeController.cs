@@ -288,6 +288,40 @@ namespace FinanceApi.Test
             ResetAllSetups();
         }
 
+        [Fact]
+        public void GetUsersIncomes_ReturnsNotFoundObjectResult_WhenOptionalOwnerDoesNotExist()
+        {
+            // Arrange
+            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+            var authservice = new AuthorizeService(authorizeRepoMock.Object, auhtorizationInviteRepoMock.Object, userRepoMock.Object);
+            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authservice);
+
+            userRepoMock.Setup(x => x.ExistsById(It.Is<string>(s => s.Equals("CURRENT USER"))))
+                .Returns(true);
+                        
+            incomeController.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]{
+                        new Claim(ClaimTypes.NameIdentifier, "CURRENT USER")
+                    }))
+                }
+            };
+
+            // Act
+            var result = incomeController.GetUsersIncomes(null, null, null, null, "THIS USER DOES NOT EXIST");
+
+            // Assert
+
+            Assert.IsType<NotFoundObjectResult>(result);
+            var statusCode = ((NotFoundObjectResult)result).StatusCode;
+
+            Assert.Equal(404, statusCode);
+
+            ResetAllSetups();
+        }
+
 
 
         private void ResetAllSetups()
