@@ -25,7 +25,7 @@ namespace FinanceApi.Test
         private readonly Mock<IUserRepository> userRepoMock = new Mock<IUserRepository>();
         public TestIncomeController()
         {
-            
+
         }
 
 
@@ -49,7 +49,7 @@ namespace FinanceApi.Test
             )
         {
             // Arrange
-            
+
             authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(),
                 It.IsAny<string>(), It.IsAny<string>(), out It.Ref<int>.IsAny,
                 out It.Ref<string>.IsAny)).Returns(true);
@@ -197,7 +197,7 @@ namespace FinanceApi.Test
 
         public static IEnumerable<object[]> GetUsersIncomeInvalidInputsTestData()
         {
-            yield return new object[] { new DateTime(2020, 1, 1), null, null, null, null };   
+            yield return new object[] { new DateTime(2020, 1, 1), null, null, null, null };
             yield return new object[] { null, new DateTime(2020, 1, 1), null, null, null };
         }
 
@@ -298,7 +298,7 @@ namespace FinanceApi.Test
 
             userRepoMock.Setup(x => x.ExistsById(It.Is<string>(s => s.Equals("CURRENT USER"))))
                 .Returns(true);
-                        
+
             incomeController.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
@@ -322,6 +322,43 @@ namespace FinanceApi.Test
             ResetAllSetups();
         }
 
+        [Fact]
+        public void GetUsersIncomes_ReturnsForbiddenResult_WhenUsersExistButCurrentUserIsForbiddenToGet()
+        {
+
+            // Arrange
+
+            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+            var authservice = new AuthorizeService(authorizeRepoMock.Object, auhtorizationInviteRepoMock.Object, userRepoMock.Object);
+            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authservice);
+
+
+            authorizeRepoMock.Setup(x => x.IsAuthorized(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(false);
+
+
+            userRepoMock.Setup(x => x.ExistsById(It.IsAny<string>()))
+                .Returns(true);
+
+            incomeController.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, "CURRENT USER")
+                    }))
+                }
+            };
+
+            // Act
+
+            var result = incomeController.GetUsersIncomes(null, null, null, null, "OWNER DID NOT AUTHORIZE CURRENT USER");
+    
+            // Assert
+            
+            Assert.IsType<ForbidResult>(result);
+        }
 
 
         private void ResetAllSetups()
