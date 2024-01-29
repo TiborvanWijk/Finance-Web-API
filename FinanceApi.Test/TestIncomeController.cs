@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 
 namespace FinanceApi.Test
 {
@@ -358,7 +359,57 @@ namespace FinanceApi.Test
             // Assert
             
             Assert.IsType<ForbidResult>(result);
+            ResetAllSetups();
         }
+
+        public static IEnumerable<object[]> CreateIncomeValidInputsTestData()
+        {
+            yield return new object[] {
+                new IncomeDto() {
+                    Id = 1, Title = "Title1", Description = "Desctiption1", Amount = 18, Currency = "EUR", Date = DateTime.Now, DocumentUrl = "URL"
+                }, null
+                };
+        } 
+
+        [Theory]
+        [MemberData(nameof(CreateIncomeValidInputsTestData))]
+        public void CreateIncome_ReturnsOkResultObject_WhenUserExistsAndIsValidInput(
+            IncomeDto incomeDto,
+            string? optionalOwnerId
+            )
+        {
+            // Arrange
+            authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(),
+                It.IsAny<string>(), It.IsAny<string>(), out It.Ref<int>.IsAny, out It.Ref<string>.IsAny))
+                .Returns(true);
+            userServiceMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<bool>())).Returns(new User());
+            incomeRepoMock.Setup(x => x.Create(It.IsAny<Income>())).Returns(true);
+
+            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+
+            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+
+            incomeController.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
+                        new Claim(ClaimTypes.NameIdentifier, "user1")
+                    }))
+                }
+            };
+
+            // Act
+            var result = incomeController.CreateIncome(incomeDto, optionalOwnerId);
+            
+            // Assert
+
+            Assert.NotNull(result);
+            Assert.IsType<OkObjectResult>(result);
+            ResetAllSetups();
+        }
+
+
 
 
         private void ResetAllSetups()
