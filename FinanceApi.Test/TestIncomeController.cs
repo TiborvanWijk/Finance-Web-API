@@ -16,6 +16,17 @@ namespace FinanceApi.Test
 {
     public class TestIncomeController
     {
+        private readonly Mock<ICategoryRepository> categoryRepoMock = new Mock<ICategoryRepository>();
+        private readonly Mock<IAuthorizeService> authServiceMock = new Mock<IAuthorizeService>();
+        private readonly Mock<IIncomeRepository> incomeRepoMock = new Mock<IIncomeRepository>();
+        private readonly Mock<IUserService> userServiceMock = new Mock<IUserService>();
+        private readonly Mock<IAuthorizeRepository> authorizeRepoMock = new Mock<IAuthorizeRepository>();
+        private readonly Mock<IAuthorizationInviteRepository> auhtorizationInviteRepoMock = new Mock<IAuthorizationInviteRepository>();
+        private readonly Mock<IUserRepository> userRepoMock = new Mock<IUserRepository>();
+        public TestIncomeController()
+        {
+            
+        }
 
 
         public static IEnumerable<object[]> GetUsersIncomeValidInputsTestData()
@@ -38,12 +49,7 @@ namespace FinanceApi.Test
             )
         {
             // Arrange
-
-            var categoryRepoMock = new Mock<ICategoryRepository>();
-            var authServiceMock = new Mock<IAuthorizeService>();
-            var userServiceMock = new Mock<IUserService>();
-            var incomeRepoMock = new Mock<IIncomeRepository>();
-
+            
             authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(),
                 It.IsAny<string>(), It.IsAny<string>(), out It.Ref<int>.IsAny,
                 out It.Ref<string>.IsAny)).Returns(true);
@@ -186,12 +192,13 @@ namespace FinanceApi.Test
             }
 
             Assert.Equal(incomeDtos, orderedIncomeList);
+            ResetAllSetups();
         }
 
         public static IEnumerable<object[]> GetUsersIncomeInvalidInputsTestData()
         {
             yield return new object[] { new DateTime(2020, 1, 1), null, null, null, null };   
-            yield return new object[] { null, new DateTime(2020, 1, 1), null, null, null };   
+            yield return new object[] { null, new DateTime(2020, 1, 1), null, null, null };
         }
 
 
@@ -207,11 +214,6 @@ namespace FinanceApi.Test
         {
 
             // Arrange
-
-            var incomeRepoMock = new Mock<IIncomeRepository>();
-            var categoryRepoMock = new Mock<ICategoryRepository>();
-            var authServiceMock = new Mock<IAuthorizeService>();
-            var userServiceMock = new Mock<IUserService>();
 
             authServiceMock.Setup(x => x.ValidateUsers(
                 It.IsAny<HttpContext>(), It.IsAny<string>(),
@@ -250,7 +252,53 @@ namespace FinanceApi.Test
 
             var badRequestResult = (BadRequestObjectResult)result;
 
+            ResetAllSetups();
+        }
 
+        [Fact]
+        public void GetUsersIncomes_ReturnsUnauthorizedObjectResult_WhenCurrentUserIsNotFound()
+        {
+            // Arrange
+
+            userRepoMock.Setup(x => x.ExistsById(It.IsAny<string>())).Returns(false);
+
+            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+            var authservice = new AuthorizeService(authorizeRepoMock.Object, auhtorizationInviteRepoMock.Object, userRepoMock.Object);
+            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authservice);
+
+            incomeController.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]{
+                        new Claim(ClaimTypes.NameIdentifier, "user1")
+                    }))
+                }
+            };
+
+            // Act
+
+            var result = incomeController.GetUsersIncomes(null, null, null, null, null);
+
+            // Assert
+
+            Assert.IsType<UnauthorizedObjectResult>(result);
+            var test = (UnauthorizedObjectResult)result;
+            Assert.Equal(401, test.StatusCode);
+            ResetAllSetups();
+        }
+
+
+
+        private void ResetAllSetups()
+        {
+            incomeRepoMock.Reset();
+            categoryRepoMock.Reset();
+            userServiceMock.Reset();
+            authServiceMock.Reset();
+            userRepoMock.Reset();
+            authorizeRepoMock.Reset();
+            auhtorizationInviteRepoMock.Reset();
         }
     }
 }

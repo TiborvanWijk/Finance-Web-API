@@ -11,15 +11,13 @@ namespace FinanceApi.Services
         private readonly IAuthorizeRepository authorizeRepository;
         private readonly IAuthorizationInviteRepository authorizationInviteRepository;
         private readonly IUserRepository userRepository;
-        private readonly IRoleRepository roleRepository;
 
         public AuthorizeService(IAuthorizeRepository authorizeRepository, IAuthorizationInviteRepository authorizationInviteRepository,
-            IUserRepository userRepository, IRoleRepository roleRepository)
+            IUserRepository userRepository)
         {
             this.authorizeRepository = authorizeRepository;
             this.authorizationInviteRepository = authorizationInviteRepository;
             this.userRepository = userRepository;
-            this.roleRepository = roleRepository;
         }
 
         public bool TryAcceptAuthorizationInvite(string ownerId, string authorizedUserId, out int errorCode, out string errorMessage)
