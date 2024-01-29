@@ -412,10 +412,10 @@ namespace FinanceApi.Test
 
         public static IEnumerable<object[]> CreateIncomeInvalidInputTestData()
         {
-            yield return new object[] { new IncomeDto() { Id = 1, Title = "Title-1", Description = "Description-2", Amount = decimal.MinValue, Currency = "USD", Date = DateTime.Now, DocumentUrl = "URL" }, null };
-            yield return new object[] { new IncomeDto() { Id = 1, Title = "Title-1", Description = "Description-2", Amount = decimal.MaxValue, Currency = "USD", Date = DateTime.Now, DocumentUrl = "URL" }, null };
-            yield return new object[] { new IncomeDto() { Id = 1, Title = "Title-1", Description = "Description-2", Amount = -1, Currency = "INVALID", Date = DateTime.Now, DocumentUrl = "URL" }, null };
-            yield return new object[] { new IncomeDto() { Id = 1, Title = "Title-1", Description = "Description-2", Amount = 9, Currency = "INVALID", Date = DateTime.Now, DocumentUrl = "URL" }, null };
+            yield return new object[] { new IncomeDto() { Id = 1, Title = "Title-1", Description = "Description-1", Amount = decimal.MinValue, Currency = "USD", Date = DateTime.Now, DocumentUrl = "URL-1" }, null };
+            yield return new object[] { new IncomeDto() { Id = 2, Title = "Title-2", Description = "Description-2", Amount = decimal.MaxValue, Currency = "USD", Date = DateTime.Now, DocumentUrl = "URL-2" }, null };
+            yield return new object[] { new IncomeDto() { Id = 3, Title = "Title-3", Description = "Description-3", Amount = -1, Currency = "INVALID", Date = DateTime.Now, DocumentUrl = "URL-3" }, null };
+            yield return new object[] { new IncomeDto() { Id = 4, Title = "Title-4", Description = "Description-4", Amount = 9, Currency = "INVALID", Date = DateTime.Now, DocumentUrl = "URL-4" }, null };
         }
 
         [Theory]
@@ -451,9 +451,59 @@ namespace FinanceApi.Test
             // Assert
 
             Assert.IsType<BadRequestObjectResult>(result);
+            ResetAllSetups();
         }
 
 
+        [Fact]
+        public void CreateIncome_ReturnsObjectResult500_WhenCreatingFails()
+        {
+            // Arrange
+
+            var incomeDtoValid = new IncomeDto()
+            {
+                Title = "Title",
+                Description = "Description",
+                Amount = 10,
+                Currency = "EUR",
+                Date = DateTime.UtcNow,
+                DocumentUrl = "URL",
+            };
+            
+            authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<string>(),
+                out It.Ref<int>.IsAny, out It.Ref<string>.IsAny)).Returns(true);
+
+            userServiceMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<bool>()))
+                .Returns(new User());
+
+            incomeRepoMock.Setup(x => x.Create(It.IsAny<Income>()))
+                .Returns(false);
+
+            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+
+            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+
+            incomeController.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, "CURRENT USER")
+                    }))
+                }
+            };
+
+            // Act
+            var result = incomeController.CreateIncome(incomeDtoValid, null);
+
+            // Assert
+
+            Assert.IsType<ObjectResult>(result);
+            var objectResult = (ObjectResult)result;
+            Assert.Equal(500, objectResult.StatusCode);
+            ResetAllSetups();            
+        }
 
 
 
