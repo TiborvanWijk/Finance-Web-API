@@ -187,7 +187,7 @@ namespace FinanceApi.Services
             if (!incomeRepository.Create(income))
             {
                 errorCode = 500;
-                errorMessage = "Something went wrong while creating expense.";
+                errorMessage = "Something went wrong while creating income.";
                 return false;
             }
 

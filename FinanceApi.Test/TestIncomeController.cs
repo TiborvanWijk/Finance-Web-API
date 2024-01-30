@@ -363,7 +363,7 @@ namespace FinanceApi.Test
             ResetAllSetups();
         }
 
-        public static IEnumerable<object[]> CreateIncomeValidInputsTestData()
+        public static IEnumerable<object[]> IncomeDtoValidInputsTestData()
         {
             yield return new object[] {
                 new IncomeDto() {
@@ -373,7 +373,7 @@ namespace FinanceApi.Test
         } 
 
         [Theory]
-        [MemberData(nameof(CreateIncomeValidInputsTestData))]
+        [MemberData(nameof(IncomeDtoValidInputsTestData))]
         public void CreateIncome_ReturnsOkResultObject_WhenUserExistsAndIsValidInput(
             IncomeDto incomeDto,
             string? optionalOwnerId
@@ -503,6 +503,47 @@ namespace FinanceApi.Test
             var objectResult = (ObjectResult)result;
             Assert.Equal(500, objectResult.StatusCode);
             ResetAllSetups();            
+        }
+
+        [Theory]
+        [MemberData(nameof(IncomeDtoValidInputsTestData))]
+        public void UpdateIncome_ReturnsOkObjectResult_WhenUserExistsAndIncomeExistAndIncomeDtoIsValid(
+            IncomeDto incomeDto,
+            string? optionalOwnerId
+            )
+        {
+            authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(),
+                It.IsAny<string>(), It.IsAny<string>(), out It.Ref<int>.IsAny, out It.Ref<string>.IsAny))
+                .Returns(true);
+            userServiceMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<bool>()))
+                .Returns(new User());
+            incomeRepoMock.Setup(x => x.Update(It.IsAny<Income>())).Returns(true);
+            incomeRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(true);
+
+
+            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+
+            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+
+            incomeController.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
+                        new Claim(ClaimTypes.NameIdentifier, "user1")
+                    }))
+                }
+            };
+
+            // Act
+            var result = incomeController.UpdateIncome(incomeDto, optionalOwnerId);
+
+            // Assert
+
+            Assert.NotNull(result);
+            Assert.IsType<OkObjectResult>(result);
+            ResetAllSetups();
         }
 
 
