@@ -356,9 +356,9 @@ namespace FinanceApi.Test
             // Act
 
             var result = incomeController.GetUsersIncomes(null, null, null, null, "OWNER DID NOT AUTHORIZE CURRENT USER");
-    
+
             // Assert
-            
+
             Assert.IsType<ForbidResult>(result);
             ResetAllSetups();
         }
@@ -370,7 +370,7 @@ namespace FinanceApi.Test
                     Id = 1, Title = "Title1", Description = "Desctiption1", Amount = 18, Currency = "EUR", Date = DateTime.Now, DocumentUrl = "URL"
                 }, null
                 };
-        } 
+        }
 
         [Theory]
         [MemberData(nameof(IncomeDtoValidInputsTestData))]
@@ -402,7 +402,7 @@ namespace FinanceApi.Test
 
             // Act
             var result = incomeController.CreateIncome(incomeDto, optionalOwnerId);
-            
+
             // Assert
 
             Assert.NotNull(result);
@@ -496,7 +496,7 @@ namespace FinanceApi.Test
             Assert.IsType<ObjectResult>(result);
             var objectResult = (ObjectResult)result;
             Assert.Equal(500, objectResult.StatusCode);
-            ResetAllSetups();            
+            ResetAllSetups();
         }
 
         [Theory]
@@ -626,7 +626,7 @@ namespace FinanceApi.Test
             IncomeDto incomeDto,
             string? optionalOwnerId
             )
-        { 
+        {
 
             authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<string>(),
                 out It.Ref<int>.IsAny, out It.Ref<string>.IsAny)).Returns(true);
@@ -741,6 +741,54 @@ namespace FinanceApi.Test
             Assert.IsType<NotFoundObjectResult>(result);
             ResetAllSetups();
         }
+
+
+
+
+        [Fact]
+        public void DeleteIncome_ReturnsObjectResult500_WhenDeletingFails()
+        {
+
+            authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<string>(),
+                out It.Ref<int>.IsAny, out It.Ref<string>.IsAny)).Returns(true);
+            userServiceMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<bool>()))
+                .Returns(new User() { Id = "CURRENT USER" });
+
+            incomeRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(true);
+            incomeRepoMock.Setup(x => x.GetById(It.IsAny<int>(), It.IsAny<bool>()))
+                .Returns(new Income() { Id = 1 });
+            incomeRepoMock.Setup(x => x.Delete(It.IsAny<Income>())).Returns(false);
+
+            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+
+            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+
+            incomeController.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, "CURRENT USER")
+                    }))
+                }
+            };
+            int validId = 1;
+
+            // Act
+            var result = incomeController.DeleteIncome(validId, null);
+
+            // Assert   
+
+            Assert.NotNull(result);
+            Assert.IsType<ObjectResult>(result);
+            var statusCode = ((ObjectResult)result).StatusCode;
+            Assert.Equal(500, statusCode);
+
+            ResetAllSetups();
+        }
+
 
 
 
