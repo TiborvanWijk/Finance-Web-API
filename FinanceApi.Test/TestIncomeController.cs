@@ -410,7 +410,7 @@ namespace FinanceApi.Test
             ResetAllSetups();
         }
 
-        public static IEnumerable<object[]> CreateIncomeInvalidInputTestData()
+        public static IEnumerable<object[]> IncomeDtoInvalidInputTestData()
         {
             yield return new object[] { new IncomeDto() { Id = 1, Title = "Title-1", Description = "Description-1", Amount = decimal.MinValue, Currency = "USD", Date = DateTime.Now, DocumentUrl = "URL-1" }, null };
             yield return new object[] { new IncomeDto() { Id = 2, Title = "Title-2", Description = "Description-2", Amount = decimal.MaxValue, Currency = "USD", Date = DateTime.Now, DocumentUrl = "URL-2" }, null };
@@ -419,7 +419,7 @@ namespace FinanceApi.Test
         }
 
         [Theory]
-        [MemberData(nameof(CreateIncomeInvalidInputTestData))]
+        [MemberData(nameof(IncomeDtoInvalidInputTestData))]
         public void CreateIncome_ReturnsBadRequestObjectResult_WhenInputIsInvalid(
             IncomeDto incomeDto,
             string? optionalOwnerId
@@ -546,6 +546,84 @@ namespace FinanceApi.Test
             ResetAllSetups();
         }
 
+        [Theory]
+        [MemberData(nameof(IncomeDtoInvalidInputTestData))]
+        public void UpdateIncome_ReturnsBadRequestObjectResult_WhenInputIsInvalid(
+            IncomeDto incomeDto,
+            string? optionalOwnerId
+            )
+        {
+            // Arrange
+            userServiceMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<bool>()))
+                .Returns(new User() { Id = "VALID ID" });
+            authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<string>(),
+                out It.Ref<int>.IsAny, out It.Ref<string>.IsAny)).Returns(true);
+            incomeRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(true);
+            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+
+            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+
+            incomeController.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, "CURRENT USER")
+                    }))
+                }
+            };
+
+            // Act
+
+            var result = incomeController.UpdateIncome(incomeDto, optionalOwnerId);
+
+            // Assert
+
+            Assert.IsType<BadRequestObjectResult>(result);
+            ResetAllSetups();
+        }
+
+
+        [Theory]
+        [MemberData(nameof(IncomeDtoValidInputsTestData))]
+        public void UpdateIncome_ReturnsNotFoundObjectResult_WhenIncomeDoesNotExist(
+            IncomeDto incomeDto,
+            string? optionalOwnerId
+            )
+        {
+
+            userServiceMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<bool>()))
+                .Returns(new User() { Id = "VALID ID" });
+            authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<string>(),
+                out It.Ref<int>.IsAny, out It.Ref<string>.IsAny)).Returns(true);
+            incomeRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(false);
+            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+
+            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+
+            incomeController.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, "CURRENT USER")
+                    }))
+                }
+            };
+
+            // Act
+
+            var result = incomeController.UpdateIncome(incomeDto, optionalOwnerId);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.IsType<NotFoundObjectResult>(result);
+            ResetAllSetups();
+        }
 
 
         private void ResetAllSetups()
