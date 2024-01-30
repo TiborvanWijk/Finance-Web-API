@@ -706,6 +706,43 @@ namespace FinanceApi.Test
             ResetAllSetups();
         }
 
+        [Fact]
+        public void DeleteIncome_ReturnsNotFoundObjectResult_WhenIncomeDoesNotExist()
+        {
+            userServiceMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<bool>()))
+                .Returns(new User() { Id = "CURRENT USER " });
+            authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<string>(),
+                out It.Ref<int>.IsAny, out It.Ref<string>.IsAny)).Returns(true);
+            incomeRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(false);
+
+            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+
+            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+
+            incomeController.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, "CURRENT USER")
+                    }))
+                }
+            };
+            var nonExistingIncomeId = 1;
+            // Act
+
+            var result = incomeController.DeleteIncome(nonExistingIncomeId, null);
+
+            // Assert
+
+            Assert.NotNull(result);
+            Assert.IsType<NotFoundObjectResult>(result);
+            ResetAllSetups();
+        }
+
+
 
         private void ResetAllSetups()
         {
