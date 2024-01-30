@@ -455,21 +455,15 @@ namespace FinanceApi.Test
         }
 
 
-        [Fact]
-        public void CreateIncome_ReturnsObjectResult500_WhenCreatingFails()
-        {
-            // Arrange
 
-            var incomeDtoValid = new IncomeDto()
-            {
-                Title = "Title",
-                Description = "Description",
-                Amount = 10,
-                Currency = "EUR",
-                Date = DateTime.UtcNow,
-                DocumentUrl = "URL",
-            };
-            
+        [Theory]
+        [MemberData(nameof(IncomeDtoValidInputsTestData))]
+        public void CreateIncome_ReturnsObjectResult500_WhenCreatingFails(
+            IncomeDto incomeDto,
+            string? optionalOwnerId
+            )
+        {
+            // Arrange 
             authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<string>(),
                 out It.Ref<int>.IsAny, out It.Ref<string>.IsAny)).Returns(true);
 
@@ -495,7 +489,7 @@ namespace FinanceApi.Test
             };
 
             // Act
-            var result = incomeController.CreateIncome(incomeDtoValid, null);
+            var result = incomeController.CreateIncome(incomeDto, null);
 
             // Assert
 
@@ -622,6 +616,53 @@ namespace FinanceApi.Test
             // Assert
             Assert.NotNull(result);
             Assert.IsType<NotFoundObjectResult>(result);
+            ResetAllSetups();
+        }
+
+
+        [Theory]
+        [MemberData(nameof(IncomeDtoValidInputsTestData))]
+        public void UpdateIncome_ReturnsObjectResult500_WhenUpdatingFails(
+            IncomeDto incomeDto,
+            string? optionalOwnerId
+            )
+        { 
+
+            authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<string>(),
+                out It.Ref<int>.IsAny, out It.Ref<string>.IsAny)).Returns(true);
+
+            userServiceMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<bool>()))
+                .Returns(new User());
+
+            incomeRepoMock.Setup(x => x.Update(It.IsAny<Income>()))
+                .Returns(false);
+
+            incomeRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(true);
+
+            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+
+            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+
+            incomeController.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, "CURRENT USER")
+                    }))
+                }
+            };
+
+            // Act
+            var result = incomeController.UpdateIncome(incomeDto, null);
+
+            // Assert
+
+            Assert.IsType<ObjectResult>(result);
+            var objectResult = (ObjectResult)result;
+            Assert.Equal(500, objectResult.StatusCode);
             ResetAllSetups();
         }
 
