@@ -24,7 +24,7 @@ namespace FinanceApi.Services
         {
             errorMessage = string.Empty;
             errorCode = 0;
-            if (!ExistsById(userId, incomeId))
+            if (!incomeRepository.ExistsById(userId, incomeId))
             {
                 errorMessage = "Income not found.";
                 errorCode = 404;
@@ -39,7 +39,7 @@ namespace FinanceApi.Services
             }
 
 
-            var income = GetById(incomeId, true);
+            var income = incomeRepository.GetById(incomeId, true);
 
             var incomeCategories = categoryRepository.GetIncomeCategories(userId, incomeId);
 
