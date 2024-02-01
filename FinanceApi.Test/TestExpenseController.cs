@@ -1,5 +1,6 @@
 ﻿using FinanceApi.Controllers;
 using FinanceApi.Data.Dtos;
+using FinanceApi.Enums;
 using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services;
@@ -7,13 +8,7 @@ using FinanceApi.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FinanceApi.Test
 {
@@ -37,6 +32,8 @@ namespace FinanceApi.Test
             yield return new object[] { null, null, null, "desc", null };
             yield return new object[] { null, null, "amount", null, "user123" };
             yield return new object[] { null, null, "title", null, null };
+            yield return new object[] { null, null, "urgency", null, null };
+            yield return new object[] { null, null, "urgency", "desc", null };
         }
 
         [Theory]
@@ -66,6 +63,7 @@ namespace FinanceApi.Test
                             Currency = "EUR",
                             Date = new DateTime(2021, 1, 1),
                             DocumentUrl = "URL",
+                            Urgency = Urgency.Low,
                             User = new User(){ Id = "user1" },
                         },
                     new Expense()
@@ -77,6 +75,7 @@ namespace FinanceApi.Test
                         Currency = "USD",
                         Date = new DateTime(2021, 2, 1),
                         DocumentUrl = "AnotherURL",
+                        Urgency = Urgency.Low,
                         User = new User(){ Id = "user2"},
                     },
                     new Expense()
@@ -88,6 +87,7 @@ namespace FinanceApi.Test
                         Currency = "GBP",
                         Date = new DateTime(2021, 3, 1),
                         DocumentUrl = "YetAnotherURL",
+                        Urgency = Urgency.Medium,
                         User = new User(){ Id = "user1" },
                     },
                     new Expense()
@@ -99,6 +99,7 @@ namespace FinanceApi.Test
                         Currency = "AUD",
                         Date = new DateTime(2021, 5, 1),
                         DocumentUrl = "AdditionalURL",
+                        Urgency = Urgency.Medium,
                         User = new User() { Id = "user2" },
                     },
                     new Expense()
@@ -110,6 +111,7 @@ namespace FinanceApi.Test
                         Currency = "JPY",
                         Date = new DateTime(2021, 6, 1),
                         DocumentUrl = "FinalURL",
+                        Urgency = Urgency.High,
                         User = new User() { Id = "user1" },
                     },
                     new Expense()
@@ -121,6 +123,7 @@ namespace FinanceApi.Test
                         Currency = "CAD",
                         Date = new DateTime(2021, 4, 1),
                         DocumentUrl = "MoreURL",
+                        Urgency = Urgency.High,
                         User = new User() { Id = "user2" },
                     },
                 };
@@ -177,6 +180,11 @@ namespace FinanceApi.Test
                         orderedExpenseList = (list_dir != null && list_dir.Equals("desc"))
                             ? orderedExpenseList.OrderByDescending(dto => dto.Amount).ToList()
                             : orderedExpenseList.OrderBy(dto => dto.Amount).ToList();
+                        break;
+                    case "urgency":
+                        orderedExpenseList = (list_dir != null && list_dir.Equals("desc"))
+                            ? orderedExpenseList.OrderByDescending(dto => dto.Urgency).ToList()
+                            : orderedExpenseList.OrderBy(dto => dto.Urgency).ToList();
                         break;
                     default:
                         orderedExpenseList = (list_dir != null && list_dir.Equals("desc")) ?
