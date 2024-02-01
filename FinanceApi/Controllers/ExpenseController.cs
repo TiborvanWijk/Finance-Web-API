@@ -16,14 +16,12 @@ namespace FinanceApi.Controllers
     {
         private readonly IExpenseService expenseService;
         private readonly IUserService userService;
-        private readonly ICategoryService categoryService;
         private readonly IAuthorizeService authorizeService;
 
-        public ExpenseController(IExpenseService expenseService, IUserService userService, ICategoryService categoryService, IAuthorizeService authorizeService)
+        public ExpenseController(IExpenseService expenseService, IUserService userService, IAuthorizeService authorizeService)
         {
             this.expenseService = expenseService;
             this.userService = userService;
-            this.categoryService = categoryService;
             this.authorizeService = authorizeService;
         }
 
@@ -32,7 +30,7 @@ namespace FinanceApi.Controllers
         [HttpGet("current")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetExpenses([FromQuery] DateTime? from, [FromQuery] DateTime? to,
+        public IActionResult GetUsersExpenses([FromQuery] DateTime? from, [FromQuery] DateTime? to,
             [FromQuery] string? list_order_by, [FromQuery] string? list_dir, [FromQuery] string? optionalOwnerId)
         {
 
@@ -61,7 +59,7 @@ namespace FinanceApi.Controllers
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            var expenseDtos = expenses.Select(Map.ToExpenseDto);
+            var expenseDtos = expenses.Select(Map.ToExpenseDto).ToList();
 
             return Ok(expenseDtos);
         }

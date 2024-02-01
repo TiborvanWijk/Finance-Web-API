@@ -169,7 +169,7 @@ namespace FinanceApi.Services
         {
             errorMessage = string.Empty;
             errorCode = 0;
-            if (!ExistsById(userId, expenseId))
+            if (!expenseRepository.ExistsById(userId, expenseId))
             {
                 errorMessage = "Expense not found.";
                 errorCode = 404;
