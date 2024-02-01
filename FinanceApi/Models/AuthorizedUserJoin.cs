@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-
-namespace FinanceApi.Models
+﻿namespace FinanceApi.Models
 {
     public class AuthorizedUserJoin
     {

@@ -1,8 +1,6 @@
 ﻿using FinanceApi.Data.Dtos;
-using FinanceApi.Enums;
 using FinanceApi.Mapper;
 using FinanceApi.Models;
-using FinanceApi.Repositories;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services.Interfaces;
 using FinanceApi.Validators;

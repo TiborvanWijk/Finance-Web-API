@@ -2,13 +2,9 @@
 using FinanceApi.Data.Dtos;
 using FinanceApi.Mapper;
 using FinanceApi.Models;
-using FinanceApi.Services;
 using FinanceApi.Services.Interfaces;
-using FinanceApi.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Security.Claims;
 
 namespace FinanceApi.Controllers

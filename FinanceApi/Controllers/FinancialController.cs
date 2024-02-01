@@ -1,5 +1,4 @@
 ﻿using FinanceApi.Controllers.ApiResponseHelpers;
-using FinanceApi.Services;
 using FinanceApi.Services.Interfaces;
 using FinanceApi.Validators;
 using Microsoft.AspNetCore.Authorization;

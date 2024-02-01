@@ -1,12 +1,8 @@
-﻿using FinanceApi.Data;
-using FinanceApi.Data.Dtos;
+﻿using FinanceApi.Data.Dtos;
 using FinanceApi.Mapper;
 using FinanceApi.Models;
-using FinanceApi.Repositories;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services.Interfaces;
-using FinanceApi.Validators;
-using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApi.Services
 {

@@ -1,8 +1,6 @@
-﻿using Azure;
-using FinanceApi.Controllers.ApiResponseHelpers;
+﻿using FinanceApi.Controllers.ApiResponseHelpers;
 using FinanceApi.Data.Dtos;
 using FinanceApi.Mapper;
-using FinanceApi.Models;
 using FinanceApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

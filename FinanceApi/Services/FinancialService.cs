@@ -1,7 +1,6 @@
 ﻿using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services.Interfaces;
 using FinanceApi.Validators;
-using Microsoft.IdentityModel.Tokens;
 
 namespace FinanceApi.Services
 {

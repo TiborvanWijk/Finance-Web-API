@@ -2,7 +2,6 @@
 using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services.Interfaces;
-using Microsoft.AspNetCore.Identity;
 
 namespace FinanceApi.Services
 {

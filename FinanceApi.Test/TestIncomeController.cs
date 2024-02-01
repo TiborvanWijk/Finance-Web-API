@@ -1,18 +1,13 @@
 ﻿using FinanceApi.Controllers;
-using FinanceApi.Data;
 using FinanceApi.Data.Dtos;
 using FinanceApi.Models;
-using FinanceApi.Repositories;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services;
 using FinanceApi.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Moq;
-using System.Runtime.Serialization;
 using System.Security.Claims;
-using System.Security.Cryptography;
 
 namespace FinanceApi.Test
 {
