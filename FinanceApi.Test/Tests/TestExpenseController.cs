@@ -1,5 +1,6 @@
 ﻿using FinanceApi.Controllers;
 using FinanceApi.Data.Dtos;
+using FinanceApi.Enums;
 using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services;
@@ -9,35 +10,35 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Security.Claims;
 
-namespace FinanceApi.Test
+namespace FinanceApi.Test.Tests
 {
-    public class TestIncomeController
+    public class TestExpenseController
     {
         private readonly Mock<ICategoryRepository> categoryRepoMock = new Mock<ICategoryRepository>();
         private readonly Mock<IAuthorizeService> authServiceMock = new Mock<IAuthorizeService>();
-        private readonly Mock<IIncomeRepository> incomeRepoMock = new Mock<IIncomeRepository>();
+        private readonly Mock<IExpenseRepository> expenseRepoMock = new Mock<IExpenseRepository>();
         private readonly Mock<IUserService> userServiceMock = new Mock<IUserService>();
         private readonly Mock<IAuthorizeRepository> authorizeRepoMock = new Mock<IAuthorizeRepository>();
         private readonly Mock<IAuthorizationInviteRepository> auhtorizationInviteRepoMock = new Mock<IAuthorizationInviteRepository>();
         private readonly Mock<IUserRepository> userRepoMock = new Mock<IUserRepository>();
-        public TestIncomeController()
-        {
-
-        }
 
 
-        public static IEnumerable<object[]> GetUsersIncomeValidInputsTestData()
+
+
+        public static IEnumerable<object[]> GetUsersExpensesValidInputsTestData()
         {
             yield return new object[] { new DateTime(2020, 1, 1), new DateTime(2024, 1, 1), "amount", null, "user123" };
             yield return new object[] { new DateTime(2021, 1, 1), new DateTime(2023, 1, 1), "title", "desc", "user123" };
             yield return new object[] { null, null, null, "desc", null };
             yield return new object[] { null, null, "amount", null, "user123" };
             yield return new object[] { null, null, "title", null, null };
+            yield return new object[] { null, null, "urgency", null, null };
+            yield return new object[] { null, null, "urgency", "desc", null };
         }
 
         [Theory]
-        [MemberData(nameof(GetUsersIncomeValidInputsTestData))]
-        public void GetUsersIncomes_ReturnsOk_When_UserExistsAndHasValidInputs(
+        [MemberData(nameof(GetUsersExpensesValidInputsTestData))]
+        public void GetExpenses_ReturnsOk_When_UserExistsAndHasValidInputs(
             DateTime? from,
             DateTime? to,
             string? list_order_by,
@@ -51,96 +52,96 @@ namespace FinanceApi.Test
                 It.IsAny<string>(), It.IsAny<string>(), out It.Ref<int>.IsAny,
                 out It.Ref<string>.IsAny)).Returns(true);
 
-            var incomes = new List<Income>()
+            var expenses = new List<Expense>()
                 {
-                    new Income()
+                    new Expense()
                         {
                             Id = 1,
-                            Title = "a-income",
+                            Title = "a-expense",
                             Description = "description",
                             Amount = 100,
                             Currency = "EUR",
                             Date = new DateTime(2021, 1, 1),
                             DocumentUrl = "URL",
+                            Urgency = Urgency.Low,
                             User = new User(){ Id = "user1" },
-                            IncomeCategories = null,
                         },
-                    new Income()
+                    new Expense()
                     {
                         Id = 2,
-                        Title = "b-income",
+                        Title = "b-expense",
                         Description = "another description",
                         Amount = 150,
                         Currency = "USD",
                         Date = new DateTime(2021, 2, 1),
                         DocumentUrl = "AnotherURL",
+                        Urgency = Urgency.Low,
                         User = new User(){ Id = "user2"},
-                        IncomeCategories = null,
                     },
-                    new Income()
+                    new Expense()
                     {
                         Id = 3,
-                        Title = "c-income",
+                        Title = "c-expense",
                         Description = "yet another description",
                         Amount = 200,
                         Currency = "GBP",
                         Date = new DateTime(2021, 3, 1),
                         DocumentUrl = "YetAnotherURL",
+                        Urgency = Urgency.Medium,
                         User = new User(){ Id = "user1" },
-                        IncomeCategories = null,
                     },
-                    new Income()
+                    new Expense()
                     {
                         Id = 4,
-                        Title = "e-income",
+                        Title = "e-expense",
                         Description = "additional description",
                         Amount = 180,
                         Currency = "AUD",
                         Date = new DateTime(2021, 5, 1),
                         DocumentUrl = "AdditionalURL",
+                        Urgency = Urgency.Medium,
                         User = new User() { Id = "user2" },
-                        IncomeCategories = null,
                     },
-                    new Income()
+                    new Expense()
                     {
                         Id = 5,
-                        Title = "f-income",
+                        Title = "f-expense",
                         Description = "final description",
                         Amount = 250,
                         Currency = "JPY",
                         Date = new DateTime(2021, 6, 1),
                         DocumentUrl = "FinalURL",
+                        Urgency = Urgency.High,
                         User = new User() { Id = "user1" },
-                        IncomeCategories = null,
                     },
-                    new Income()
+                    new Expense()
                     {
                         Id = 6,
-                        Title = "d-income",
+                        Title = "d-expense",
                         Description = "more description",
                         Amount = 120,
                         Currency = "CAD",
                         Date = new DateTime(2021, 4, 1),
                         DocumentUrl = "MoreURL",
+                        Urgency = Urgency.High,
                         User = new User() { Id = "user2" },
-                        IncomeCategories = null,
                     },
                 };
 
-            incomeRepoMock.Setup(x => x.GetAllOfUser(It.IsAny<string>()))
-                .Returns(incomes.Where(i => i.User.Id.Equals(optionalOwnerId ?? "user1")).ToList());
+            expenseRepoMock.Setup(x => x.GetAllOfUser(It.IsAny<string>()))
+                .Returns(expenses.Where(i => i.User.Id.Equals(optionalOwnerId ?? "user1")).ToList());
 
-            IIncomeService incomeService = new IncomeService(
-                incomeRepoMock.Object,
+            IExpenseService expenseService = new ExpenseService(
+                expenseRepoMock.Object,
                 categoryRepoMock.Object);
 
-            var incomeController = new IncomeController(
-                incomeService,
+            var expenseController = new ExpenseController(
+                expenseService,
                 userServiceMock.Object,
                 authServiceMock.Object);
 
 
-            incomeController.ControllerContext = new ControllerContext()
+            expenseController.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
                 {
@@ -153,46 +154,51 @@ namespace FinanceApi.Test
             };
 
             // Act
-            var result = incomeController.GetUsersIncomes(
+            var result = expenseController.GetUsersExpenses(
                 from, to, list_order_by, list_dir, optionalOwnerId);
 
             // Assert
             Assert.IsType<OkObjectResult>(result);
             var okResult = ((OkObjectResult)result).Value;
-            Assert.IsType<List<IncomeDto>>(okResult);
+            Assert.IsType<List<ExpenseDto>>(okResult);
 
-            var incomeDtos = (List<IncomeDto>)okResult;
+            var expenseDtos = (List<ExpenseDto>)okResult;
 
 
-            var orderedIncomeList = new List<IncomeDto>(incomeDtos);
+            var orderedExpenseList = new List<ExpenseDto>(expenseDtos);
             if (list_order_by != null || list_dir != null)
             {
                 list_order_by = list_order_by ?? "DEFAULT (NO ORDERING)";
                 switch (list_order_by.ToLower())
                 {
                     case "title":
-                        orderedIncomeList = (list_dir != null && list_dir.Equals("desc"))
-                            ? orderedIncomeList.OrderByDescending(dto => dto.Title).ToList()
-                            : orderedIncomeList.OrderBy(dto => dto.Title).ToList();
+                        orderedExpenseList = list_dir != null && list_dir.Equals("desc")
+                            ? orderedExpenseList.OrderByDescending(dto => dto.Title).ToList()
+                            : orderedExpenseList.OrderBy(dto => dto.Title).ToList();
                         break;
                     case "amount":
-                        orderedIncomeList = (list_dir != null && list_dir.Equals("desc"))
-                            ? orderedIncomeList.OrderByDescending(dto => dto.Amount).ToList()
-                            : orderedIncomeList.OrderBy(dto => dto.Amount).ToList();
+                        orderedExpenseList = list_dir != null && list_dir.Equals("desc")
+                            ? orderedExpenseList.OrderByDescending(dto => dto.Amount).ToList()
+                            : orderedExpenseList.OrderBy(dto => dto.Amount).ToList();
+                        break;
+                    case "urgency":
+                        orderedExpenseList = list_dir != null && list_dir.Equals("desc")
+                            ? orderedExpenseList.OrderByDescending(dto => dto.Urgency).ToList()
+                            : orderedExpenseList.OrderBy(dto => dto.Urgency).ToList();
                         break;
                     default:
-                        orderedIncomeList = (list_dir != null && list_dir.Equals("desc")) ?
-                            orderedIncomeList.OrderByDescending(dto => dto.Date).ToList()
-                            : orderedIncomeList.OrderBy(idto => idto.Date).ToList();
+                        orderedExpenseList = list_dir != null && list_dir.Equals("desc") ?
+                            orderedExpenseList.OrderByDescending(dto => dto.Date).ToList()
+                            : orderedExpenseList.OrderBy(idto => idto.Date).ToList();
                         break;
                 }
             }
 
-            Assert.Equal(incomeDtos, orderedIncomeList);
+            Assert.Equal(expenseDtos, orderedExpenseList);
             ResetAllSetups();
         }
 
-        public static IEnumerable<object[]> GetUsersIncomeInvalidInputsTestData()
+        public static IEnumerable<object[]> GetUsersExpensesInvalidInputsTestData()
         {
             yield return new object[] { new DateTime(2020, 1, 1), null, null, null, null };
             yield return new object[] { null, new DateTime(2020, 1, 1), null, null, null };
@@ -200,8 +206,8 @@ namespace FinanceApi.Test
 
 
         [Theory]
-        [MemberData(nameof(GetUsersIncomeInvalidInputsTestData))]
-        public void GetUsersIncomes_ReturnsBadRequest_WhenUserExistsAndHasInvalidInput(
+        [MemberData(nameof(GetUsersExpensesInvalidInputsTestData))]
+        public void GetUsersExpenses_ReturnsBadRequest_WhenUserExistsAndHasInvalidInput(
             DateTime? from,
             DateTime? to,
             string? list_order_by,
@@ -216,16 +222,16 @@ namespace FinanceApi.Test
                 It.IsAny<HttpContext>(), It.IsAny<string>(),
                 It.IsAny<string?>(), out It.Ref<int>.IsAny, out It.Ref<string>.IsAny
                 )).Returns(true);
-            incomeRepoMock.Setup(x => x.GetAllOfUser(It.IsAny<string>())).Returns(
-                new List<Income>()
+            expenseRepoMock.Setup(x => x.GetAllOfUser(It.IsAny<string>())).Returns(
+                new List<Expense>()
                 );
 
-            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+            var expenseService = new ExpenseService(expenseRepoMock.Object, categoryRepoMock.Object);
 
-            var incomeController = new IncomeController(incomeService, userServiceMock.Object,
+            var expenseController = new ExpenseController(expenseService, userServiceMock.Object,
                 authServiceMock.Object);
 
-            incomeController.ControllerContext = new ControllerContext()
+            expenseController.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
                 {
@@ -239,7 +245,7 @@ namespace FinanceApi.Test
             // Act
 
 
-            var result = incomeController.GetUsersIncomes(from,
+            var result = expenseController.GetUsersExpenses(from,
                 to, list_order_by, list_dir, optionalOwnerId);
 
 
@@ -253,17 +259,17 @@ namespace FinanceApi.Test
         }
 
         [Fact]
-        public void GetUsersIncomes_ReturnsUnauthorizedObjectResult_WhenCurrentUserIsNotFound()
+        public void GetUsersExpenses_ReturnsUnauthorizedObjectResult_WhenCurrentUserIsNotFound()
         {
             // Arrange
 
             userRepoMock.Setup(x => x.ExistsById(It.IsAny<string>())).Returns(false);
 
-            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+            var expenseService = new ExpenseService(expenseRepoMock.Object, categoryRepoMock.Object);
             var authservice = new AuthorizeService(authorizeRepoMock.Object, auhtorizationInviteRepoMock.Object, userRepoMock.Object);
-            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authservice);
+            var expenseController = new ExpenseController(expenseService, userServiceMock.Object, authservice);
 
-            incomeController.ControllerContext = new ControllerContext()
+            expenseController.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
                 {
@@ -275,7 +281,7 @@ namespace FinanceApi.Test
 
             // Act
 
-            var result = incomeController.GetUsersIncomes(null, null, null, null, null);
+            var result = expenseController.GetUsersExpenses(null, null, null, null, null);
 
             // Assert
 
@@ -286,17 +292,17 @@ namespace FinanceApi.Test
         }
 
         [Fact]
-        public void GetUsersIncomes_ReturnsNotFoundObjectResult_WhenOptionalOwnerDoesNotExist()
+        public void GetUsersExpenses_ReturnsNotFoundObjectResult_WhenOptionalOwnerDoesNotExist()
         {
             // Arrange
-            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+            var expenseService = new ExpenseService(expenseRepoMock.Object, categoryRepoMock.Object);
             var authservice = new AuthorizeService(authorizeRepoMock.Object, auhtorizationInviteRepoMock.Object, userRepoMock.Object);
-            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authservice);
+            var expenseController = new ExpenseController(expenseService, userServiceMock.Object, authservice);
 
             userRepoMock.Setup(x => x.ExistsById(It.Is<string>(s => s.Equals("CURRENT USER"))))
                 .Returns(true);
 
-            incomeController.ControllerContext = new ControllerContext()
+            expenseController.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
                 {
@@ -307,7 +313,7 @@ namespace FinanceApi.Test
             };
 
             // Act
-            var result = incomeController.GetUsersIncomes(null, null, null, null, "THIS USER DOES NOT EXIST");
+            var result = expenseController.GetUsersExpenses(null, null, null, null, "THIS USER DOES NOT EXIST");
 
             // Assert
 
@@ -320,14 +326,14 @@ namespace FinanceApi.Test
         }
 
         [Fact]
-        public void GetUsersIncomes_ReturnsForbiddenResult_WhenUsersExistButCurrentUserIsForbiddenToGet()
+        public void GetUsersExpenses_ReturnsForbiddenResult_WhenUsersExistButCurrentUserIsForbiddenToGet()
         {
 
             // Arrange
 
-            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+            var expenseService = new ExpenseService(expenseRepoMock.Object, categoryRepoMock.Object);
             var authservice = new AuthorizeService(authorizeRepoMock.Object, auhtorizationInviteRepoMock.Object, userRepoMock.Object);
-            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authservice);
+            var expenseController = new ExpenseController(expenseService, userServiceMock.Object, authservice);
 
 
             authorizeRepoMock.Setup(x => x.IsAuthorized(It.IsAny<string>(), It.IsAny<string>()))
@@ -337,7 +343,7 @@ namespace FinanceApi.Test
             userRepoMock.Setup(x => x.ExistsById(It.IsAny<string>()))
                 .Returns(true);
 
-            incomeController.ControllerContext = new ControllerContext()
+            expenseController.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
                 {
@@ -350,7 +356,7 @@ namespace FinanceApi.Test
 
             // Act
 
-            var result = incomeController.GetUsersIncomes(null, null, null, null, "OWNER DID NOT AUTHORIZE CURRENT USER");
+            var result = expenseController.GetUsersExpenses(null, null, null, null, "OWNER DID NOT AUTHORIZE CURRENT USER");
 
             // Assert
 
@@ -358,19 +364,19 @@ namespace FinanceApi.Test
             ResetAllSetups();
         }
 
-        public static IEnumerable<object[]> IncomeDtoValidInputsTestData()
+        public static IEnumerable<object[]> ExpenseDtoValidInputsTestData()
         {
             yield return new object[] {
-                new IncomeDto() {
+                new ExpenseDto() {
                     Id = 1, Title = "Title1", Description = "Desctiption1", Amount = 18, Currency = "EUR", Date = DateTime.Now, DocumentUrl = "URL"
                 }, null
                 };
         }
 
         [Theory]
-        [MemberData(nameof(IncomeDtoValidInputsTestData))]
-        public void CreateIncome_ReturnsOkResultObject_WhenUserExistsAndIsValidInput(
-            IncomeDto incomeDto,
+        [MemberData(nameof(ExpenseDtoValidInputsTestData))]
+        public void CreateExpense_ReturnsOkResultObject_WhenUserExistsAndIsValidInput(
+            ExpenseDto expenseDto,
             string? optionalOwnerId
             )
         {
@@ -379,13 +385,13 @@ namespace FinanceApi.Test
                 It.IsAny<string>(), It.IsAny<string>(), out It.Ref<int>.IsAny, out It.Ref<string>.IsAny))
                 .Returns(true);
             userServiceMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<bool>())).Returns(new User());
-            incomeRepoMock.Setup(x => x.Create(It.IsAny<Income>())).Returns(true);
+            expenseRepoMock.Setup(x => x.Create(It.IsAny<Expense>())).Returns(true);
 
-            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+            var expenseService = new ExpenseService(expenseRepoMock.Object, categoryRepoMock.Object);
 
-            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+            var expenseController = new ExpenseController(expenseService, userServiceMock.Object, authServiceMock.Object);
 
-            incomeController.ControllerContext = new ControllerContext()
+            expenseController.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
                 {
@@ -396,7 +402,7 @@ namespace FinanceApi.Test
             };
 
             // Act
-            var result = incomeController.CreateIncome(incomeDto, optionalOwnerId);
+            var result = expenseController.CreateExpense(expenseDto, optionalOwnerId);
 
             // Assert
 
@@ -405,18 +411,18 @@ namespace FinanceApi.Test
             ResetAllSetups();
         }
 
-        public static IEnumerable<object[]> IncomeDtoInvalidInputTestData()
+        public static IEnumerable<object[]> ExpenseDtoInvalidInputTestData()
         {
-            yield return new object[] { new IncomeDto() { Id = 1, Title = "Title-1", Description = "Description-1", Amount = decimal.MinValue, Currency = "USD", Date = DateTime.Now, DocumentUrl = "URL-1" }, null };
-            yield return new object[] { new IncomeDto() { Id = 2, Title = "Title-2", Description = "Description-2", Amount = decimal.MaxValue, Currency = "USD", Date = DateTime.Now, DocumentUrl = "URL-2" }, null };
-            yield return new object[] { new IncomeDto() { Id = 3, Title = "Title-3", Description = "Description-3", Amount = -1, Currency = "INVALID", Date = DateTime.Now, DocumentUrl = "URL-3" }, null };
-            yield return new object[] { new IncomeDto() { Id = 4, Title = "Title-4", Description = "Description-4", Amount = 9, Currency = "INVALID", Date = DateTime.Now, DocumentUrl = "URL-4" }, null };
+            yield return new object[] { new ExpenseDto() { Id = 1, Title = "Title-1", Description = "Description-1", Amount = decimal.MinValue, Currency = "USD", Date = DateTime.Now, DocumentUrl = "URL-1" }, null };
+            yield return new object[] { new ExpenseDto() { Id = 2, Title = "Title-2", Description = "Description-2", Amount = decimal.MaxValue, Currency = "USD", Date = DateTime.Now, DocumentUrl = "URL-2" }, null };
+            yield return new object[] { new ExpenseDto() { Id = 3, Title = "Title-3", Description = "Description-3", Amount = -1, Currency = "INVALID", Date = DateTime.Now, DocumentUrl = "URL-3" }, null };
+            yield return new object[] { new ExpenseDto() { Id = 4, Title = "Title-4", Description = "Description-4", Amount = 9, Currency = "INVALID", Date = DateTime.Now, DocumentUrl = "URL-4" }, null };
         }
 
         [Theory]
-        [MemberData(nameof(IncomeDtoInvalidInputTestData))]
-        public void CreateIncome_ReturnsBadRequestObjectResult_WhenInputIsInvalid(
-            IncomeDto incomeDto,
+        [MemberData(nameof(ExpenseDtoInvalidInputTestData))]
+        public void CreateExpense_ReturnsBadRequestObjectResult_WhenInputIsInvalid(
+            ExpenseDto expenseDto,
             string? optionalOwnerId
             )
         {
@@ -424,11 +430,11 @@ namespace FinanceApi.Test
             authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<string>(),
                 out It.Ref<int>.IsAny, out It.Ref<string>.IsAny)).Returns(true);
 
-            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+            var expenseService = new ExpenseService(expenseRepoMock.Object, categoryRepoMock.Object);
 
-            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+            var expenseController = new ExpenseController(expenseService, userServiceMock.Object, authServiceMock.Object);
 
-            incomeController.ControllerContext = new ControllerContext()
+            expenseController.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
                 {
@@ -441,7 +447,7 @@ namespace FinanceApi.Test
 
             // Act
 
-            var result = incomeController.CreateIncome(incomeDto, optionalOwnerId);
+            var result = expenseController.CreateExpense(expenseDto, optionalOwnerId);
 
             // Assert
 
@@ -452,9 +458,9 @@ namespace FinanceApi.Test
 
 
         [Theory]
-        [MemberData(nameof(IncomeDtoValidInputsTestData))]
-        public void CreateIncome_ReturnsObjectResult500_WhenCreatingFails(
-            IncomeDto incomeDto,
+        [MemberData(nameof(ExpenseDtoValidInputsTestData))]
+        public void CreateExpense_ReturnsObjectResult500_WhenCreatingFails(
+            ExpenseDto expenseDto,
             string? optionalOwnerId
             )
         {
@@ -465,14 +471,14 @@ namespace FinanceApi.Test
             userServiceMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(new User());
 
-            incomeRepoMock.Setup(x => x.Create(It.IsAny<Income>()))
+            expenseRepoMock.Setup(x => x.Create(It.IsAny<Expense>()))
                 .Returns(false);
 
-            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+            var expenseService = new ExpenseService(expenseRepoMock.Object, categoryRepoMock.Object);
 
-            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+            var expenseController = new ExpenseController(expenseService, userServiceMock.Object, authServiceMock.Object);
 
-            incomeController.ControllerContext = new ControllerContext()
+            expenseController.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
                 {
@@ -484,7 +490,7 @@ namespace FinanceApi.Test
             };
 
             // Act
-            var result = incomeController.CreateIncome(incomeDto, null);
+            var result = expenseController.CreateExpense(expenseDto, null);
 
             // Assert
 
@@ -494,8 +500,8 @@ namespace FinanceApi.Test
             ResetAllSetups();
         }
 
-        
-        public static IEnumerable<object[]> AddCategoryToIncomeValidInputTestData()
+
+        public static IEnumerable<object[]> AddCategoryToExpenseValidInputTestData()
         {
             yield return new object[] { 1,
                 new List<int>(){
@@ -507,33 +513,33 @@ namespace FinanceApi.Test
 
 
         [Theory]
-        [MemberData(nameof(AddCategoryToIncomeValidInputTestData))]
-        public void AddCategoryToIncome_ReturnsOkObjectResult_WhenIncomeExistsAndCategoryIdsAreValid(
-            int incomeId, ICollection<int> categoryIds, string? optionalOwnerId
+        [MemberData(nameof(AddCategoryToExpenseValidInputTestData))]
+        public void AddCategoryToExpense_ReturnsOkObjectResult_WhenExpenseExistsAndCategoryIdsAreValid(
+            int expenseId, ICollection<int> categoryIds, string? optionalOwnerId
             )
         {
             // Arrange
 
-            var mockDatabaseIncomeCategories = new List<IncomeCategory>()
+            var mockDatabaseExpenseCategories = new List<ExpenseCategory>()
             {
-                new IncomeCategory() { CategoryId = 100, Income = new Income(), IncomeId = incomeId, Category = new Category() }
+                new ExpenseCategory() { CategoryId = 100, Expense = new Expense(), ExpenseId = expenseId, Category = new Category() }
             };
 
             authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<string>(),
                 out It.Ref<int>.IsAny, out It.Ref<string>.IsAny)).Returns(true);
-            incomeRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>())).Returns(true);
-            incomeRepoMock.Setup(x => x.GetById(It.IsAny<int>(), It.IsAny<bool>()))
-                .Returns(new Income() { Id = 1 });
-            categoryRepoMock.Setup(x => x.GetIncomeCategories(It.IsAny<string>(), It.IsAny<int>()))
-                .Returns(mockDatabaseIncomeCategories);
+            expenseRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>())).Returns(true);
+            expenseRepoMock.Setup(x => x.GetById(It.IsAny<int>(), It.IsAny<bool>()))
+                .Returns(new Expense() { Id = 1 });
+            categoryRepoMock.Setup(x => x.GetExpenseCategories(It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(mockDatabaseExpenseCategories);
             categoryRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>())).Returns(true);
-            incomeRepoMock.Setup(x => x.AddCategory(It.IsAny<IncomeCategory>())).Returns(true);
+            expenseRepoMock.Setup(x => x.AddCategory(It.IsAny<ExpenseCategory>())).Returns(true);
 
-            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+            var expenseService = new ExpenseService(expenseRepoMock.Object, categoryRepoMock.Object);
 
-            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+            var expenseController = new ExpenseController(expenseService, userServiceMock.Object, authServiceMock.Object);
 
-            incomeController.ControllerContext = new ControllerContext()
+            expenseController.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
                 {
@@ -546,7 +552,7 @@ namespace FinanceApi.Test
 
             // Act
 
-            var result = incomeController.AddCategoryToIncome(incomeId, categoryIds, optionalOwnerId);
+            var result = expenseController.AddCategoryToExpense(expenseId, categoryIds, optionalOwnerId);
 
             // Assert
 
@@ -561,9 +567,9 @@ namespace FinanceApi.Test
 
 
         [Theory]
-        [MemberData(nameof(IncomeDtoValidInputsTestData))]
-        public void UpdateIncome_ReturnsOkObjectResult_WhenUserExistsAndIncomeExistAndIncomeDtoIsValid(
-            IncomeDto incomeDto,
+        [MemberData(nameof(ExpenseDtoValidInputsTestData))]
+        public void UpdateExpense_ReturnsOkObjectResult_WhenUserExistsAndExpenseExistAndExpenseDtoIsValid(
+            ExpenseDto expenseDto,
             string? optionalOwnerId
             )
         {
@@ -572,16 +578,16 @@ namespace FinanceApi.Test
                 .Returns(true);
             userServiceMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(new User());
-            incomeRepoMock.Setup(x => x.Update(It.IsAny<Income>())).Returns(true);
-            incomeRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
+            expenseRepoMock.Setup(x => x.Update(It.IsAny<Expense>())).Returns(true);
+            expenseRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(true);
 
 
-            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+            var expenseService = new ExpenseService(expenseRepoMock.Object, categoryRepoMock.Object);
 
-            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+            var expenseController = new ExpenseController(expenseService, userServiceMock.Object, authServiceMock.Object);
 
-            incomeController.ControllerContext = new ControllerContext()
+            expenseController.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
                 {
@@ -592,7 +598,7 @@ namespace FinanceApi.Test
             };
 
             // Act
-            var result = incomeController.UpdateIncome(incomeDto, optionalOwnerId);
+            var result = expenseController.UpdateExpense(expenseDto, optionalOwnerId);
 
             // Assert
 
@@ -602,9 +608,9 @@ namespace FinanceApi.Test
         }
 
         [Theory]
-        [MemberData(nameof(IncomeDtoInvalidInputTestData))]
-        public void UpdateIncome_ReturnsBadRequestObjectResult_WhenInputIsInvalid(
-            IncomeDto incomeDto,
+        [MemberData(nameof(ExpenseDtoInvalidInputTestData))]
+        public void UpdateExpense_ReturnsBadRequestObjectResult_WhenInputIsInvalid(
+            ExpenseDto expenseDto,
             string? optionalOwnerId
             )
         {
@@ -613,13 +619,13 @@ namespace FinanceApi.Test
                 .Returns(new User() { Id = "VALID ID" });
             authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<string>(),
                 out It.Ref<int>.IsAny, out It.Ref<string>.IsAny)).Returns(true);
-            incomeRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
+            expenseRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(true);
-            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+            var expenseService = new ExpenseService(expenseRepoMock.Object, categoryRepoMock.Object);
 
-            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+            var expenseController = new ExpenseController(expenseService, userServiceMock.Object, authServiceMock.Object);
 
-            incomeController.ControllerContext = new ControllerContext()
+            expenseController.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
                 {
@@ -632,7 +638,7 @@ namespace FinanceApi.Test
 
             // Act
 
-            var result = incomeController.UpdateIncome(incomeDto, optionalOwnerId);
+            var result = expenseController.UpdateExpense(expenseDto, optionalOwnerId);
 
             // Assert
 
@@ -642,9 +648,9 @@ namespace FinanceApi.Test
 
 
         [Theory]
-        [MemberData(nameof(IncomeDtoValidInputsTestData))]
-        public void UpdateIncome_ReturnsNotFoundObjectResult_WhenIncomeDoesNotExist(
-            IncomeDto incomeDto,
+        [MemberData(nameof(ExpenseDtoValidInputsTestData))]
+        public void UpdateExpense_ReturnsNotFoundObjectResult_WhenExpenseDoesNotExist(
+            ExpenseDto expenseDto,
             string? optionalOwnerId
             )
         {
@@ -653,13 +659,13 @@ namespace FinanceApi.Test
                 .Returns(new User() { Id = "VALID ID" });
             authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<string>(),
                 out It.Ref<int>.IsAny, out It.Ref<string>.IsAny)).Returns(true);
-            incomeRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
+            expenseRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(false);
-            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+            var expenseService = new ExpenseService(expenseRepoMock.Object, categoryRepoMock.Object);
 
-            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+            var expenseController = new ExpenseController(expenseService, userServiceMock.Object, authServiceMock.Object);
 
-            incomeController.ControllerContext = new ControllerContext()
+            expenseController.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
                 {
@@ -672,7 +678,7 @@ namespace FinanceApi.Test
 
             // Act
 
-            var result = incomeController.UpdateIncome(incomeDto, optionalOwnerId);
+            var result = expenseController.UpdateExpense(expenseDto, optionalOwnerId);
 
             // Assert
             Assert.NotNull(result);
@@ -682,9 +688,9 @@ namespace FinanceApi.Test
 
 
         [Theory]
-        [MemberData(nameof(IncomeDtoValidInputsTestData))]
-        public void UpdateIncome_ReturnsObjectResult500_WhenUpdatingFails(
-            IncomeDto incomeDto,
+        [MemberData(nameof(ExpenseDtoValidInputsTestData))]
+        public void UpdateExpense_ReturnsObjectResult500_WhenUpdatingFails(
+            ExpenseDto expenseDto,
             string? optionalOwnerId
             )
         {
@@ -695,17 +701,17 @@ namespace FinanceApi.Test
             userServiceMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(new User());
 
-            incomeRepoMock.Setup(x => x.Update(It.IsAny<Income>()))
+            expenseRepoMock.Setup(x => x.Update(It.IsAny<Expense>()))
                 .Returns(false);
 
-            incomeRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
+            expenseRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(true);
 
-            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+            var expenseService = new ExpenseService(expenseRepoMock.Object, categoryRepoMock.Object);
 
-            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+            var expenseController = new ExpenseController(expenseService, userServiceMock.Object, authServiceMock.Object);
 
-            incomeController.ControllerContext = new ControllerContext()
+            expenseController.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
                 {
@@ -717,7 +723,7 @@ namespace FinanceApi.Test
             };
 
             // Act
-            var result = incomeController.UpdateIncome(incomeDto, null);
+            var result = expenseController.UpdateExpense(expenseDto, null);
 
             // Assert
 
@@ -729,23 +735,23 @@ namespace FinanceApi.Test
 
 
         [Fact]
-        public void DeleteIncome_ReturnsOkObjectResult_WhenUserAndIncomeExist()
+        public void DeleteExpense_ReturnsOkObjectResult_WhenUserAndExpenseExist()
         {
             userServiceMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(new User() { Id = "CURRENT USER " });
             authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<string>(),
                 out It.Ref<int>.IsAny, out It.Ref<string>.IsAny)).Returns(true);
-            incomeRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
+            expenseRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(true);
-            incomeRepoMock.Setup(x => x.Delete(It.IsAny<Income>())).Returns(true);
-            incomeRepoMock.Setup(x => x.GetById(It.IsAny<int>(), It.IsAny<bool>()))
-                .Returns(new Income() { Id = 1 });
+            expenseRepoMock.Setup(x => x.Delete(It.IsAny<Expense>())).Returns(true);
+            expenseRepoMock.Setup(x => x.GetById(It.IsAny<int>(), It.IsAny<bool>()))
+                .Returns(new Expense() { Id = 1 });
 
-            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+            var expenseService = new ExpenseService(expenseRepoMock.Object, categoryRepoMock.Object);
 
-            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+            var expenseController = new ExpenseController(expenseService, userServiceMock.Object, authServiceMock.Object);
 
-            incomeController.ControllerContext = new ControllerContext()
+            expenseController.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
                 {
@@ -755,10 +761,10 @@ namespace FinanceApi.Test
                     }))
                 }
             };
-            var validIncomeId = 1;
+            var validExpenseId = 1;
             // Act
 
-            var result = incomeController.DeleteIncome(validIncomeId, null);
+            var result = expenseController.DeleteExpense(validExpenseId, null);
 
             // Assert
 
@@ -768,20 +774,20 @@ namespace FinanceApi.Test
         }
 
         [Fact]
-        public void DeleteIncome_ReturnsNotFoundObjectResult_WhenIncomeDoesNotExist()
+        public void DeleteExpense_ReturnsNotFoundObjectResult_WhenExpenseDoesNotExist()
         {
             userServiceMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(new User() { Id = "CURRENT USER " });
             authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<string>(),
                 out It.Ref<int>.IsAny, out It.Ref<string>.IsAny)).Returns(true);
-            incomeRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
+            expenseRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(false);
 
-            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+            var expenseService = new ExpenseService(expenseRepoMock.Object, categoryRepoMock.Object);
 
-            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+            var expenseController = new ExpenseController(expenseService, userServiceMock.Object, authServiceMock.Object);
 
-            incomeController.ControllerContext = new ControllerContext()
+            expenseController.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
                 {
@@ -791,10 +797,10 @@ namespace FinanceApi.Test
                     }))
                 }
             };
-            var nonExistingIncomeId = 1;
+            var nonExistingExpenseId = 1;
             // Act
 
-            var result = incomeController.DeleteIncome(nonExistingIncomeId, null);
+            var result = expenseController.DeleteExpense(nonExistingExpenseId, null);
 
             // Assert
 
@@ -807,7 +813,7 @@ namespace FinanceApi.Test
 
 
         [Fact]
-        public void DeleteIncome_ReturnsObjectResult500_WhenDeletingFails()
+        public void DeleteExpense_ReturnsObjectResult500_WhenDeletingFails()
         {
 
             authServiceMock.Setup(x => x.ValidateUsers(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<string>(),
@@ -815,17 +821,17 @@ namespace FinanceApi.Test
             userServiceMock.Setup(x => x.GetById(It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(new User() { Id = "CURRENT USER" });
 
-            incomeRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
+            expenseRepoMock.Setup(x => x.ExistsById(It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(true);
-            incomeRepoMock.Setup(x => x.GetById(It.IsAny<int>(), It.IsAny<bool>()))
-                .Returns(new Income() { Id = 1 });
-            incomeRepoMock.Setup(x => x.Delete(It.IsAny<Income>())).Returns(false);
+            expenseRepoMock.Setup(x => x.GetById(It.IsAny<int>(), It.IsAny<bool>()))
+                .Returns(new Expense() { Id = 1 });
+            expenseRepoMock.Setup(x => x.Delete(It.IsAny<Expense>())).Returns(false);
 
-            var incomeService = new IncomeService(incomeRepoMock.Object, categoryRepoMock.Object);
+            var expenseService = new ExpenseService(expenseRepoMock.Object, categoryRepoMock.Object);
 
-            var incomeController = new IncomeController(incomeService, userServiceMock.Object, authServiceMock.Object);
+            var expenseController = new ExpenseController(expenseService, userServiceMock.Object, authServiceMock.Object);
 
-            incomeController.ControllerContext = new ControllerContext()
+            expenseController.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()
                 {
@@ -838,7 +844,7 @@ namespace FinanceApi.Test
             int validId = 1;
 
             // Act
-            var result = incomeController.DeleteIncome(validId, null);
+            var result = expenseController.DeleteExpense(validId, null);
 
             // Assert   
 
@@ -852,10 +858,9 @@ namespace FinanceApi.Test
 
 
 
-
         private void ResetAllSetups()
         {
-            incomeRepoMock.Reset();
+            expenseRepoMock.Reset();
             categoryRepoMock.Reset();
             userServiceMock.Reset();
             authServiceMock.Reset();

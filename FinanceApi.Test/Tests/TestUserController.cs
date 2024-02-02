@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Security.Claims;
 
-namespace FinanceApi.Test
+namespace FinanceApi.Test.Tests
 {
     public class TestUserController
     {
@@ -161,7 +161,7 @@ namespace FinanceApi.Test
             var incomeRepoMock = new Mock<IIncomeRepository>();
 
             userRepoMock.Setup(x => x.ExistsById(It.IsAny<string>())).Returns(true);
-            
+
             var userService = new UserService(userRepoMock.Object,
                 expenseRepoMock.Object,
                 incomeRepoMock.Object);
@@ -183,7 +183,7 @@ namespace FinanceApi.Test
             var result = userController.UpdateUsersCurrency("WRONG CODE");
 
             // Assert
-            
+
             Assert.IsType<BadRequestObjectResult>(result);
         }
 
