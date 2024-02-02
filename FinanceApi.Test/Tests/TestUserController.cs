@@ -1,10 +1,12 @@
 using FinanceApi.Controllers;
+using FinanceApi.Data;
 using FinanceApi.Data.Dtos;
 using FinanceApi.Models;
 using FinanceApi.Repositories;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services;
 using FinanceApi.Services.Interfaces;
+using FinanceApi.Test.TestDatabase;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +17,13 @@ namespace FinanceApi.Test.Tests
 {
     public class TestUserController
     {
+
+        private DataContext dataContext;
+        public TestUserController()
+        {
+            var testDatabaseFixture = new TestDatabaseFixture();
+            dataContext = testDatabaseFixture.dataContext;
+        }
 
         [Fact]
         public void GetCurrentUser_ReturnsOk_WhenUserExists()

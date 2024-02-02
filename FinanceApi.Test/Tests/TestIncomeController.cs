@@ -1,9 +1,11 @@
 ﻿using FinanceApi.Controllers;
+using FinanceApi.Data;
 using FinanceApi.Data.Dtos;
 using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services;
 using FinanceApi.Services.Interfaces;
+using FinanceApi.Test.TestDatabase;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -20,11 +22,12 @@ namespace FinanceApi.Test.Tests
         private readonly Mock<IAuthorizeRepository> authorizeRepoMock = new Mock<IAuthorizeRepository>();
         private readonly Mock<IAuthorizationInviteRepository> auhtorizationInviteRepoMock = new Mock<IAuthorizationInviteRepository>();
         private readonly Mock<IUserRepository> userRepoMock = new Mock<IUserRepository>();
+        private DataContext dataContext;
         public TestIncomeController()
         {
-
+            var testDatabaseFixture = new TestDatabaseFixture();
+            dataContext = testDatabaseFixture.dataContext;
         }
-
 
         public static IEnumerable<object[]> GetUsersIncomeValidInputsTestData()
         {

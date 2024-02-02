@@ -1,18 +1,16 @@
 ﻿using FinanceApi.Data;
+using FinanceApi.Enums;
 using FinanceApi.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace FinanceApi.Test.TestDatabase
 {
     public class TestDatabaseFixture
     {
-        private DataContext dataContext { get; }
+        public DataContext dataContext { get; }
         public TestDatabaseFixture()
         {
             var serviceProvider = new ServiceCollection()
@@ -28,17 +26,15 @@ namespace FinanceApi.Test.TestDatabase
 
         public void SeedDatabase()
         {
-            dataContext.Incomes.Add(new Income()
-            {
-                Id = 1,
-                Title = "Title",
-                Description = "Description",
-                Currency = "Eur",
-                Amount = 100,
-                Date = DateTime.Now,
-                DocumentUrl = "URL",
-            });
-            dataContext.SaveChanges();
+
+            var passwordHasher = new PasswordHasher<User>();
+
+            var user1 = new User { UserName = "user1@example.com", Email = "user1@example.com" };
+            var user2 = new User { UserName = "user2@example.com", Email = "user2@example.com" };
+
+            user1.PasswordHash = passwordHasher.HashPassword(user1, "PASSWORD");
+            user2.PasswordHash = passwordHasher.HashPassword(user2, "PASSWORD!");
+
         }
     }
 }
