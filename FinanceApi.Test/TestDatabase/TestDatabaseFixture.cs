@@ -4,6 +4,7 @@ using FinanceApi.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Linq;
 
 
 namespace FinanceApi.Test.TestDatabase
@@ -117,18 +118,137 @@ namespace FinanceApi.Test.TestDatabase
                 };
                 categories.Add(category);
             }
+
+            var incomesOfUser1 = incomes.Where(x =>  x.User == user1).ToList();
+            var incomesOfUser2 = incomes.Where(x => x.User == user2).ToList();
+            var categoriesOfUser1 = categories.Where(x => x.User == user1).ToList();
+            var categoriesOfUser2 = categories.Where(x => x.User == user2).ToList();
+            var expensesOfUser1 = expenses.Where(x => x.User == user1).ToList();
+            var expensesOfUser2 = expenses.Where(x => x.User == user2).ToList();
+            var budgetsOfUser1 = budgets.Where(x => x.User == user1).ToList();
+            var budgetsOfUser2 = budgets.Where(x => x.User == user2).ToList();
+            var goalsOfUser1 = goals.Where(x => x.User == user1).ToList();
+            var goalsOfUser2 = goals.Where(x => x.User == user2).ToList();
+
+
+            var incomeCategories = new List<IncomeCategory>();
+            for (int i = 0; i < incomesOfUser1.Count; ++i)
+            {
+                var incomeCategory = new IncomeCategory()
+                {
+                    Income = incomesOfUser1[i],
+                    IncomeId = incomesOfUser1[i].Id,
+                    Category = categoriesOfUser1[i % categoriesOfUser1.Count],
+                    CategoryId = categoriesOfUser1[i % categoriesOfUser1.Count].Id,
+                };
+
+                incomeCategories.Add(incomeCategory);
+            }
+            for (int i = 0; i < incomesOfUser2.Count; ++i)
+            {
+                var incomeCategory = new IncomeCategory()
+                {
+                    Income = incomesOfUser2[i],
+                    IncomeId = incomesOfUser2[i].Id,
+                    Category = categoriesOfUser2[i % categoriesOfUser2.Count],
+                    CategoryId = categoriesOfUser2[i % categoriesOfUser2.Count].Id,
+                };
+
+                incomeCategories.Add(incomeCategory);
+            }
+
+
+            var expenseCategories = new List<ExpenseCategory>();
+            for (int i = 0; i < expensesOfUser1.Count; ++i)
+            {
+                var expenseCategory = new ExpenseCategory()
+                {
+                    Expense = expensesOfUser1[i],
+                    ExpenseId = expensesOfUser1[i].Id,
+                    Category = categoriesOfUser1[i % categoriesOfUser1.Count],
+                    CategoryId = categoriesOfUser1[i % categoriesOfUser1.Count].Id,
+                };
+
+                expenseCategories.Add(expenseCategory);
+            }
+            for (int i = 0; i < expensesOfUser2.Count; ++i)
+            {
+                var expenseCategory = new ExpenseCategory()
+                {
+                    Expense = expensesOfUser2[i],
+                    ExpenseId = expensesOfUser2[i].Id,
+                    Category = categoriesOfUser2[i % categoriesOfUser2.Count],
+                    CategoryId = categoriesOfUser2[i % categoriesOfUser2.Count].Id,
+                };
+
+                expenseCategories.Add(expenseCategory);
+            }
+
+
+            var budgetCategories = new List<BudgetCategory>();
+            for (int i = 0; i < budgetsOfUser1.Count; ++i)
+            {
+                var budgetCategory = new BudgetCategory()
+                {
+                    Budget = budgetsOfUser1[i],
+                    BudgetId = budgetsOfUser1[i].Id,
+                    Category = categoriesOfUser1[i % categoriesOfUser1.Count],
+                    CategoryId = categoriesOfUser1[i % categoriesOfUser1.Count].Id,
+                };
+
+                budgetCategories.Add(budgetCategory);
+            }
+            for (int i = 0; i < budgetsOfUser2.Count; ++i)
+            {
+                var budgetCategory = new BudgetCategory()
+                {
+                    Budget = budgetsOfUser2[i],
+                    BudgetId = budgetsOfUser2[i].Id,
+                    Category = categoriesOfUser2[i % categoriesOfUser2.Count],
+                    CategoryId = categoriesOfUser2[i % categoriesOfUser2.Count].Id,
+                };
+
+                budgetCategories.Add(budgetCategory);
+            }
+
+
+            var goalCategories = new List<GoalCategory>();
+            for (int i = 0; i < goalsOfUser1.Count; ++i)
+            {
+                var goalCategory = new GoalCategory()
+                {
+                    Goal = goalsOfUser1[i],
+                    GoalId = goalsOfUser1[i].Id,
+                    Category = categoriesOfUser1[i % categoriesOfUser1.Count],
+                    CategoryId = categoriesOfUser1[i % categoriesOfUser1.Count].Id,
+                };
+
+                goalCategories.Add(goalCategory);
+            }
+            for (int i = 0; i < goalsOfUser2.Count; ++i)
+            {
+                var goalCategory = new GoalCategory()
+                {
+                    Goal = goalsOfUser2[i],
+                    GoalId = goalsOfUser2[i].Id,
+                    Category = categoriesOfUser2[i % categoriesOfUser2.Count],
+                    CategoryId = categoriesOfUser2[i % categoriesOfUser2.Count].Id,
+                };
             
-            
+                goalCategories.Add(goalCategory);
+            }
+
 
             dataContext.AddRange(incomes);
             dataContext.AddRange(expenses);
             dataContext.AddRange(budgets);
             dataContext.AddRange(goals);
             dataContext.AddRange(categories);
-            dataContext.Add(incomeCategory);
+            dataContext.AddRange(incomeCategories);
+            dataContext.AddRange(expenseCategories);
+            dataContext.AddRange(budgetCategories);
+            dataContext.AddRange(goalCategories);
             dataContext.SaveChanges();
-
-
         }
     }
 }
