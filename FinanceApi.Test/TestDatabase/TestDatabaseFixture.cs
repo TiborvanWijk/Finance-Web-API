@@ -4,8 +4,6 @@ using FinanceApi.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
-
 
 namespace FinanceApi.Test.TestDatabase
 {
@@ -32,7 +30,12 @@ namespace FinanceApi.Test.TestDatabase
 
             var user1 = new User { UserName = "user1@example.com", Email = "user1@example.com" };
             var user2 = new User { UserName = "user2@example.com", Email = "user2@example.com" };
-
+            var user3 = new User { UserName = "user3@example.com", Email = "user3@example.com" };
+            
+            user1.NormalizedEmail = user1.Email.Normalize();
+            user2.NormalizedEmail = user2.Email.Normalize();
+            user1.NormalizedUserName = user1.UserName.Normalize();
+            user2.NormalizedUserName = user2.UserName.Normalize();
             user1.PasswordHash = passwordHasher.HashPassword(user1, "PASSWORD");
             user2.PasswordHash = passwordHasher.HashPassword(user2, "PASSWORD!");
 
@@ -238,6 +241,21 @@ namespace FinanceApi.Test.TestDatabase
                 goalCategories.Add(goalCategory);
             }
 
+            var authorizeUser2ToUser1 = new AuthorizedUserJoin()
+            {
+                AuthorizedUser = user2,
+                AuthorizedUserId = user2.Id,
+                Owner = user1,
+                OwnerId = user1.Id,
+            };
+            var authorizeUser3ToUser1WithEdits = new AuthorizedUserJoin()
+            {
+                AuthorizedUser = user3,
+                AuthorizedUserId = user3.Id,
+                Owner = user1,
+                OwnerId = user1.Id,
+                CanEdit = true,
+            };
 
             dataContext.AddRange(incomes);
             dataContext.AddRange(expenses);
@@ -248,6 +266,8 @@ namespace FinanceApi.Test.TestDatabase
             dataContext.AddRange(expenseCategories);
             dataContext.AddRange(budgetCategories);
             dataContext.AddRange(goalCategories);
+            dataContext.Add(authorizeUser2ToUser1);
+            dataContext.Add(authorizeUser3ToUser1WithEdits);
             dataContext.SaveChanges();
         }
     }
