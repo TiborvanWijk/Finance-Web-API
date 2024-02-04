@@ -87,6 +87,9 @@ namespace FinanceApi.Test.Tests
             yield return new object[] { "user4@example.com", null, null, "title", "desc", null };
             yield return new object[] { "user4@example.com", null, null, null, null, null };
 
+            yield return new object[] { "user2@example.com", null, null, null, null, "user1@example.com" };
+            yield return new object[] { "user3@example.com", null, null, null, null, "user1@example.com" };
+
         }                                                                               		
 
 
@@ -98,7 +101,7 @@ namespace FinanceApi.Test.Tests
             DateTime? endDate,
             string? listOrderBy,
             string? listDir,
-            string? optionalOwnerId
+            string? optionalOwnerUsername
             )
         {
             // Arrange
@@ -112,11 +115,12 @@ namespace FinanceApi.Test.Tests
                     {
                         new Claim(ClaimTypes.NameIdentifier, user.Id)
                     })),
-                    
+                    Request = { Method = "GET" }
                 }
             };
 
             // Act
+            var optionalOwnerId = optionalOwnerUsername == null ? null : dataContext.Users.First(x => x.UserName.Normalize().Equals(optionalOwnerUsername.Normalize())).Id;
             var result = goalController.GetGoals(startDate, endDate, listOrderBy, listDir, optionalOwnerId);
 
             // Assert
