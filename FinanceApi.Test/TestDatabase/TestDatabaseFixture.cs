@@ -4,6 +4,7 @@ using FinanceApi.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Runtime.Intrinsics.X86;
 
 namespace FinanceApi.Test.TestDatabase
 {
@@ -28,246 +29,201 @@ namespace FinanceApi.Test.TestDatabase
 
             var passwordHasher = new PasswordHasher<User>();
 
-            var user1 = new User { UserName = "user1@example.com", Email = "user1@example.com" };
-            var user2 = new User { UserName = "user2@example.com", Email = "user2@example.com" };
-            var user3 = new User { UserName = "user3@example.com", Email = "user3@example.com" };
-            
-            user1.NormalizedEmail = user1.Email.Normalize();
-            user2.NormalizedEmail = user2.Email.Normalize();
-            user1.NormalizedUserName = user1.UserName.Normalize();
-            user2.NormalizedUserName = user2.UserName.Normalize();
-            user1.PasswordHash = passwordHasher.HashPassword(user1, "PASSWORD");
-            user2.PasswordHash = passwordHasher.HashPassword(user2, "PASSWORD!");
-
-            var incomes = new List<Income>();
-            for (int i = 1; i < 21; ++i)
-            {
-
-                var income = new Income()
-                {
-                    Id = i,
-                    Title = $"Title-{i}",
-                    Description = $"Description-{i}",
-                    Amount = 100 * i,
-                    Currency = i % 2 == 0 ? "EUR" : "USD",
-                    Date = DateTime.Now.AddDays(-i),
-                    DocumentUrl = $"URL-{i}",
-                    User = i % 2 == 0 ? user1 : user2,
-                };
-                incomes.Add(income);
-            }
-            var expenses = new List<Expense>();
-            for (int i = 1; i < 21; ++i)
-            {
-
-                var expense = new Expense()
-                {
-                    Id = i,
-                    Title = $"Title-{i}",
-                    Description = $"Description-{i}",
-                    Amount = 100 * i,
-                    Currency = i % 2 == 0 ? "EUR" : "USD",
-                    Urgency = (Urgency)(i % 3),
-                    Date = DateTime.Now.AddDays(-i),
-                    DocumentUrl = $"URL-{i}",
-                    User = i % 2 == 0 ? user1 : user2,
-                };
-                expenses.Add(expense);
-            }
-            var goals = new List<Goal>();
+            var users = new List<User>();
+            int incomeNr = 1;
+            int expenseNr = 1;
+            int goalNr = 1;
+            int budgetNr = 1;
+            int categoryNr = 1;
             for (int i = 1; i < 5; ++i)
             {
-
-                var goal = new Goal()
+                var user = new User()
                 {
-                    Id = i,
-                    Title = $"Title-{i}",
-                    Description = $"Description-{i}",
-                    Amount = 1000 * i,
-                    Currency = i % 2 == 0 ? "EUR" : "USD",
-                    StartDate = DateTime.Now.AddDays(-i),
-                    EndDate = DateTime.Now.AddDays(i),
-                    User = i % 2 == 0 ? user1 : user2,
+                    UserName = $"user{i}@example.com",
+                    Email = $"user{i}@example.com",
                 };
-                goals.Add(goal);
-            }
-            var budgets = new List<Budget>();
-            for (int i = 1; i < 5; ++i)
-            {
+                user.PasswordHash = passwordHasher.HashPassword(user, "Password!2");
 
-                var budget = new Budget()
+                var incomes = new List<Income>();
+                for (int j = 1; j < 21; ++j)
                 {
-                    Id = i,
-                    Title = $"Title-{i}",
-                    Description = $"Description-{i}",
-                    LimitAmount = 1000 * i,
-                    Currency = i % 2 == 0 ? "EUR" : "USD",
-                    Urgency = (Urgency)(i % 3),
-                    StartDate = DateTime.Now.AddDays(-i),
-                    EndDate = DateTime.Now.AddDays(i),
-                    User = i % 2 == 0 ? user1 : user2,
-                };
-                budgets.Add(budget);
-            }
-            var categories = new List<Category>();
-            for (int i = 1; i < 5; ++i)
-            {
-                var category = new Category()
+
+                    var income = new Income()
+                    {
+                        Id = incomeNr,
+                        Title = $"Title-{incomeNr}",
+                        Description = $"Description-{incomeNr}",
+                        Amount = 100 * incomeNr,
+                        Currency = incomeNr % 2 == 0 ? "EUR" : "USD",
+                        Date = DateTime.Now.AddDays(-incomeNr),
+                        DocumentUrl = $"URL-{incomeNr}",
+                        User = user,
+                    };
+                    incomes.Add(income);
+                    ++incomeNr;
+                }
+                var expenses = new List<Expense>();
+
+                for (int j = 1; j < 21; ++j)
                 {
-                    Id = i,
-                    Title = $"Title-{i}",
-                    Description = $"Description-{i}",
-                    User = i % 2 == 0 ? user1 : user2,
-                };
-                categories.Add(category);
-            }
 
-            var incomesOfUser1 = incomes.Where(x =>  x.User == user1).ToList();
-            var incomesOfUser2 = incomes.Where(x => x.User == user2).ToList();
-            var categoriesOfUser1 = categories.Where(x => x.User == user1).ToList();
-            var categoriesOfUser2 = categories.Where(x => x.User == user2).ToList();
-            var expensesOfUser1 = expenses.Where(x => x.User == user1).ToList();
-            var expensesOfUser2 = expenses.Where(x => x.User == user2).ToList();
-            var budgetsOfUser1 = budgets.Where(x => x.User == user1).ToList();
-            var budgetsOfUser2 = budgets.Where(x => x.User == user2).ToList();
-            var goalsOfUser1 = goals.Where(x => x.User == user1).ToList();
-            var goalsOfUser2 = goals.Where(x => x.User == user2).ToList();
+                    var expense = new Expense()
+                    {
+                        Id = expenseNr,
+                        Title = $"Title-{expenseNr}",
+                        Description = $"Description-{expenseNr}",
+                        Amount = 100 * expenseNr,
+                        Currency = expenseNr % 2 == 0 ? "EUR" : "USD",
+                        Urgency = (Urgency)(expenseNr % 3),
+                        Date = DateTime.Now.AddDays(-expenseNr),
+                        DocumentUrl = $"URL-{expenseNr}",
+                        User = user,
+                    };
+                    expenses.Add(expense);
+                    ++expenseNr;
+                }
 
-
-            var incomeCategories = new List<IncomeCategory>();
-            for (int i = 0; i < incomesOfUser1.Count; ++i)
-            {
-                var incomeCategory = new IncomeCategory()
+                var goals = new List<Goal>();
+                for (int j = 1; j< 5; ++j)
                 {
-                    Income = incomesOfUser1[i],
-                    IncomeId = incomesOfUser1[i].Id,
-                    Category = categoriesOfUser1[i % categoriesOfUser1.Count],
-                    CategoryId = categoriesOfUser1[i % categoriesOfUser1.Count].Id,
-                };
 
-                incomeCategories.Add(incomeCategory);
-            }
-            for (int i = 0; i < incomesOfUser2.Count; ++i)
-            {
-                var incomeCategory = new IncomeCategory()
+                    var goal = new Goal()
+                    {
+                        Id = goalNr,
+                        Title = $"Title-{goalNr}",
+                        Description = $"Description-{goalNr}",
+                        Amount = 1000 * goalNr,
+                        Currency = goalNr % 2 == 0 ? "EUR" : "USD",
+                        StartDate = DateTime.Now.AddDays(-goalNr),
+                        EndDate = DateTime.Now.AddDays(goalNr),
+                        User = user
+                    };
+                    goals.Add(goal);
+                    ++goalNr;
+                }
+                var budgets = new List<Budget>();
+                for (int j = 1; j < 5; ++j)
                 {
-                    Income = incomesOfUser2[i],
-                    IncomeId = incomesOfUser2[i].Id,
-                    Category = categoriesOfUser2[i % categoriesOfUser2.Count],
-                    CategoryId = categoriesOfUser2[i % categoriesOfUser2.Count].Id,
-                };
 
-                incomeCategories.Add(incomeCategory);
-            }
+                    var budget = new Budget()
+                    {
+                        Id = budgetNr,
+                        Title = $"Title-{budgetNr}",
+                        Description = $"Description-{budgetNr}",
+                        LimitAmount = 1000 * budgetNr,
+                        Currency = budgetNr % 2 == 0 ? "EUR" : "USD",
+                        Urgency = (Urgency)(budgetNr % 3),
+                        StartDate = DateTime.Now.AddDays(-budgetNr),
+                        EndDate = DateTime.Now.AddDays(budgetNr),
+                        User = user
+                    };
+                    budgets.Add(budget);
+                    ++budgetNr;
+                }
 
-
-            var expenseCategories = new List<ExpenseCategory>();
-            for (int i = 0; i < expensesOfUser1.Count; ++i)
-            {
-                var expenseCategory = new ExpenseCategory()
+                var categories = new List<Category>();
+                for (int j = 1; j < 5; ++j)
                 {
-                    Expense = expensesOfUser1[i],
-                    ExpenseId = expensesOfUser1[i].Id,
-                    Category = categoriesOfUser1[i % categoriesOfUser1.Count],
-                    CategoryId = categoriesOfUser1[i % categoriesOfUser1.Count].Id,
-                };
+                    var category = new Category()
+                    {
+                        Id = categoryNr,
+                        Title = $"Title-{categoryNr}",
+                        Description = $"Description-{categoryNr}",
+                        User = user,
+                    };
+                    categories.Add(category);
+                    ++categoryNr;
+                }
 
-                expenseCategories.Add(expenseCategory);
-            }
-            for (int i = 0; i < expensesOfUser2.Count; ++i)
-            {
-                var expenseCategory = new ExpenseCategory()
+
+                var incomeCategories = new List<IncomeCategory>();
+                for (int j = 0; j < incomes.Count; ++j)
                 {
-                    Expense = expensesOfUser2[i],
-                    ExpenseId = expensesOfUser2[i].Id,
-                    Category = categoriesOfUser2[i % categoriesOfUser2.Count],
-                    CategoryId = categoriesOfUser2[i % categoriesOfUser2.Count].Id,
-                };
+                    var incomeCategory = new IncomeCategory()
+                    {
+                        Income = incomes[j],
+                        IncomeId = incomes[j].Id,
+                        Category = categories[j % categories.Count],
+                        CategoryId = categories[j % categories.Count].Id,
+                    };
 
-                expenseCategories.Add(expenseCategory);
-            }
-
-
-            var budgetCategories = new List<BudgetCategory>();
-            for (int i = 0; i < budgetsOfUser1.Count; ++i)
-            {
-                var budgetCategory = new BudgetCategory()
+                    incomeCategories.Add(incomeCategory);
+                }
+                var expenseCategories = new List<ExpenseCategory>();
+                for (int j = 0; j < expenses.Count; ++j)
                 {
-                    Budget = budgetsOfUser1[i],
-                    BudgetId = budgetsOfUser1[i].Id,
-                    Category = categoriesOfUser1[i % categoriesOfUser1.Count],
-                    CategoryId = categoriesOfUser1[i % categoriesOfUser1.Count].Id,
-                };
+                    var expenseCategory = new ExpenseCategory()
+                    {
+                        Expense = expenses[j],
+                        ExpenseId = expenses[j].Id,
+                        Category = categories[j % categories.Count],
+                        CategoryId = categories[j % categories.Count].Id,
+                    };
 
-                budgetCategories.Add(budgetCategory);
-            }
-            for (int i = 0; i < budgetsOfUser2.Count; ++i)
-            {
-                var budgetCategory = new BudgetCategory()
+                    expenseCategories.Add(expenseCategory);
+                }
+
+                var budgetCategories = new List<BudgetCategory>();
+                for (int j = 0; j < budgets.Count; ++j)
                 {
-                    Budget = budgetsOfUser2[i],
-                    BudgetId = budgetsOfUser2[i].Id,
-                    Category = categoriesOfUser2[i % categoriesOfUser2.Count],
-                    CategoryId = categoriesOfUser2[i % categoriesOfUser2.Count].Id,
-                };
+                    var budgetCategory = new BudgetCategory()
+                    {
+                        Budget = budgets[j],
+                        BudgetId = budgets[j].Id,
+                        Category = categories[j % categories.Count],
+                        CategoryId = categories[j % categories.Count].Id,
+                    };
 
-                budgetCategories.Add(budgetCategory);
-            }
-
-
-            var goalCategories = new List<GoalCategory>();
-            for (int i = 0; i < goalsOfUser1.Count; ++i)
-            {
-                var goalCategory = new GoalCategory()
+                    budgetCategories.Add(budgetCategory);
+                }
+                var goalCategories = new List<GoalCategory>();
+                for (int j = 0; j < goals.Count; ++j)
                 {
-                    Goal = goalsOfUser1[i],
-                    GoalId = goalsOfUser1[i].Id,
-                    Category = categoriesOfUser1[i % categoriesOfUser1.Count],
-                    CategoryId = categoriesOfUser1[i % categoriesOfUser1.Count].Id,
-                };
+                    var goalCategory = new GoalCategory()
+                    {
+                        Goal = goals[j],
+                        GoalId = goals[j].Id,
+                        Category = categories[j % categories.Count],
+                        CategoryId = categories[j % categories.Count].Id,
+                    };
 
-                goalCategories.Add(goalCategory);
-            }
-            for (int i = 0; i < goalsOfUser2.Count; ++i)
-            {
-                var goalCategory = new GoalCategory()
+                    goalCategories.Add(goalCategory);
+                }
+
+                users.Add(user);
+                if(i > 1 && i < 4)
                 {
-                    Goal = goalsOfUser2[i],
-                    GoalId = goalsOfUser2[i].Id,
-                    Category = categoriesOfUser2[i % categoriesOfUser2.Count],
-                    CategoryId = categoriesOfUser2[i % categoriesOfUser2.Count].Id,
-                };
-            
-                goalCategories.Add(goalCategory);
+                    var userAuthorization = new AuthorizedUserJoin()
+                    {
+                        AuthorizedUser = user,
+                        AuthorizedUserId = user.Id,
+                        Owner = users[0],
+                        OwnerId = users[0].Id,
+                        CanEdit = i % 2 == 1,
+                    };
+                    dataContext.Add(userAuthorization);
+                }
+
+
+                dataContext.AddRange(incomes);
+                dataContext.AddRange(expenses);
+                dataContext.AddRange(budgets);
+                dataContext.AddRange(goals);
+                dataContext.AddRange(categories);
+                dataContext.AddRange(incomeCategories);
+                dataContext.AddRange(expenseCategories);
+                dataContext.AddRange(budgetCategories);
+                dataContext.AddRange(goalCategories);
             }
 
-            var authorizeUser2ToUser1 = new AuthorizedUserJoin()
-            {
-                AuthorizedUser = user2,
-                AuthorizedUserId = user2.Id,
-                Owner = user1,
-                OwnerId = user1.Id,
-            };
-            var authorizeUser3ToUser1WithEdits = new AuthorizedUserJoin()
-            {
-                AuthorizedUser = user3,
-                AuthorizedUserId = user3.Id,
-                Owner = user1,
-                OwnerId = user1.Id,
-                CanEdit = true,
-            };
 
-            dataContext.AddRange(incomes);
-            dataContext.AddRange(expenses);
-            dataContext.AddRange(budgets);
-            dataContext.AddRange(goals);
-            dataContext.AddRange(categories);
-            dataContext.AddRange(incomeCategories);
-            dataContext.AddRange(expenseCategories);
-            dataContext.AddRange(budgetCategories);
-            dataContext.AddRange(goalCategories);
-            dataContext.Add(authorizeUser2ToUser1);
-            dataContext.Add(authorizeUser3ToUser1WithEdits);
+
+
+
+
+
+
+
             dataContext.SaveChanges();
         }
     }
