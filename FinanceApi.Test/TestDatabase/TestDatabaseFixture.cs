@@ -55,7 +55,7 @@ namespace FinanceApi.Test.TestDatabase
                         Description = $"Description-{incomeNr}",
                         Amount = 100 * incomeNr,
                         Currency = incomeNr % 2 == 0 ? "EUR" : "USD",
-                        Date = DateTime.Now.AddDays(-incomeNr),
+                        Date = DateTime.Now.AddMonths(-incomeNr),
                         DocumentUrl = $"URL-{incomeNr}",
                         User = user,
                     };
@@ -75,7 +75,7 @@ namespace FinanceApi.Test.TestDatabase
                         Amount = 100 * expenseNr,
                         Currency = expenseNr % 2 == 0 ? "EUR" : "USD",
                         Urgency = (Urgency)(expenseNr % 3),
-                        Date = DateTime.Now.AddDays(-expenseNr),
+                        Date = DateTime.Now.AddMonths(-expenseNr),
                         DocumentUrl = $"URL-{expenseNr}",
                         User = user,
                     };
@@ -94,7 +94,7 @@ namespace FinanceApi.Test.TestDatabase
                         Description = $"Description-{goalNr}",
                         Amount = 1000 * goalNr,
                         Currency = goalNr % 2 == 0 ? "EUR" : "USD",
-                        StartDate = DateTime.Now.AddDays(-goalNr),
+                        StartDate = DateTime.Now.AddMonths(-goalNr),
                         EndDate = DateTime.Now.AddDays(goalNr),
                         User = user
                     };
@@ -113,7 +113,7 @@ namespace FinanceApi.Test.TestDatabase
                         LimitAmount = 1000 * budgetNr,
                         Currency = budgetNr % 2 == 0 ? "EUR" : "USD",
                         Urgency = (Urgency)(budgetNr % 3),
-                        StartDate = DateTime.Now.AddDays(-budgetNr),
+                        StartDate = DateTime.Now.AddMonths(-budgetNr),
                         EndDate = DateTime.Now.AddDays(budgetNr),
                         User = user
                     };

@@ -6,7 +6,7 @@ namespace FinanceApi.Mapper
     public abstract class Map
     {
 
-        internal static User ToUser(UserDto userDto)
+        public static User ToUser(UserDto userDto)
         {
             var user = new User()
             {
@@ -17,7 +17,7 @@ namespace FinanceApi.Mapper
             return user;
         }
 
-        internal static UserDto ToUserDto(User user)
+        public static UserDto ToUserDto(User user)
         {
             var userDto = new UserDto()
             {
@@ -30,7 +30,7 @@ namespace FinanceApi.Mapper
             return userDto;
         }
 
-        internal static Income ToIncome(IncomeDto incomeDto)
+        public static Income ToIncome(IncomeDto incomeDto)
         {
             var income = new Income()
             {
@@ -45,7 +45,7 @@ namespace FinanceApi.Mapper
             return income;
         }
 
-        internal static IncomeDto ToIncomeDto(Income income)
+        public static IncomeDto ToIncomeDto(Income income)
         {
             var incomeDto = new IncomeDto()
             {
@@ -60,7 +60,7 @@ namespace FinanceApi.Mapper
             return incomeDto;
         }
 
-        internal static Expense ToExpense(ExpenseDto expenseDto)
+        public static Expense ToExpense(ExpenseDto expenseDto)
         {
             var expense = new Expense()
             {
@@ -77,7 +77,7 @@ namespace FinanceApi.Mapper
         }
 
 
-        internal static ExpenseDto ToExpenseDto(Expense expense)
+        public static ExpenseDto ToExpenseDto(Expense expense)
         {
             var expenseDto = new ExpenseDto()
             {
@@ -93,7 +93,7 @@ namespace FinanceApi.Mapper
             return expenseDto;
         }
 
-        internal static Budget ToBudget(BudgetDto budgetDto)
+        public static Budget ToBudget(BudgetDto budgetDto)
         {
             var budget = new Budget()
             {
@@ -109,7 +109,7 @@ namespace FinanceApi.Mapper
             return budget;
         }
 
-        internal static BudgetDto ToBudgetDto(Budget budget)
+        public static BudgetDto ToBudgetDto(Budget budget)
         {
             var budgetDto = new BudgetDto()
             {
@@ -126,7 +126,7 @@ namespace FinanceApi.Mapper
         }
 
 
-        internal static Budget ToBudgetFromBudgetManageDto(BudgetManageDto budgetDto)
+        public static Budget ToBudgetFromBudgetManageDto(BudgetManageDto budgetDto)
         {
             var budget = new Budget()
             {
@@ -142,7 +142,7 @@ namespace FinanceApi.Mapper
             return budget;
         }
 
-        internal static Goal ToGoalFromGoalManageDto(GoalManageDto goalDto)
+        public static Goal ToGoalFromGoalManageDto(GoalManageDto goalDto)
         {
             var goal = new Goal()
             {
@@ -157,7 +157,7 @@ namespace FinanceApi.Mapper
             return goal;
         }
 
-        internal static Goal ToGoalFromGoalDto(GoalDto goalDto)
+        public static Goal ToGoalFromGoalDto(GoalDto goalDto)
         {
             var goal = new Goal()
             {
@@ -172,7 +172,7 @@ namespace FinanceApi.Mapper
             return goal;
         }
 
-        internal static GoalDto ToGoalDto(Goal goal)
+        public static GoalDto ToGoalDto(Goal goal)
         {
             var goalDto = new GoalDto()
             {
@@ -187,7 +187,7 @@ namespace FinanceApi.Mapper
             return goalDto;
         }
 
-        internal static GoalManageDto ToGoalManageDto(Goal goal)
+        public static GoalManageDto ToGoalManageDto(Goal goal)
         {
             var goalDto = new GoalManageDto()
             {
@@ -203,7 +203,7 @@ namespace FinanceApi.Mapper
             return goalDto;
         }
 
-        internal static Category ToCategory(CategoryDto categoryDto)
+        public static Category ToCategory(CategoryDto categoryDto)
         {
             var category = new Category()
             {
@@ -214,7 +214,7 @@ namespace FinanceApi.Mapper
             return category;
         }
 
-        internal static CategoryDto ToCategoryDto(Category category)
+        public static CategoryDto ToCategoryDto(Category category)
         {
             var categoryDto = new CategoryDto()
             {
@@ -225,7 +225,7 @@ namespace FinanceApi.Mapper
             return categoryDto;
         }
 
-        internal static Goal ToGoalFromManageDto(GoalManageDto goalManageDto)
+        public static Goal ToGoalFromManageDto(GoalManageDto goalManageDto)
         {
             var goal = new Goal()
             {
@@ -241,7 +241,7 @@ namespace FinanceApi.Mapper
             return goal;
         }
 
-        internal static AuthorizeUserInviteDto ToAuthorizeUserInviteDto(AuthorizeUserInvite authorizeUserInvite)
+        public static AuthorizeUserInviteDto ToAuthorizeUserInviteDto(AuthorizeUserInvite authorizeUserInvite)
         {
             var authorizeUserInviteDto = new AuthorizeUserInviteDto()
             {
@@ -253,7 +253,7 @@ namespace FinanceApi.Mapper
             return authorizeUserInviteDto;
         }
 
-        internal static AuthorizedUserDto ToAuthorizedUserDto(User user)
+        public static AuthorizedUserDto ToAuthorizedUserDto(User user)
         {
             var authorizedUserDto = new AuthorizedUserDto()
             {

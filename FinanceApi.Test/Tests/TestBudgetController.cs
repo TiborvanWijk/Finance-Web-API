@@ -1,10 +1,11 @@
-﻿using FinanceApi.Data;
+﻿using FinanceApi.Controllers;
+using FinanceApi.Data;
+using FinanceApi.Repositories;
+using FinanceApi.Services;
 using FinanceApi.Test.TestDatabase;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FinanceApi.Test.Tests
 {
