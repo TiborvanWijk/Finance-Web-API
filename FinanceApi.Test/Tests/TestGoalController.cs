@@ -286,6 +286,59 @@ namespace FinanceApi.Test.Tests
 
         }
 
+        public static IEnumerable<object[]> DeleteGoalValidTestData()
+        {
+            yield return new object[] { 1, "user1@example.com", null };
+            yield return new object[] { 2, "user1@example.com", null };
+            yield return new object[] { 3, "user1@example.com", null };
+
+            yield return new object[] { 4, "user3@example.com", "user1@example.com" };
+            yield return new object[] { 5, "user3@example.com", "user1@example.com" };
+
+            yield return new object[] { 6, "user2@example.com", null };
+            yield return new object[] { 7, "user2@example.com", null };
+            yield return new object[] { 8, "user2@example.com", null };
+            yield return new object[] { 9, "user2@example.com", null };
+            yield return new object[] { 10, "user2@example.com", null };
+        }
+
+        [Theory]
+        [MemberData(nameof(DeleteGoalValidTestData))]
+        public void DeleteGoal_ReturnsOkObjectResult_WhenInputIsValid(
+            int goalId,
+            string username,
+            string? optionalOwnerUsername
+            )
+        {
+
+            // Arrange
+
+            var user = dataContext.Users.First(x => x.UserName.Normalize().Equals(username.Normalize()));
+
+
+
+            goalController.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, user.Id)
+                    }))
+                }
+            };
+
+            var optionalOwnerId = optionalOwnerUsername == null ? null : dataContext.Users.First(x => x.UserName.Normalize().Equals(optionalOwnerUsername.Normalize())).Id;
+            // Act
+
+            var result = goalController.DeleteGoal(goalId, optionalOwnerId);
+            // Assert
+
+
+            Assert.IsType<OkObjectResult>(result);
+            var okResult = result as OkObjectResult;
+            Assert.NotNull(okResult);
+        }
 
 
     }

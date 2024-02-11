@@ -84,7 +84,7 @@ namespace FinanceApi.Test.TestDatabase
                 }
 
                 var goals = new List<Goal>();
-                for (int j = 1; j< 5; ++j)
+                for (int j = 1; j< 6; ++j)
                 {
 
                     var goal = new Goal()
