@@ -167,7 +167,124 @@ namespace FinanceApi.Test.Tests
         }
 
 
+        public static IEnumerable<object[]> CreateGoalValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 1, Title = "GoalTitle-1", Description = "Description-1", Amount = 2000, Currency = "eur", StartDate = DateTime.Now, EndDate = new DateTime(2026, 1, 1) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 2, Title = "Valid Goal - Different Currency", Description = "Description for a valid goal with a different currency", Amount = 1500, Currency = "usd", StartDate = DateTime.Now.AddDays(5), EndDate = new DateTime(2026, 1, 1) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 3, Title = "Valid Goal - Longer Time Period", Description = "Description for a valid goal with a longer time period", Amount = 3000, Currency = "eur", StartDate = DateTime.Now.AddDays(10), EndDate = new DateTime(2026, 2, 15) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 4, Title = "Valid Goal - Larger Amount", Description = "Description for a valid goal with a larger amount", Amount = 5000, Currency = "php", StartDate = DateTime.Now.AddDays(3), EndDate = new DateTime(2026, 1, 1) }, null };
+        }
 
+        [Theory]
+        [MemberData(nameof(CreateGoalValidInputTestData))]
+        public void CreateGoal_ReturnsOkObjectResult_WhenInputIsValid(
+            string username,
+            GoalManageDto goalManageDto,
+            string optionalOwnerUsername
+            )
+        {
+            // Arrange
+            var user = dataContext.Users
+                .First(x => x.UserName.Normalize().Equals(username.Normalize()));
+
+            goalController.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, user.Id)
+                    }))
+                }
+            };
+
+            var optionalOwnerId = optionalOwnerUsername == null ? null : dataContext.Users.First(x => x.UserName.Normalize().Equals(optionalOwnerUsername.Normalize())).Id;
+
+            // Act
+
+            var result = goalController.CreateGoal(goalManageDto, optionalOwnerUsername);
+
+            // Assert
+
+            Assert.IsType<OkObjectResult>(result);
+            var okResult = result as OkObjectResult;
+            Assert.NotNull(okResult);
+        }
+
+
+        public static IEnumerable<object[]> CreateGoalInvalidtestTestData()
+        {
+            // Invalid amount (less than or equal to 0)
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 0, Currency = "USD", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
+
+            // Invalid currency ISO code
+            yield return new object[] { "user2@example.com", new GoalManageDto { Amount = 1000, Currency = "InvalidCurrency", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
+
+            // Invalid time period (e.g., end date earlier than start date)
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 2000, Currency = "EUR", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-7) }, null };
+
+
+            // Combining multiple invalid conditions
+            yield return new object[] {"user1@example.com", new GoalManageDto { Amount = 0, Currency = "InvalidCode", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
+
+            // Invalid amount (zero or negative)
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 0, Currency = "USD", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = -500, Currency = "EUR", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
+
+            // Invalid currency ISO code
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 1000, Currency = "", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 1500, Currency = "InvalidCurrencyCode", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
+
+            // Invalid time period (end date earlier than start date)
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 2000, Currency = "GBP", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-7) }, null };
+
+            // Combining multiple invalid conditions
+            yield return new object[] {"user1@example.com", new GoalManageDto { Amount = 0, Currency = "InvalidCode", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
+            yield return new object[] {"user1@example.com", new GoalManageDto { Amount = -500, Currency = "", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
+            yield return new object[] {"user1@example.com", new GoalManageDto { Amount = 1000, Currency = "InvalidCurrency", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 2000, Currency = "USD", StartDate = DateTime.Now.AddDays(15), EndDate = DateTime.Now }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 3000, Currency = "GBP", StartDate = DateTime.Now.AddDays(15), EndDate = DateTime.Now.AddDays(10) }, null };
+        }
+
+
+        [Theory]
+        [MemberData(nameof(CreateGoalInvalidtestTestData))]
+        public void CreateGoal_ReturnsBadRequestObjectResult_WhenGoalInputIsInvalid(
+            string username, 
+            GoalManageDto goalManageDto,
+            string optionalOwnerUsername
+            )
+        {
+
+            // Arrange
+            var user = dataContext.Users
+                .First(x => x.UserName.Normalize().Equals(username.Normalize()));
+
+            goalController.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, user.Id)
+                    }))
+                }
+            };
+
+            var optionalOwnerId = optionalOwnerUsername == null ? null : dataContext.Users.First(x => x.UserName.Normalize().Equals(optionalOwnerUsername.Normalize())).Id;
+
+            // Act
+
+            var result = goalController.CreateGoal(goalManageDto, optionalOwnerUsername);
+
+            // Assert
+
+            Assert.IsType<BadRequestObjectResult>(result);
+            var badResult = result as BadRequestObjectResult;
+            Assert.NotNull(badResult);
+
+
+        }
 
 
 
