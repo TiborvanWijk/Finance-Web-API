@@ -340,6 +340,50 @@ namespace FinanceApi.Test.Tests
             Assert.NotNull(okResult);
         }
 
+        public static IEnumerable<object[]> DeleteGoalInvalidInputTestData()
+        {
+            yield return new object[] { 6, "user1@example.com", null };
+            yield return new object[] { 7, "user1@example.com", null };
+            yield return new object[] { 8, "user1@example.com", null };
+            yield return new object[] { 9, "user1@example.com", null };
+            yield return new object[] { 10, "user1@example.com", null };
+        }
+
+        [Theory]
+        [MemberData(nameof(DeleteGoalInvalidInputTestData))]
+        public void DeleteIncome_ReturnsNotFoundObjectResult_WhenGoalDoesNotExist(
+            int goalId,
+            string username,
+            string? optionalOwnerUsername
+            )
+        {
+            // Arrange
+            var user = dataContext.Users.First(x => x.UserName.Normalize().Equals(username.Normalize()));
+
+            goalController.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, user.Id)
+                    }))
+                }
+            };
+            var optionalOwnerId = optionalOwnerUsername == null ? null : dataContext.Users.First(x => x.UserName.Normalize().Equals(optionalOwnerUsername.Normalize())).Id;
+
+            // Act
+
+            var result = goalController.DeleteGoal(goalId, optionalOwnerId);
+
+            // Assert
+
+            Assert.IsType<NotFoundObjectResult>(result);
+            var notFoundResult = result as NotFoundObjectResult;
+            Assert.NotNull(notFoundResult);
+        }
+
+
 
     }
 }
