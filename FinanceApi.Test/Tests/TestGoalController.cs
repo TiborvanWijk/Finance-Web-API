@@ -29,7 +29,7 @@ namespace FinanceApi.Test.Tests
         {
             var testDatabaseFixture = new TestDatabaseFixture();
             dataContext = testDatabaseFixture.dataContext;
-            
+
             goalRepository = new GoalRepository(dataContext);
             categoryRepository = new CategoryRepository(dataContext);
             incomeRepository = new IncomeRepository(dataContext);
@@ -384,6 +384,51 @@ namespace FinanceApi.Test.Tests
         }
 
 
+        public static IEnumerable<object[]> RemoveCategoriesValidTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, new List<int>() { } };
+        }
+        
+        [Theory(Skip = "Skipping because it is not ready at the current state.")]
+        [MemberData(nameof(RemoveCategoriesValidTestData))]
+        public void RemoveCategories_RetunsOkObjectResult_WhenGoalExistsAndCategoryIdsExist(
+            string username,
+            int goalId,
+            ICollection<int> catgoryIds,
+            string? optionalOwnerUsername
+            )
+        {
+
+            // Arrange
+
+            var user = dataContext.Users.First(x => x.UserName.Normalize().Equals(username.Normalize()));
+
+
+
+            goalController.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, user.Id)
+                    }))
+                }
+            };
+            var optionalOwnerId = optionalOwnerUsername == null ? null : dataContext.Users.First(x => x.UserName.Normalize().Equals(optionalOwnerUsername.Normalize())).Id;
+
+
+            // Act
+
+            var result = goalController.RemoveCategories(goalId, catgoryIds, optionalOwnerId);
+
+            // Assert
+
+
+            Assert.IsType<OkObjectResult>(result);
+            var okResult = result as OkObjectResult;
+            Assert.NotNull(okResult);
+        }
 
     }
 }
