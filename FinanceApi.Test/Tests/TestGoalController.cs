@@ -1,16 +1,22 @@
 ﻿using FinanceApi.Controllers;
 using FinanceApi.Data;
 using FinanceApi.Data.Dtos;
+using FinanceApi.Models;
 using FinanceApi.Repositories;
 using FinanceApi.Services;
 using FinanceApi.Test.TestDatabase;
+using FinanceApi.Test.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Net;
+using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Text;
 
 namespace FinanceApi.Test.Tests
 {
-    public class TestGoalController
+    public class TestGoalController : IDisposable
     {
         private DataContext dataContext;
         private readonly GoalRepository goalRepository;
@@ -24,11 +30,18 @@ namespace FinanceApi.Test.Tests
         private readonly AuthorizeService authService;
         private readonly UserService userService;
         private readonly GoalController goalController;
+        private CustomWebApplicationFactory factory;
+        private HttpClient client;
 
         public TestGoalController()
         {
             var testDatabaseFixture = new TestDatabaseFixture();
             dataContext = testDatabaseFixture.dataContext;
+
+            factory = new CustomWebApplicationFactory();
+            client = factory.CreateClient();
+
+
 
             goalRepository = new GoalRepository(dataContext);
             categoryRepository = new CategoryRepository(dataContext);
@@ -90,8 +103,35 @@ namespace FinanceApi.Test.Tests
             yield return new object[] { "user2@example.com", null, null, null, null, "user1@example.com" };
             yield return new object[] { "user3@example.com", null, null, null, null, "user1@example.com" };
 
-        }                                                                               		
+        }
 
+        [Theory(Skip = "Test db is not connected yet so its unauthorized")]
+        [MemberData(nameof(GetGoalValidInputTestData))]
+        public async void GetGoal_ReturnsOkObjectResult_WhenUserIsValid2(
+            string userName,
+            DateTime? startDate,
+            DateTime? endDate,
+            string? listOrderBy,
+            string? listDir,
+            string? optionalOwnerUsername
+            )
+        {
+
+            
+            var user = dataContext.Users.First(x => x.UserName == userName);
+
+            var token = await GetAuthenticationTokenAsync(user.UserName, "Password!2");
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var requestUrl = $"/api/Goal/current?startDate={startDate}";
+
+            var response = await client.GetAsync(requestUrl);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var data = JsonConvert.DeserializeObject<IEnumerable<Goal>>(await response.Content.ReadAsStringAsync());
+        }
 
         [Theory]
         [MemberData(nameof(GetGoalValidInputTestData))]
@@ -430,5 +470,37 @@ namespace FinanceApi.Test.Tests
             Assert.NotNull(okResult);
         }
 
+        public void Dispose()
+        {
+            client.Dispose();
+            factory.Dispose();
+        }
+
+
+        public async Task<string> GetAuthenticationTokenAsync(string email, string password)
+        {
+            email = "Admin@Admin.com";
+            password = "Testing!2";
+            var twoFactorCode = "string";
+            var twoFactorRecoveryCode = "string";
+            var requestBody = new StringContent(
+                JsonConvert.SerializeObject(new
+                {
+                    email,
+                    password
+                }),
+                Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync("/login", requestBody);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var data = JsonConvert.DeserializeObject<string>(await response.Content.ReadAsStringAsync());
+
+            }
+
+            
+            return null;
+        }
     }
 }
