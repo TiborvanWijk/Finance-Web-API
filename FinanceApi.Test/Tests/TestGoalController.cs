@@ -9,6 +9,7 @@ using FinanceApi.Test.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -104,7 +105,7 @@ namespace FinanceApi.Test.Tests
             yield return new object[] { "user3@example.com", null, null, null, null, "user1@example.com" };
 
         }
-
+        //[Theory]
         [Theory(Skip = "Test db is not connected yet so its unauthorized")]
         [MemberData(nameof(GetGoalValidInputTestData))]
         public async void GetGoal_ReturnsOkObjectResult_WhenUserIsValid2(
@@ -120,9 +121,10 @@ namespace FinanceApi.Test.Tests
             
             var user = dataContext.Users.First(x => x.UserName == userName);
 
-            var token = await GetAuthenticationTokenAsync(user.UserName, "Password!2");
+            var authToken = await GetAuthenticationTokenAsync(userName, "Testing!2");
+            
 
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
             var requestUrl = $"/api/Goal/current?startDate={startDate}";
 
@@ -479,10 +481,6 @@ namespace FinanceApi.Test.Tests
 
         public async Task<string> GetAuthenticationTokenAsync(string email, string password)
         {
-            email = "Admin@Admin.com";
-            password = "Testing!2";
-            var twoFactorCode = "string";
-            var twoFactorRecoveryCode = "string";
             var requestBody = new StringContent(
                 JsonConvert.SerializeObject(new
                 {
@@ -495,8 +493,9 @@ namespace FinanceApi.Test.Tests
 
             if (response.IsSuccessStatusCode)
             {
-                var data = JsonConvert.DeserializeObject<string>(await response.Content.ReadAsStringAsync());
-
+                var data = JsonConvert.DeserializeObject<object>(await response.Content.ReadAsStringAsync());
+                string accesToken = JObject.FromObject(data)["accesToken"]?.ToString();
+                return accesToken;
             }
 
             
