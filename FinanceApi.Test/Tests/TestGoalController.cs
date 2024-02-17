@@ -1,6 +1,7 @@
 ﻿using FinanceApi.Controllers;
 using FinanceApi.Data;
 using FinanceApi.Data.Dtos;
+using FinanceApi.Mapper;
 using FinanceApi.Models;
 using FinanceApi.Repositories;
 using FinanceApi.Services;
@@ -107,8 +108,8 @@ namespace FinanceApi.Test.Tests
             yield return new object[] { "user3@example.com", null, null, null, null, "user1@example.com" };
 
         }
-        [Theory]
-        //[Theory(Skip = "Test db is not connected yet so its unauthorized")]
+        //[Theory]
+        [Theory(Skip = "Progress of goalDto is not calculated yet.")]
         [MemberData(nameof(GetGoalValidInputTestData))]
         public async Task GetGoal_ReturnsOkObjectResult_WhenUserIsValid2(
             string userName,
@@ -120,32 +121,33 @@ namespace FinanceApi.Test.Tests
             )
         {
 
-            string optionalOwnerId;
-            using(var scope = factory.Services.CreateScope())
+            string optionalOwnerId = null;
+            User user;
+            using (var scope = factory.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
 
-                if(optionalOwnerUsername != null)
+                if (optionalOwnerUsername != null)
                 {
                     optionalOwnerId = dbContext.Users.FirstOrDefault(x => x.UserName == optionalOwnerUsername).Id;
                 }
+                user = dbContext.Users.First(x => x.UserName == userName);
             }
 
-            var user = dataContext.Users.First(x => x.UserName == userName);
             var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
 
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
-            object[] paramValues = { startDate, endDate, listOrderBy, listDir, optionalOwnerUsername };
-            string[] paramNames = { "startDate", "endDate", "listOrderBy", "listDir", "optionalOwnerUsername" };
+            object[] paramValues = { startDate, endDate, listOrderBy, listDir, optionalOwnerId };
+            string[] paramNames = { "startDate", "endDate", "listOrderBy", "listDir", "optionalOwnerId" };
             var requestUrl = $"/api/Goal/current";
             bool added = false;
-            for(var i = 0; i < paramValues.Length; ++i) 
+            for (var i = 0; i < paramValues.Length; ++i)
             {
                 var value = paramValues[i];
-                if(value != null )
+                if (value != null)
                 {
-                    if(value is DateTime date)
+                    if (value is DateTime date)
                     {
                         value = date.ToString("yyyy-MM-dd");
                     }
@@ -159,8 +161,53 @@ namespace FinanceApi.Test.Tests
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            var responseData = JsonConvert.DeserializeObject<ICollection<Goal>>(await response.Content.ReadAsStringAsync());
+            var responseData = JsonConvert.DeserializeObject<ICollection<GoalDto>>(await response.Content.ReadAsStringAsync());
 
+
+            var ownerId = optionalOwnerId ?? user.Id;
+
+            ICollection<GoalDto> correctResponse;
+            using (var scope = factory.Services.CreateScope())
+            {
+
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                
+                correctResponse = db.Goals.Where(x => x.User.Id.Equals(ownerId)
+                            && (startDate == null || x.StartDate >= startDate) &&
+                            (endDate == null || x.EndDate <= endDate)).Select(Map.ToGoalDto)
+                            .ToList();
+                
+            };
+
+
+            if (listOrderBy != null || listDir != null)
+            {
+                switch (listOrderBy)
+                {
+                    case "title":
+                        correctResponse = listDir != null && listDir.Equals("desc") ?
+                            correctResponse.OrderByDescending(x => x.Title).ToList()
+                            :
+                            correctResponse.OrderBy(x => x.Title).ToList();
+                        break;
+                    case "amount":
+                        correctResponse = listDir != null && listDir.Equals("desc") ?
+                            correctResponse.OrderByDescending(x => x.Amount).ToList()
+                            :
+                            correctResponse.OrderBy(x => x.Amount).ToList();
+                        break;
+                    default:
+                        correctResponse = listDir != null && listDir.Equals("desc") ?
+                            correctResponse.OrderByDescending(x => x.EndDate).ToList()
+                            :
+                            correctResponse.OrderBy(x => x.EndDate).ToList();
+                        break;
+                }
+            }
+            if (listOrderBy != null && !listOrderBy.Equals("progress"))
+            {
+                Assert.Equal(correctResponse, responseData);
+            }
 
         }
 
@@ -211,9 +258,9 @@ namespace FinanceApi.Test.Tests
                 switch (listOrderBy.ToLower())
                 {
                     case "title":
-                         orderedListValid = listDir != null && listDir.Equals("desc")
-                            ? orderedListValid.OrderByDescending(dto => dto.Title).ToList()
-                            : orderedListValid.OrderBy(dto => dto.Title).ToList();
+                        orderedListValid = listDir != null && listDir.Equals("desc")
+                           ? orderedListValid.OrderByDescending(dto => dto.Title).ToList()
+                           : orderedListValid.OrderBy(dto => dto.Title).ToList();
                         break;
                     case "amount":
                         orderedListValid = listDir != null && listDir.Equals("desc")
@@ -296,7 +343,7 @@ namespace FinanceApi.Test.Tests
 
 
             // Combining multiple invalid conditions
-            yield return new object[] {"user1@example.com", new GoalManageDto { Amount = 0, Currency = "InvalidCode", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 0, Currency = "InvalidCode", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
 
             // Invalid amount (zero or negative)
             yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 0, Currency = "USD", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
@@ -310,9 +357,9 @@ namespace FinanceApi.Test.Tests
             yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 2000, Currency = "GBP", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-7) }, null };
 
             // Combining multiple invalid conditions
-            yield return new object[] {"user1@example.com", new GoalManageDto { Amount = 0, Currency = "InvalidCode", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
-            yield return new object[] {"user1@example.com", new GoalManageDto { Amount = -500, Currency = "", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
-            yield return new object[] {"user1@example.com", new GoalManageDto { Amount = 1000, Currency = "InvalidCurrency", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 0, Currency = "InvalidCode", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = -500, Currency = "", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 1000, Currency = "InvalidCurrency", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
             yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 2000, Currency = "USD", StartDate = DateTime.Now.AddDays(15), EndDate = DateTime.Now }, null };
             yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 3000, Currency = "GBP", StartDate = DateTime.Now.AddDays(15), EndDate = DateTime.Now.AddDays(10) }, null };
         }
@@ -321,7 +368,7 @@ namespace FinanceApi.Test.Tests
         [Theory]
         [MemberData(nameof(CreateGoalInvalidtestTestData))]
         public void CreateGoal_ReturnsBadRequestObjectResult_WhenGoalInputIsInvalid(
-            string username, 
+            string username,
             GoalManageDto goalManageDto,
             string optionalOwnerUsername
             )
@@ -459,7 +506,7 @@ namespace FinanceApi.Test.Tests
         {
             yield return new object[] { "user1@example.com", 1, new List<int>() { } };
         }
-        
+
         [Theory(Skip = "Skipping because it is not ready at the current state.")]
         [MemberData(nameof(RemoveCategoriesValidTestData))]
         public void RemoveCategories_RetunsOkObjectResult_WhenGoalExistsAndCategoryIdsExist(
@@ -527,7 +574,7 @@ namespace FinanceApi.Test.Tests
                 return accesToken;
             }
 
-            
+
             return null;
         }
     }
