@@ -48,10 +48,10 @@ namespace FinanceApi.Controllers
             int errorCode;
             string errorMessage;
 
-            //if (!authorizeService.ValidateUsers(HttpContext, currUserId, optionalOwnerId, out errorCode, out errorMessage))
-            //{
-            //    return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
-            //}
+            if (!authorizeService.ValidateUsers(HttpContext, currUserId, optionalOwnerId, out errorCode, out errorMessage))
+            {
+                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
+            }
 
             var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
             
