@@ -21,10 +21,10 @@ namespace FinanceApi.Test.TestDatabase
                 .UseInMemoryDatabase("TestDatabase")
                 .UseInternalServiceProvider(serviceProvider);
             dataContext = new TestDatacontext(builder.Options);
-            SeedDatabase();
+            SeedDatabase(dataContext);
         }
 
-        public void SeedDatabase()
+        public static void SeedDatabase(DataContext dataContext)
         {
 
             var passwordHasher = new PasswordHasher<User>();
@@ -41,6 +41,8 @@ namespace FinanceApi.Test.TestDatabase
                 {
                     UserName = $"user{i}@example.com",
                     Email = $"user{i}@example.com",
+                    NormalizedEmail = $"USER{i}@EXAMPLE.COM",
+                    NormalizedUserName = $"USER{i}@EXAMPLE.COM"
                 };
                 user.PasswordHash = passwordHasher.HashPassword(user, "Password!2");
 

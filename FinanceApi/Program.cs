@@ -117,14 +117,14 @@ public class Program
                 user.UserName = email;
 
 
-                // set to true to overide the need to confirm when registering
+                //set to true to overide the need to confirm when registering
                 user.EmailConfirmed = true;
 
 
 
                 await userManager.CreateAsync(user, password);
 
-                await userManager.AddToRoleAsync(user, "Admin");
+                //await userManager.AddToRoleAsync(user, "Admin");
             }
 
 

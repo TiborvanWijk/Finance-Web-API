@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace FinanceApi.Test.Utils
@@ -15,14 +16,37 @@ namespace FinanceApi.Test.Utils
         {
             builder.ConfigureTestServices(services =>
             {
-                // remove the existing context configuration
-                var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<TestDatacontext>));
-                if (descriptor != null)
-                    services.Remove(descriptor);
 
-                services.AddDbContext<TestDatacontext>(options =>
-                    options.UseInMemoryDatabase("TestDB"));
+                var descriptor = services.SingleOrDefault(
+                    d => d.ServiceType == typeof(DbContextOptions<DataContext>)
+                );
+
+                if (descriptor != null)
+                {
+                    services.Remove(descriptor);
+                }
+
+                services.AddDbContext<DataContext>(options =>
+                {
+                    options.UseInMemoryDatabase("TestDbContext");
+                });
+
+                using (var scope = services.BuildServiceProvider().CreateScope())
+                {
+                    var testContext = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                    testContext.Database.EnsureCreated();
+
+                    if(testContext.Users.Count() < 2)
+                    {
+                        TestDatabaseFixture.SeedDatabase(testContext);
+                    }
+
+
+                    testContext.SaveChanges();
+                }
             });
         }
+
     }
 }

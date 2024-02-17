@@ -8,6 +8,8 @@ using FinanceApi.Test.TestDatabase;
 using FinanceApi.Test.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net;
@@ -105,10 +107,10 @@ namespace FinanceApi.Test.Tests
             yield return new object[] { "user3@example.com", null, null, null, null, "user1@example.com" };
 
         }
-        //[Theory]
-        [Theory(Skip = "Test db is not connected yet so its unauthorized")]
+        [Theory]
+        //[Theory(Skip = "Test db is not connected yet so its unauthorized")]
         [MemberData(nameof(GetGoalValidInputTestData))]
-        public async void GetGoal_ReturnsOkObjectResult_WhenUserIsValid2(
+        public async Task GetGoal_ReturnsOkObjectResult_WhenUserIsValid2(
             string userName,
             DateTime? startDate,
             DateTime? endDate,
@@ -118,21 +120,48 @@ namespace FinanceApi.Test.Tests
             )
         {
 
-            
-            var user = dataContext.Users.First(x => x.UserName == userName);
+            string optionalOwnerId;
+            using(var scope = factory.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
 
-            var authToken = await GetAuthenticationTokenAsync(userName, "Testing!2");
-            
+                if(optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = dbContext.Users.FirstOrDefault(x => x.UserName == optionalOwnerUsername).Id;
+                }
+            }
+
+            var user = dataContext.Users.First(x => x.UserName == userName);
+            var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
 
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
-            var requestUrl = $"/api/Goal/current?startDate={startDate}";
+            object[] paramValues = { startDate, endDate, listOrderBy, listDir, optionalOwnerUsername };
+            string[] paramNames = { "startDate", "endDate", "listOrderBy", "listDir", "optionalOwnerUsername" };
+            var requestUrl = $"/api/Goal/current";
+            bool added = false;
+            for(var i = 0; i < paramValues.Length; ++i) 
+            {
+                var value = paramValues[i];
+                if(value != null )
+                {
+                    if(value is DateTime date)
+                    {
+                        value = date.ToString("yyyy-MM-dd");
+                    }
+                    requestUrl += added ? $"&{paramNames[i]}={value}" : $"?{paramNames[i]}={value}";
+                    added = true;
+                }
+            }
+
 
             var response = await client.GetAsync(requestUrl);
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            var data = JsonConvert.DeserializeObject<IEnumerable<Goal>>(await response.Content.ReadAsStringAsync());
+            var responseData = JsonConvert.DeserializeObject<ICollection<Goal>>(await response.Content.ReadAsStringAsync());
+
+
         }
 
         [Theory]
@@ -494,7 +523,7 @@ namespace FinanceApi.Test.Tests
             if (response.IsSuccessStatusCode)
             {
                 var data = JsonConvert.DeserializeObject<object>(await response.Content.ReadAsStringAsync());
-                string accesToken = JObject.FromObject(data)["accesToken"]?.ToString();
+                string accesToken = JObject.FromObject(data)["accessToken"]?.ToString();
                 return accesToken;
             }
 
