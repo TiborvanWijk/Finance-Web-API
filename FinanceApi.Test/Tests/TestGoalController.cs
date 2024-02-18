@@ -264,20 +264,84 @@ namespace FinanceApi.Test.Tests
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
                 // Act
-                var response = await client.PostAsync(requestUrl, jsonContent);
-
-
-                // Assert
-                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
-
-                bool isAdded = db.Goals.Any(g => g.Title.Equals(goalManageDto.Title));
-                Assert.True(isAdded);
-                if (isAdded)
+                try
                 {
-                    db.Goals.Remove(db.Goals.First(g => g.Title.Equals(goalManageDto.Title)));
-                    db.SaveChanges();
+                    var response = await client.PostAsync(requestUrl, jsonContent);
+
+
+                    // Assert
+                    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
                 }
+                finally
+                {
+
+                    bool isAdded = db.Goals.Any(g => g.Title.Equals(goalManageDto.Title));
+                    Assert.True(isAdded);
+                    if (isAdded)
+                    {
+                        db.Goals.Remove(db.Goals.First(g => g.Title.Equals(goalManageDto.Title)));
+                        db.SaveChanges();
+                    }
+                }
+
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(CreateGoalInvalidtestTestData))]
+        public async Task CreateGoal_ReturnsBadrequest_WhenInputIsInvalid(
+            string username,
+            GoalManageDto goalManageDto,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                string? optionalOwnerId = null;
+                var user = db.Users.First(u => u.UserName.Equals(username));
+
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(u => u.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+                string ownerId = optionalOwnerId ?? user.Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                var requestUrl = "api/Goal/post";
+
+                if (optionalOwnerId != null)
+                {
+                    requestUrl += $"?optionalOwnerId={optionalOwnerId}";
+                }
+
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(goalManageDto), Encoding.UTF8, "application/json");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                // Act
+                try
+                {
+                    var response = await client.PostAsync(requestUrl, jsonContent);
+
+
+                    // Assert
+                    Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+                }
+                finally
+                {
+
+                    bool isAdded = db.Goals.Any(g => g.Title.Equals(goalManageDto.Title));
+                    Assert.False(isAdded);
+                    if (isAdded)
+                    {
+                        db.Goals.Remove(db.Goals.First(g => g.Title.Equals(goalManageDto.Title)));
+                        db.SaveChanges();
+                    }
+                }
+
             }
         }
 
