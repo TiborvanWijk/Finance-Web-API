@@ -237,50 +237,48 @@ namespace FinanceApi.Test.Tests
             )
         {
             //arrange
-
-            User user;
-            string? optionalOwnerId = null;
-
-            using(var scope = factory.Services.CreateScope())
+            using (var scope = factory.Services.CreateScope())
             {
-                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();      
 
-                user = db.Users.First(u => u.UserName.Equals(username));
-                if(optionalOwnerUsername != null )
+                string? optionalOwnerId = null;
+                var user = db.Users.First(u => u.UserName.Equals(username));
+
+                if (optionalOwnerUsername != null)
                 {
                     optionalOwnerId = db.Users.FirstOrDefault(u => u.UserName.Equals(optionalOwnerUsername)).Id;
                 }
-            }
-            string ownerId = optionalOwnerId ?? user.Id;
+                string ownerId = optionalOwnerId ?? user.Id;
 
-            var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
 
-            var requestUrl = "api/Goal/post";
+                var requestUrl = "api/Goal/post";
 
-            if (optionalOwnerId != null)
-            {
-                requestUrl += $"?optionalOwnerId={optionalOwnerId}";
-            }
+                if (optionalOwnerId != null)
+                {
+                    requestUrl += $"?optionalOwnerId={optionalOwnerId}";
+                }
 
-            var jsonContent = new StringContent(JsonConvert.SerializeObject(goalManageDto), Encoding.UTF8, "application/json");
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(goalManageDto), Encoding.UTF8, "application/json");
 
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
-            // Act
-            var response = await client.PostAsync(requestUrl, jsonContent);
-
-
-            // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                // Act
+                var response = await client.PostAsync(requestUrl, jsonContent);
 
 
-            using(var scope = factory.Services.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                // Assert
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+
                 bool isAdded = db.Goals.Any(g => g.Title.Equals(goalManageDto.Title));
                 Assert.True(isAdded);
+                if (isAdded)
+                {
+                    db.Goals.Remove(db.Goals.First(g => g.Title.Equals(goalManageDto.Title)));
+                    db.SaveChanges();
+                }
             }
-
         }
 
 
@@ -363,9 +361,9 @@ namespace FinanceApi.Test.Tests
         public static IEnumerable<object[]> CreateGoalValidInputTestData()
         {
             yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 1, Title = "Test-Title-1", Description = "Description-1", Amount = 2000, Currency = "eur", StartDate = DateTime.Now, EndDate = new DateTime(2026, 1, 1) }, null };
-            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 2, Title = "Test-Title-2", Description = "Description for a valid goal with a different currency", Amount = 1500, Currency = "usd", StartDate = DateTime.Now.AddDays(5), EndDate = new DateTime(2026, 1, 1) }, null };
-            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 3, Title = "Test-Title-3", Description = "Description for a valid goal with a longer time period", Amount = 3000, Currency = "eur", StartDate = DateTime.Now.AddDays(10), EndDate = new DateTime(2026, 2, 15) }, null };
-            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 4, Title = "Test-Title-4", Description = "Description for a valid goal with a larger amount", Amount = 5000, Currency = "php", StartDate = DateTime.Now.AddDays(3), EndDate = new DateTime(2026, 1, 1) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 2, Title = "Test-Title-1", Description = "Description for a valid goal with a different currency", Amount = 1500, Currency = "usd", StartDate = DateTime.Now.AddDays(5), EndDate = new DateTime(2026, 1, 1) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 3, Title = "Test-Title-1", Description = "Description for a valid goal with a longer time period", Amount = 3000, Currency = "eur", StartDate = DateTime.Now.AddDays(10), EndDate = new DateTime(2026, 2, 15) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 4, Title = "Test-Title-1", Description = "Description for a valid goal with a larger amount", Amount = 5000, Currency = "php", StartDate = DateTime.Now.AddDays(3), EndDate = new DateTime(2026, 1, 1) }, null };
         }
 
         [Theory]
