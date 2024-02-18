@@ -109,7 +109,7 @@ namespace FinanceApi.Test.Tests
 
         }
         //[Theory]
-        [Theory(Skip = "Progress of goalDto is not calculated yet.")]
+        [Theory(Skip = "Progress of goalDto is not calculated correctly.")]
         [MemberData(nameof(GetGoalValidInputTestData))]
         public async Task GetGoal_ReturnsOkObjectResult_WhenUserIsValid2(
             string userName,
@@ -161,22 +161,33 @@ namespace FinanceApi.Test.Tests
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            var responseData = JsonConvert.DeserializeObject<ICollection<GoalDto>>(await response.Content.ReadAsStringAsync());
+            ICollection<GoalDto> responseData = JsonConvert.DeserializeObject<ICollection<GoalDto>>(await response.Content.ReadAsStringAsync());
 
 
             var ownerId = optionalOwnerId ?? user.Id;
 
-            ICollection<GoalDto> correctResponse;
+            ICollection<GoalDto> correctResponse = null;
             using (var scope = factory.Services.CreateScope())
             {
 
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                
-                correctResponse = db.Goals.Where(x => x.User.Id.Equals(ownerId)
-                            && (startDate == null || x.StartDate >= startDate) &&
-                            (endDate == null || x.EndDate <= endDate)).Select(Map.ToGoalDto)
-                            .ToList();
-                
+
+                correctResponse = db.Goals.Include(g => g.GoalCategories).ThenInclude(gc => gc.Category.IncomeCategories)
+                    .Where(x => x.User.Id.Equals(ownerId)
+                        && (startDate == null || x.StartDate >= startDate)
+                        && (endDate == null || x.EndDate <= endDate))
+                    .Select(Map.ToGoalDto)
+                    .Select(x =>
+                    {
+                        x.Progress = db.Incomes
+                        .Where(i => i.User.Id.Equals(ownerId) && i.IncomeCategories
+                        .Any(ic => ic.Category.GoalCategories.Any(gc => gc.Goal.User.Id.Equals(ownerId) && gc.GoalId == x.Id)))
+                        .Select(d => d.Amount).Sum();
+
+                        return x;
+                    })
+                    .ToList();
+
             };
 
 
@@ -196,6 +207,12 @@ namespace FinanceApi.Test.Tests
                             :
                             correctResponse.OrderBy(x => x.Amount).ToList();
                         break;
+                    case "progress":
+                        correctResponse = listDir != null && listDir.Equals("desc") ?
+                            correctResponse.OrderByDescending(x => x.Progress).ToList()
+                            :
+                            correctResponse.OrderBy(x => x.Progress).ToList();
+                        break;
                     default:
                         correctResponse = listDir != null && listDir.Equals("desc") ?
                             correctResponse.OrderByDescending(x => x.EndDate).ToList()
@@ -204,12 +221,13 @@ namespace FinanceApi.Test.Tests
                         break;
                 }
             }
-            if (listOrderBy != null && !listOrderBy.Equals("progress"))
-            {
-                Assert.Equal(correctResponse, responseData);
-            }
+
+            bool equals = Equals(correctResponse, responseData);
+            Assert.Equal(correctResponse, responseData);
+            
 
         }
+
 
         [Theory]
         [MemberData(nameof(GetGoalValidInputTestData))]
