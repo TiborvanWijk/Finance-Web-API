@@ -76,12 +76,6 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            if(goalDto.EndDate <= DateTime.Today)
-            {
-                errorCode = 400;
-                errorMessage = "Target date must be later then today.";
-                return false;
-            }
 
             return true;
         }

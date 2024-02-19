@@ -271,6 +271,79 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+
+        [Theory]
+        [MemberData(nameof(TestData.UpdateGoalValidInputTestData), MemberType = typeof(TestData))]
+        public async Task UpdateGoal_ReturnsOk_WhenGoalExistsAndInputIsValid(
+            string username,
+            GoalManageDto goalManageDto,
+            string? optionalOwnerUsername
+            )
+        {
+            using(var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                var goalToBeUpdated = db.Goals.AsNoTracking().First(x => x.Id == goalManageDto.Id);
+
+                string? optionaOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionaOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var jsonGoalManageDto = new StringContent(JsonConvert.SerializeObject(goalManageDto), Encoding.UTF8, "application/json"); 
+
+                var requestUrl = optionaOwnerId == null
+                    ? $"api/Goal/put"
+                    : $"api/Goal/put?optionalOwnerId={optionaOwnerId}";
+
+                try
+                {
+                    var response = await client.PutAsync(requestUrl, jsonGoalManageDto);
+                    if(response.StatusCode == HttpStatusCode.BadRequest)
+                    {
+                        var t = response.ReasonPhrase;
+                    }
+
+                    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                }
+                finally
+                {
+                    var isUpdated = db.Goals.AsNoTracking().ToList()
+                        .Select(Map.ToGoalManageDto)
+                        .Any(x =>
+                        {
+                            bool isSame =
+                                x.Id == goalManageDto.Id &&
+                                x.Title.ToLower().Equals(goalManageDto.Title.ToLower()) &&
+                                x.Description.ToLower().Equals(goalManageDto.Description.ToLower()) &&
+                                x.Currency.ToLower().Equals(goalManageDto.Currency.ToLower()) &&
+                                x.StartDate.Equals(goalManageDto.StartDate) &&
+                                x.StartDate.Equals(goalManageDto.StartDate) &&
+                                x.EndDate.Equals(goalManageDto.EndDate) &&
+                                x.Amount == goalManageDto.Amount;
+
+                            return isSame;
+                        });
+                    
+                    Assert.True(isUpdated);
+
+                    if (isUpdated)
+                    {
+                        db.Goals.Update(goalToBeUpdated);
+                        db.SaveChanges();
+                    }
+
+                }
+            }
+        }
+
+
         [Theory(Skip = "Not fully coded up.")]
         //[Theory]
         [MemberData(nameof(TestData.AddCategoryToGoalValidInputTestData), MemberType = typeof(TestData))]
@@ -286,7 +359,12 @@ namespace FinanceApi.Test.IntegrationTests
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
 
                 var user = db.Users.First(x => x.UserName.Equals(username));
-                var optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername));
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
 
                 var jsonCategoryIds = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
 

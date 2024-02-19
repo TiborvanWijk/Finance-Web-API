@@ -39,13 +39,6 @@ namespace FinanceApi.Validators
                 return false;
             }
 
-            if (endDate.Value - startDate.Value > TimeSpan.FromDays(365 * 30))
-            {
-                errorCode = 400;
-                errorMessage = "The time period should be within 30 years.";
-                return false;
-            }
-
             return true;
         }
 
