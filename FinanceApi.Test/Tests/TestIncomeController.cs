@@ -6,6 +6,7 @@ using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services;
 using FinanceApi.Services.Interfaces;
 using FinanceApi.Test.TestDatabase;
+using FinanceApi.Test.TestDataHolder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -29,17 +30,10 @@ namespace FinanceApi.Test.Tests
             dataContext = testDatabaseFixture.dataContext;
         }
 
-        public static IEnumerable<object[]> GetUsersIncomeValidInputsTestData()
-        {
-            yield return new object[] { new DateTime(2020, 1, 1), new DateTime(2024, 1, 1), "amount", null, "user123" };
-            yield return new object[] { new DateTime(2021, 1, 1), new DateTime(2023, 1, 1), "title", "desc", "user123" };
-            yield return new object[] { null, null, null, "desc", null };
-            yield return new object[] { null, null, "amount", null, "user123" };
-            yield return new object[] { null, null, "title", null, null };
-        }
+
 
         [Theory]
-        [MemberData(nameof(GetUsersIncomeValidInputsTestData))]
+        [MemberData(nameof(TestData.GetUsersIncomeValidInputsTestData), MemberType = typeof(TestData))]
         public void GetUsersIncomes_ReturnsOk_When_UserExistsAndHasValidInputs(
             DateTime? from,
             DateTime? to,
@@ -195,15 +189,11 @@ namespace FinanceApi.Test.Tests
             ResetAllSetups();
         }
 
-        public static IEnumerable<object[]> GetUsersIncomeInvalidInputsTestData()
-        {
-            yield return new object[] { new DateTime(2020, 1, 1), null, null, null, null };
-            yield return new object[] { null, new DateTime(2020, 1, 1), null, null, null };
-        }
+
 
 
         [Theory]
-        [MemberData(nameof(GetUsersIncomeInvalidInputsTestData))]
+        [MemberData(nameof(TestData.GetUsersIncomeInvalidInputsTestData), MemberType = typeof(TestData))]
         public void GetUsersIncomes_ReturnsBadRequest_WhenUserExistsAndHasInvalidInput(
             DateTime? from,
             DateTime? to,
@@ -361,17 +351,10 @@ namespace FinanceApi.Test.Tests
             ResetAllSetups();
         }
 
-        public static IEnumerable<object[]> IncomeDtoValidInputsTestData()
-        {
-            yield return new object[] {
-                new IncomeDto() {
-                    Id = 1, Title = "Title1", Description = "Desctiption1", Amount = 18, Currency = "EUR", Date = DateTime.Now, DocumentUrl = "URL"
-                }, null
-                };
-        }
+
 
         [Theory]
-        [MemberData(nameof(IncomeDtoValidInputsTestData))]
+        [MemberData(nameof(TestData.IncomeDtoValidInputsTestData), MemberType = typeof(TestData))]
         public void CreateIncome_ReturnsOkResultObject_WhenUserExistsAndIsValidInput(
             IncomeDto incomeDto,
             string? optionalOwnerId
@@ -408,16 +391,10 @@ namespace FinanceApi.Test.Tests
             ResetAllSetups();
         }
 
-        public static IEnumerable<object[]> IncomeDtoInvalidInputTestData()
-        {
-            yield return new object[] { new IncomeDto() { Id = 1, Title = "Title-1", Description = "Description-1", Amount = decimal.MinValue, Currency = "USD", Date = DateTime.Now, DocumentUrl = "URL-1" }, null };
-            yield return new object[] { new IncomeDto() { Id = 2, Title = "Title-2", Description = "Description-2", Amount = decimal.MaxValue, Currency = "USD", Date = DateTime.Now, DocumentUrl = "URL-2" }, null };
-            yield return new object[] { new IncomeDto() { Id = 3, Title = "Title-3", Description = "Description-3", Amount = -1, Currency = "INVALID", Date = DateTime.Now, DocumentUrl = "URL-3" }, null };
-            yield return new object[] { new IncomeDto() { Id = 4, Title = "Title-4", Description = "Description-4", Amount = 9, Currency = "INVALID", Date = DateTime.Now, DocumentUrl = "URL-4" }, null };
-        }
+
 
         [Theory]
-        [MemberData(nameof(IncomeDtoInvalidInputTestData))]
+        [MemberData(nameof(TestData.IncomeDtoInvalidInputTestData), MemberType = typeof(TestData))]
         public void CreateIncome_ReturnsBadRequestObjectResult_WhenInputIsInvalid(
             IncomeDto incomeDto,
             string? optionalOwnerId
@@ -455,7 +432,7 @@ namespace FinanceApi.Test.Tests
 
 
         [Theory]
-        [MemberData(nameof(IncomeDtoValidInputsTestData))]
+        [MemberData(nameof(TestData.IncomeDtoValidInputsTestData), MemberType = typeof(TestData))]
         public void CreateIncome_ReturnsObjectResult500_WhenCreatingFails(
             IncomeDto incomeDto,
             string? optionalOwnerId
@@ -498,19 +475,11 @@ namespace FinanceApi.Test.Tests
         }
 
 
-        public static IEnumerable<object[]> AddCategoryToIncomeValidInputTestData()
-        {
-            yield return new object[] { 1,
-                new List<int>(){
-                    1,2,3,4,5,6,7,8,9,10
-                },
-                null
-            };
-        }
+
 
 
         [Theory]
-        [MemberData(nameof(AddCategoryToIncomeValidInputTestData))]
+        [MemberData(nameof(TestData.AddCategoryToIncomeValidInputTestData), MemberType = typeof(TestData))]
         public void AddCategoryToIncome_ReturnsOkObjectResult_WhenIncomeExistsAndCategoryIdsAreValid(
             int incomeId, ICollection<int> categoryIds, string? optionalOwnerId
             )
@@ -564,7 +533,7 @@ namespace FinanceApi.Test.Tests
 
 
         [Theory]
-        [MemberData(nameof(IncomeDtoValidInputsTestData))]
+        [MemberData(nameof(TestData.IncomeDtoValidInputsTestData), MemberType = typeof(TestData))]
         public void UpdateIncome_ReturnsOkObjectResult_WhenUserExistsAndIncomeExistAndIncomeDtoIsValid(
             IncomeDto incomeDto,
             string? optionalOwnerId
@@ -605,7 +574,7 @@ namespace FinanceApi.Test.Tests
         }
 
         [Theory]
-        [MemberData(nameof(IncomeDtoInvalidInputTestData))]
+        [MemberData(nameof(TestData.IncomeDtoInvalidInputTestData), MemberType = typeof(TestData))]
         public void UpdateIncome_ReturnsBadRequestObjectResult_WhenInputIsInvalid(
             IncomeDto incomeDto,
             string? optionalOwnerId
@@ -645,7 +614,7 @@ namespace FinanceApi.Test.Tests
 
 
         [Theory]
-        [MemberData(nameof(IncomeDtoValidInputsTestData))]
+        [MemberData(nameof(TestData.IncomeDtoValidInputsTestData), MemberType = typeof(TestData))]
         public void UpdateIncome_ReturnsNotFoundObjectResult_WhenIncomeDoesNotExist(
             IncomeDto incomeDto,
             string? optionalOwnerId
@@ -685,7 +654,7 @@ namespace FinanceApi.Test.Tests
 
 
         [Theory]
-        [MemberData(nameof(IncomeDtoValidInputsTestData))]
+        [MemberData(nameof(TestData.IncomeDtoValidInputsTestData), MemberType = typeof(TestData))]
         public void UpdateIncome_ReturnsObjectResult500_WhenUpdatingFails(
             IncomeDto incomeDto,
             string? optionalOwnerId

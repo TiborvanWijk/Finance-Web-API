@@ -7,6 +7,7 @@ using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services;
 using FinanceApi.Services.Interfaces;
 using FinanceApi.Test.TestDatabase;
+using FinanceApi.Test.TestDataHolder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -32,19 +33,10 @@ namespace FinanceApi.Test.Tests
         }
 
 
-        public static IEnumerable<object[]> GetUsersExpensesValidInputsTestData()
-        {
-            yield return new object[] { new DateTime(2020, 1, 1), new DateTime(2024, 1, 1), "amount", null, "user123" };
-            yield return new object[] { new DateTime(2021, 1, 1), new DateTime(2023, 1, 1), "title", "desc", "user123" };
-            yield return new object[] { null, null, null, "desc", null };
-            yield return new object[] { null, null, "amount", null, "user123" };
-            yield return new object[] { null, null, "title", null, null };
-            yield return new object[] { null, null, "urgency", null, null };
-            yield return new object[] { null, null, "urgency", "desc", null };
-        }
+
 
         [Theory]
-        [MemberData(nameof(GetUsersExpensesValidInputsTestData))]
+        [MemberData(nameof(TestData.GetUsersExpensesValidInputsTestData), MemberType = typeof(TestData))]
         public void GetExpenses_ReturnsOk_When_UserExistsAndHasValidInputs(
             DateTime? from,
             DateTime? to,
@@ -205,15 +197,11 @@ namespace FinanceApi.Test.Tests
             ResetAllSetups();
         }
 
-        public static IEnumerable<object[]> GetUsersExpensesInvalidInputsTestData()
-        {
-            yield return new object[] { new DateTime(2020, 1, 1), null, null, null, null };
-            yield return new object[] { null, new DateTime(2020, 1, 1), null, null, null };
-        }
+
 
 
         [Theory]
-        [MemberData(nameof(GetUsersExpensesInvalidInputsTestData))]
+        [MemberData(nameof(TestData.GetUsersExpensesInvalidInputsTestData), MemberType = typeof(TestData))]
         public void GetUsersExpenses_ReturnsBadRequest_WhenUserExistsAndHasInvalidInput(
             DateTime? from,
             DateTime? to,
@@ -371,17 +359,10 @@ namespace FinanceApi.Test.Tests
             ResetAllSetups();
         }
 
-        public static IEnumerable<object[]> ExpenseDtoValidInputsTestData()
-        {
-            yield return new object[] {
-                new ExpenseDto() {
-                    Id = 1, Title = "Title1", Description = "Desctiption1", Amount = 18, Currency = "EUR", Date = DateTime.Now, DocumentUrl = "URL"
-                }, null
-                };
-        }
+
 
         [Theory]
-        [MemberData(nameof(ExpenseDtoValidInputsTestData))]
+        [MemberData(nameof(TestData.ExpenseDtoValidInputsTestData), MemberType = typeof(TestData))]
         public void CreateExpense_ReturnsOkResultObject_WhenUserExistsAndIsValidInput(
             ExpenseDto expenseDto,
             string? optionalOwnerId
@@ -418,16 +399,10 @@ namespace FinanceApi.Test.Tests
             ResetAllSetups();
         }
 
-        public static IEnumerable<object[]> ExpenseDtoInvalidInputTestData()
-        {
-            yield return new object[] { new ExpenseDto() { Id = 1, Title = "Title-1", Description = "Description-1", Amount = decimal.MinValue, Currency = "USD", Date = DateTime.Now, DocumentUrl = "URL-1" }, null };
-            yield return new object[] { new ExpenseDto() { Id = 2, Title = "Title-2", Description = "Description-2", Amount = decimal.MaxValue, Currency = "USD", Date = DateTime.Now, DocumentUrl = "URL-2" }, null };
-            yield return new object[] { new ExpenseDto() { Id = 3, Title = "Title-3", Description = "Description-3", Amount = -1, Currency = "INVALID", Date = DateTime.Now, DocumentUrl = "URL-3" }, null };
-            yield return new object[] { new ExpenseDto() { Id = 4, Title = "Title-4", Description = "Description-4", Amount = 9, Currency = "INVALID", Date = DateTime.Now, DocumentUrl = "URL-4" }, null };
-        }
+
 
         [Theory]
-        [MemberData(nameof(ExpenseDtoInvalidInputTestData))]
+        [MemberData(nameof(TestData.ExpenseDtoInvalidInputTestData), MemberType = typeof(TestData))]
         public void CreateExpense_ReturnsBadRequestObjectResult_WhenInputIsInvalid(
             ExpenseDto expenseDto,
             string? optionalOwnerId
@@ -465,7 +440,7 @@ namespace FinanceApi.Test.Tests
 
 
         [Theory]
-        [MemberData(nameof(ExpenseDtoValidInputsTestData))]
+        [MemberData(nameof(TestData.ExpenseDtoValidInputsTestData), MemberType = typeof(TestData))]
         public void CreateExpense_ReturnsObjectResult500_WhenCreatingFails(
             ExpenseDto expenseDto,
             string? optionalOwnerId
@@ -508,19 +483,11 @@ namespace FinanceApi.Test.Tests
         }
 
 
-        public static IEnumerable<object[]> AddCategoryToExpenseValidInputTestData()
-        {
-            yield return new object[] { 1,
-                new List<int>(){
-                    1,2,3,4,5,6,7,8,9,10
-                },
-                null
-            };
-        }
+
 
 
         [Theory]
-        [MemberData(nameof(AddCategoryToExpenseValidInputTestData))]
+        [MemberData(nameof(TestData.AddCategoryToExpenseValidInputTestData), MemberType = typeof(TestData))]
         public void AddCategoryToExpense_ReturnsOkObjectResult_WhenExpenseExistsAndCategoryIdsAreValid(
             int expenseId, ICollection<int> categoryIds, string? optionalOwnerId
             )
@@ -574,7 +541,7 @@ namespace FinanceApi.Test.Tests
 
 
         [Theory]
-        [MemberData(nameof(ExpenseDtoValidInputsTestData))]
+        [MemberData(nameof(TestData.ExpenseDtoValidInputsTestData), MemberType = typeof(TestData))]
         public void UpdateExpense_ReturnsOkObjectResult_WhenUserExistsAndExpenseExistAndExpenseDtoIsValid(
             ExpenseDto expenseDto,
             string? optionalOwnerId
@@ -615,7 +582,7 @@ namespace FinanceApi.Test.Tests
         }
 
         [Theory]
-        [MemberData(nameof(ExpenseDtoInvalidInputTestData))]
+        [MemberData(nameof(TestData.ExpenseDtoInvalidInputTestData), MemberType = typeof(TestData))]
         public void UpdateExpense_ReturnsBadRequestObjectResult_WhenInputIsInvalid(
             ExpenseDto expenseDto,
             string? optionalOwnerId
@@ -655,7 +622,7 @@ namespace FinanceApi.Test.Tests
 
 
         [Theory]
-        [MemberData(nameof(ExpenseDtoValidInputsTestData))]
+        [MemberData(nameof(TestData.ExpenseDtoValidInputsTestData), MemberType = typeof(TestData))]
         public void UpdateExpense_ReturnsNotFoundObjectResult_WhenExpenseDoesNotExist(
             ExpenseDto expenseDto,
             string? optionalOwnerId
@@ -695,7 +662,7 @@ namespace FinanceApi.Test.Tests
 
 
         [Theory]
-        [MemberData(nameof(ExpenseDtoValidInputsTestData))]
+        [MemberData(nameof(TestData.ExpenseDtoValidInputsTestData), MemberType = typeof(TestData))]
         public void UpdateExpense_ReturnsObjectResult500_WhenUpdatingFails(
             ExpenseDto expenseDto,
             string? optionalOwnerId
