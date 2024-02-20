@@ -202,7 +202,7 @@ namespace FinanceApi.Test.IntegrationTests
                     {
                         string ownerId = optionalOwnerId ?? user.Id;
 
-                        db.Goals.Remove(db.Goals.First(g => g.User.Id.Equals(ownerId) 
+                        db.Goals.Remove(db.Goals.First(g => g.User.Id.Equals(ownerId)
                         && g.Title.Equals(goalManageDto.Title)));
                         db.SaveChanges();
                     }
@@ -262,7 +262,7 @@ namespace FinanceApi.Test.IntegrationTests
                     {
                         string ownerId = optionalOwnerId ?? user.Id;
 
-                        db.Goals.Remove(db.Goals.First(g => g.User.Id.Equals(ownerId) 
+                        db.Goals.Remove(db.Goals.First(g => g.User.Id.Equals(ownerId)
                         && g.Title.Equals(goalManageDto.Title)));
                         db.SaveChanges();
                     }
@@ -280,7 +280,7 @@ namespace FinanceApi.Test.IntegrationTests
             string? optionalOwnerUsername
             )
         {
-            using(var scope = factory.Services.CreateScope())
+            using (var scope = factory.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var user = db.Users.First(x => x.UserName.Equals(username));
@@ -296,7 +296,7 @@ namespace FinanceApi.Test.IntegrationTests
                 var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
-                var jsonGoalManageDto = new StringContent(JsonConvert.SerializeObject(goalManageDto), Encoding.UTF8, "application/json"); 
+                var jsonGoalManageDto = new StringContent(JsonConvert.SerializeObject(goalManageDto), Encoding.UTF8, "application/json");
 
                 var requestUrl = optionalOwnerId == null
                     ? $"api/Goal/put"
@@ -325,7 +325,7 @@ namespace FinanceApi.Test.IntegrationTests
 
                             return isSame;
                         });
-                    
+
                     Assert.True(isUpdated);
 
                     if (isUpdated)
@@ -340,7 +340,7 @@ namespace FinanceApi.Test.IntegrationTests
 
 
         [Theory]
-        [MemberData(nameof(TestData.UpdateGoalInvalidInputTestData), MemberType = typeof(TestData))]
+        [MemberData(nameof(TestData.UpdateGoalBadRequestInputTestData), MemberType = typeof(TestData))]
         public async Task UpdateGoal_ReturnsBadRequest_WhenGoalExistsAndInputIsInvalid(
             string username,
             GoalManageDto goalManageDto,
@@ -407,6 +407,74 @@ namespace FinanceApi.Test.IntegrationTests
         }
 
 
+        [Theory]
+        [MemberData(nameof(TestData.UpdateGoalNotFoundRequestInputTestData), MemberType = typeof(TestData))]
+        public async Task UpdateGoal_ReturnsNotFound_WhenGoalDoesNotExistOrIsNotUsersGoal(
+            string username,
+            GoalManageDto goalManageDto,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                var goalToBeUpdatedIfExists = db.Goals.AsNoTracking().FirstOrDefault(x => x.Id == goalManageDto.Id);
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var jsonGoalManageDto = new StringContent(JsonConvert.SerializeObject(goalManageDto), Encoding.UTF8, "application/json");
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Goal/put"
+                    : $"api/Goal/put?optionalOwnerId={optionalOwnerId}";
+
+                try
+                {
+                    var response = await client.PutAsync(requestUrl, jsonGoalManageDto);
+                    Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+                }
+                finally
+                {
+                    if (goalToBeUpdatedIfExists != null)
+                    {
+                        var isUpdated = db.Goals.AsNoTracking().ToList()
+                            .Select(Map.ToGoalManageDto)
+                            .Any(x =>
+                            {
+                                bool isSame =
+                                    x.Id == goalManageDto.Id &&
+                                    x.Title.ToLower().Equals(goalManageDto.Title.ToLower()) &&
+                                    x.Description.ToLower().Equals(goalManageDto.Description.ToLower()) &&
+                                    x.Currency.ToLower().Equals(goalManageDto.Currency.ToLower()) &&
+                                    x.StartDate.Equals(goalManageDto.StartDate) &&
+                                    x.StartDate.Equals(goalManageDto.StartDate) &&
+                                    x.EndDate.Equals(goalManageDto.EndDate) &&
+                                    x.Amount == goalManageDto.Amount;
+
+                                return isSame;
+                            });
+
+                        Assert.False(isUpdated);
+
+                        if (isUpdated)
+                        {
+                            db.Goals.Update(goalToBeUpdatedIfExists);
+                            db.SaveChanges();
+                        }
+                    }
+                }
+            }
+        }
+
 
         [Theory(Skip = "Not fully coded up.")]
         //[Theory]
@@ -418,7 +486,7 @@ namespace FinanceApi.Test.IntegrationTests
             string? optionalOwnerUsername
             )
         {
-            using(var scope = factory.Services.CreateScope())
+            using (var scope = factory.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
 
@@ -452,18 +520,18 @@ namespace FinanceApi.Test.IntegrationTests
                 {
                     bool isAdded = true;
 
-                    for(int i = 0; i < categoryIds.Count; ++i)
+                    for (int i = 0; i < categoryIds.Count; ++i)
                     {
-                        
+
                     }
 
                 }
 
-                
+
 
             }
         }
-    
+
         public void Dispose()
         {
             client.Dispose();
