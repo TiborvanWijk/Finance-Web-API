@@ -287,10 +287,10 @@ namespace FinanceApi.Test.IntegrationTests
 
                 var goalToBeUpdated = db.Goals.AsNoTracking().First(x => x.Id == goalManageDto.Id);
 
-                string? optionaOwnerId = null;
+                string? optionalOwnerId = null;
                 if (optionalOwnerUsername != null)
                 {
-                    optionaOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
                 }
 
                 var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
@@ -298,18 +298,13 @@ namespace FinanceApi.Test.IntegrationTests
 
                 var jsonGoalManageDto = new StringContent(JsonConvert.SerializeObject(goalManageDto), Encoding.UTF8, "application/json"); 
 
-                var requestUrl = optionaOwnerId == null
+                var requestUrl = optionalOwnerId == null
                     ? $"api/Goal/put"
-                    : $"api/Goal/put?optionalOwnerId={optionaOwnerId}";
+                    : $"api/Goal/put?optionalOwnerId={optionalOwnerId}";
 
                 try
                 {
                     var response = await client.PutAsync(requestUrl, jsonGoalManageDto);
-                    if(response.StatusCode == HttpStatusCode.BadRequest)
-                    {
-                        var t = response.ReasonPhrase;
-                    }
-
                     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
                 }
                 finally
@@ -342,6 +337,75 @@ namespace FinanceApi.Test.IntegrationTests
                 }
             }
         }
+
+
+        [Theory]
+        [MemberData(nameof(TestData.UpdateGoalInvalidInputTestData), MemberType = typeof(TestData))]
+        public async Task UpdateGoal_ReturnsBadRequest_WhenGoalExistsAndInputIsInvalid(
+            string username,
+            GoalManageDto goalManageDto,
+            string? optionalOwnerUsername
+            )
+        {
+
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                var goalToBeUpdated = db.Goals.AsNoTracking().First(x => x.Id == goalManageDto.Id);
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var jsonGoalManageDto = new StringContent(JsonConvert.SerializeObject(goalManageDto), Encoding.UTF8, "application/json");
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Goal/put"
+                    : $"api/Goal/put?optionalOwnerId={optionalOwnerId}";
+
+                try
+                {
+                    var response = await client.PutAsync(requestUrl, jsonGoalManageDto);
+                    Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+                }
+                finally
+                {
+                    var isUpdated = db.Goals.AsNoTracking().ToList()
+                        .Select(Map.ToGoalManageDto)
+                        .Any(x =>
+                        {
+                            bool isSame =
+                                x.Id == goalManageDto.Id &&
+                                x.Title.ToLower().Equals(goalManageDto.Title.ToLower()) &&
+                                x.Description.ToLower().Equals(goalManageDto.Description.ToLower()) &&
+                                x.Currency.ToLower().Equals(goalManageDto.Currency.ToLower()) &&
+                                x.StartDate.Equals(goalManageDto.StartDate) &&
+                                x.StartDate.Equals(goalManageDto.StartDate) &&
+                                x.EndDate.Equals(goalManageDto.EndDate) &&
+                                x.Amount == goalManageDto.Amount;
+
+                            return isSame;
+                        });
+
+                    Assert.False(isUpdated);
+
+                    if (isUpdated)
+                    {
+                        db.Goals.Update(goalToBeUpdated);
+                        db.SaveChanges();
+                    }
+
+                }
+            }
+        }
+
 
 
         [Theory(Skip = "Not fully coded up.")]

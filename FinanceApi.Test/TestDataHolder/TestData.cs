@@ -215,5 +215,15 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user3@example.com", new GoalManageDto() { Title = "title: hduwaw", Id = 5, Amount = 101100, Currency = "fkp", Description = "description: djwirb", StartDate = new DateTime(2023, 2, 25), EndDate = new DateTime(2027, 3, 12) }, "user1@example.com" };
             
         }
+
+        public static IEnumerable<object[]> UpdateGoalInvalidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new GoalManageDto() { Title = "title: hdawudb", Id = 1, Amount = 9100, Currency = "usd", Description = "description: dwj4", StartDate = new DateTime(2020, 1, 1), EndDate = new DateTime(2019, 2, 13) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto() { Title = "title: dnwaujdnaw", Id = 2, Amount = 375400, Currency = "NOT VALID", Description = "description: diw038", StartDate = new DateTime(2022, 5, 3), EndDate = new DateTime(2025, 8, 17) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto() { Title = "title: opjkyuypmm", Id = 3, Amount = 0, Currency = "fjd", Description = "description: hduwe92", StartDate = new DateTime(2019, 12, 21), EndDate = new DateTime(2023, 6, 21) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto() { Title = "title: jdiwjdw", Id = 4, Amount = -100, Currency = "gbp", Description = "description: 82639", StartDate = new DateTime(2015, 9, 12), EndDate = new DateTime(2017, 5, 11) }, null };
+            yield return new object[] { "user3@example.com", new GoalManageDto() { Title = "title: hduwaw", Id = 5, Amount = -100, Currency = "NOT VALID", Description = "description: djwirb", StartDate = new DateTime(2030, 2, 25), EndDate = new DateTime(2027, 3, 12) }, "user1@example.com" };
+
+        }
     }
 }
