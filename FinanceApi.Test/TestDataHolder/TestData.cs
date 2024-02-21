@@ -270,5 +270,13 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user1@example.com", -1, new List<int>() { -1 }, null };
         }
 
+        public static IEnumerable<object[]> RemoveCategoriesValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, new List<int>() { 1 }, null };
+            yield return new object[] { "user1@example.com", 2, new List<int>() { 2 }, null };
+            yield return new object[] { "user1@example.com", 3, new List<int>() { 3 }, null };
+            yield return new object[] { "user1@example.com", 4, new List<int>() { 4 }, null };
+            yield return new object[] { "user3@example.com", 5, new List<int>() { 1 }, "user1@example.com" };
+        }
     }
 }

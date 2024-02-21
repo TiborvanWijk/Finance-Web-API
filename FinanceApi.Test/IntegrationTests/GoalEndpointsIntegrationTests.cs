@@ -15,6 +15,7 @@ using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using FinanceApi.Test.TestDataHolder;
+using System.Data;
 
 namespace FinanceApi.Test.IntegrationTests
 {
@@ -728,6 +729,56 @@ namespace FinanceApi.Test.IntegrationTests
 
             }
         }
+
+
+        [Theory(Skip = "Api endpoint needs refactorization. Uses a body but should not.")]
+        [MemberData(nameof(TestData.RemoveCategoriesValidInputTestData), MemberType = typeof(TestData))]
+        public async Task RemoveCategories_ReturnsOk_WhenGoalCategoryExistsAndIsUsers(
+            string username,
+            int goalId,
+            List<int> categoryIds,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                ICollection<GoalCategory> goalCategoriesToBeDeleted =
+                    db.GoalCategories.Where(x => x.GoalId == goalId && categoryIds.Contains(x.CategoryId)).ToList();
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var jsonCategoryIds = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Goal/remove_categories/{goalId}"
+                    : $"api/Goal/remove_categories/{goalId}?optionalOwnerId={optionalOwnerId}";
+
+
+                try
+                {
+                    //var response = await client.DeleteAsync(requestUrl, jsonCategoryIds);
+
+                    //Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                }
+                finally
+                {
+
+                }
+            }
+        }
+
 
         public void Dispose()
         {
