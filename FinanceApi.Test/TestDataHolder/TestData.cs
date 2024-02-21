@@ -108,7 +108,7 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] {  "user2@example.com", 9, null };
             yield return new object[] {  "user2@example.com", 10, null };
         }
-        public static IEnumerable<object[]> DeleteGoalInvalidInputTestData()
+        public static IEnumerable<object[]> DeleteGoalNotFoundInputTestData()
         {
             yield return new object[] { 6, "user1@example.com", null };
             yield return new object[] { 7, "user1@example.com", null };

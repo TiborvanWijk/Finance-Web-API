@@ -261,7 +261,7 @@ namespace FinanceApi.Test.Tests
 
 
         [Theory]
-        [MemberData(nameof(TestData.DeleteGoalInvalidInputTestData), MemberType = typeof(TestData))]
+        [MemberData(nameof(TestData.DeleteGoalNotFoundInputTestData), MemberType = typeof(TestData))]
         public void DeleteIncome_ReturnsNotFoundObjectResult_WhenGoalDoesNotExist(
             int goalId,
             string username,

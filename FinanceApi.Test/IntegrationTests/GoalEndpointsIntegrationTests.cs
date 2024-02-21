@@ -500,8 +500,8 @@ namespace FinanceApi.Test.IntegrationTests
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
                 var requestUrl = optionalOwnerId == null
-                    ? $"api/Goal/delete/{goalId.ToString()}"
-                    : $"api/Goal/delete/{goalId.ToString()}?optionalOwnerId={optionalOwnerId}";
+                    ? $"api/Goal/delete/{goalId}"
+                    : $"api/Goal/delete/{goalId}?optionalOwnerId={optionalOwnerId}";
 
                 try
                 {
@@ -524,6 +524,59 @@ namespace FinanceApi.Test.IntegrationTests
 
             }
         }
+
+        [Theory]
+        [MemberData(nameof(TestData.DeleteGoalNotFoundInputTestData), MemberType = typeof(TestData))]
+        public async Task DeleteGoal_ReturnsNotFound_WhenUserDoesNotHaveAGoalWithInputId(
+            string username,
+            int goalId,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                var goalToBeDeleted = db.Goals.AsNoTracking().FirstOrDefault(x => x.Id == goalId);
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Goal/delete/{goalId}"
+                    : $"api/Goal/delete/{goalId}?optionalOwnerId={optionalOwnerId}";
+
+                try
+                {
+
+                    var response = await client.DeleteAsync(requestUrl);
+
+                    Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+                }
+                finally
+                {
+                    bool isDeleted = !db.Goals.Any(x => x.Equals(goalToBeDeleted));
+                    Assert.False(isDeleted);
+
+                    if (isDeleted)
+                    {
+                        Assert.Equal(user, goalToBeDeleted.User);
+
+                        db.Goals.Add(goalToBeDeleted);
+                        db.SaveChanges();
+                    }
+                }
+
+            }
+        }
+
 
 
 
