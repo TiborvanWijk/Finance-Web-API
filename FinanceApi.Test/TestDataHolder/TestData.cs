@@ -97,18 +97,16 @@ namespace FinanceApi.Test.TestDataHolder
         }
         public static IEnumerable<object[]> DeleteGoalValidTestData()
         {
-            yield return new object[] { 1, "user1@example.com", null };
-            yield return new object[] { 2, "user1@example.com", null };
-            yield return new object[] { 3, "user1@example.com", null };
-
-            yield return new object[] { 4, "user3@example.com", "user1@example.com" };
-            yield return new object[] { 5, "user3@example.com", "user1@example.com" };
-
-            yield return new object[] { 6, "user2@example.com", null };
-            yield return new object[] { 7, "user2@example.com", null };
-            yield return new object[] { 8, "user2@example.com", null };
-            yield return new object[] { 9, "user2@example.com", null };
-            yield return new object[] { 10, "user2@example.com", null };
+            yield return new object[] {  "user1@example.com", 1, null };
+            yield return new object[] {  "user1@example.com", 2, null };
+            yield return new object[] {  "user1@example.com", 3, null };
+            yield return new object[] {  "user3@example.com", 4, "user1@example.com" };
+            yield return new object[] {  "user3@example.com", 5, "user1@example.com" };
+            yield return new object[] {  "user2@example.com", 6, null };
+            yield return new object[] {  "user2@example.com", 7, null };
+            yield return new object[] {  "user2@example.com", 8, null };
+            yield return new object[] {  "user2@example.com", 9, null };
+            yield return new object[] {  "user2@example.com", 10, null };
         }
         public static IEnumerable<object[]> DeleteGoalInvalidInputTestData()
         {
