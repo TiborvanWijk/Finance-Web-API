@@ -97,24 +97,24 @@ namespace FinanceApi.Test.TestDataHolder
         }
         public static IEnumerable<object[]> DeleteGoalValidTestData()
         {
-            yield return new object[] {  "user1@example.com", 1, null };
-            yield return new object[] {  "user1@example.com", 2, null };
-            yield return new object[] {  "user1@example.com", 3, null };
-            yield return new object[] {  "user3@example.com", 4, "user1@example.com" };
-            yield return new object[] {  "user3@example.com", 5, "user1@example.com" };
-            yield return new object[] {  "user2@example.com", 6, null };
-            yield return new object[] {  "user2@example.com", 7, null };
-            yield return new object[] {  "user2@example.com", 8, null };
-            yield return new object[] {  "user2@example.com", 9, null };
-            yield return new object[] {  "user2@example.com", 10, null };
+            yield return new object[] { "user1@example.com", 1, null };
+            yield return new object[] { "user1@example.com", 2, null };
+            yield return new object[] { "user1@example.com", 3, null };
+            yield return new object[] { "user3@example.com", 4, "user1@example.com" };
+            yield return new object[] { "user3@example.com", 5, "user1@example.com" };
+            yield return new object[] { "user2@example.com", 6, null };
+            yield return new object[] { "user2@example.com", 7, null };
+            yield return new object[] { "user2@example.com", 8, null };
+            yield return new object[] { "user2@example.com", 9, null };
+            yield return new object[] { "user2@example.com", 10, null };
         }
         public static IEnumerable<object[]> DeleteGoalNotFoundInputTestData()
         {
-            yield return new object[] { 6, "user1@example.com", null };
-            yield return new object[] { 7, "user1@example.com", null };
-            yield return new object[] { 8, "user1@example.com", null };
-            yield return new object[] { 9, "user1@example.com", null };
-            yield return new object[] { 10, "user1@example.com", null };
+            yield return new object[] { "user1@example.com", 6, null };
+            yield return new object[] { "user1@example.com", 7, null };
+            yield return new object[] { "user1@example.com", 8, null };
+            yield return new object[] { "user1@example.com", 9, null };
+            yield return new object[] { "user1@example.com", 10, null };
         }
         public static IEnumerable<object[]> RemoveCategoriesValidTestData()
         {
@@ -201,7 +201,13 @@ namespace FinanceApi.Test.TestDataHolder
 
         public static IEnumerable<object[]> AddCategoryToGoalValidInputTestData()
         {
-            yield return new object[] { };
+            yield return new object[] { "user1@example.com", 1, new List<int>() { 2, 3, 4 }, null };
+            yield return new object[] { "user1@example.com", 2, new List<int>() { 3, 4, 1 }, null };
+            yield return new object[] { "user1@example.com", 3, new List<int>() { 4, 1, 2 }, null };
+            yield return new object[] { "user1@example.com", 4, new List<int>() { 1, 2, 3 }, null };
+            yield return new object[] { "user1@example.com", 5, new List<int>() { 2, 3, 4 }, null };
+            yield return new object[] { "user3@example.com", 1, new List<int>() { 2, 3, 4 }, "user1@example.com" };
+
         }
 
         public static IEnumerable<object[]> UpdateGoalValidInputTestData()
@@ -211,7 +217,7 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user1@example.com", new GoalManageDto() { Title = "title: opjkyuypmm", Id = 3, Amount = 13820, Currency = "fjd", Description = "description: hduwe92", StartDate = new DateTime(2019, 12, 21), EndDate = new DateTime(2023, 6, 21) }, null };
             yield return new object[] { "user1@example.com", new GoalManageDto() { Title = "title: jdiwjdw", Id = 4, Amount = 29100, Currency = "gbp", Description = "description: 82639", StartDate = new DateTime(2015, 9, 12), EndDate = new DateTime(2017, 5, 11) }, null };
             yield return new object[] { "user3@example.com", new GoalManageDto() { Title = "title: hduwaw", Id = 5, Amount = 101100, Currency = "fkp", Description = "description: djwirb", StartDate = new DateTime(2023, 2, 25), EndDate = new DateTime(2027, 3, 12) }, "user1@example.com" };
-            
+
         }
 
         public static IEnumerable<object[]> UpdateGoalBadRequestInputTestData()
@@ -238,5 +244,31 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user3@example.com", new GoalManageDto() { Title = "title: hduwaw", Id = 456, Amount = 101100, Currency = "fkp", Description = "description: djwirb", StartDate = new DateTime(2023, 2, 25), EndDate = new DateTime(2027, 3, 12) }, "user1@example.com" };
 
         }
+
+        public static IEnumerable<object[]> AddCategoryToGoalBadRequestInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, new List<int>() { }, null };
+            yield return new object[] { "user1@example.com", 2, new List<int>() { }, null };
+            yield return new object[] { "user1@example.com", 3, new List<int>() { }, null };
+            yield return new object[] { "user1@example.com", 4, new List<int>() { }, null };
+            yield return new object[] { "user1@example.com", 1, new List<int>() { 1 }, null };
+            yield return new object[] { "user1@example.com", 2, new List<int>() { 2 }, null };
+            yield return new object[] { "user1@example.com", 3, new List<int>() { 3 }, null };
+            yield return new object[] { "user1@example.com", 4, new List<int>() { 4 }, null };
+            yield return new object[] { "user1@example.com", 5, new List<int>() { 1 }, null };
+        }
+
+        public static IEnumerable<object[]> AddCategoryToGoalNotFoundInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 10, new List<int>() { 2 }, null };
+            yield return new object[] { "user1@example.com", 13, new List<int>() { 3 }, null };
+            yield return new object[] { "user1@example.com", 19, new List<int>() { 4 }, null };
+            yield return new object[] { "user1@example.com", 1, new List<int>() { 10 }, null };
+            yield return new object[] { "user1@example.com", 2, new List<int>() { 13 }, null };
+            yield return new object[] { "user1@example.com", 3, new List<int>() { 19 }, null };
+            yield return new object[] { "user1@example.com", 4, new List<int>() { -1 }, null };
+            yield return new object[] { "user1@example.com", -1, new List<int>() { -1 }, null };
+        }
+
     }
 }

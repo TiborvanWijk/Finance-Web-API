@@ -206,7 +206,7 @@ namespace FinanceApi.Test.TestDatabase
                     dataContext.Add(userAuthorization);
                 }
 
-
+                dataContext.AddRange(users);
                 dataContext.AddRange(incomes);
                 dataContext.AddRange(expenses);
                 dataContext.AddRange(budgets);

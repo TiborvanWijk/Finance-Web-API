@@ -480,10 +480,10 @@ namespace FinanceApi.Test.IntegrationTests
         public async Task DeleteGoal_ReturnsOk_WhenGoalExists(
             string username,
             int goalId,
-            string? optionalOwnerUsername            
+            string? optionalOwnerUsername
             )
         {
-            using(var scope = factory.Services.CreateScope())
+            using (var scope = factory.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var user = db.Users.First(x => x.UserName.Equals(username));
@@ -507,7 +507,7 @@ namespace FinanceApi.Test.IntegrationTests
                 {
 
                     var response = await client.DeleteAsync(requestUrl);
-
+                    db.SaveChanges();
                     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
                 }
                 finally
@@ -517,6 +517,8 @@ namespace FinanceApi.Test.IntegrationTests
 
                     if (isDeleted)
                     {
+                        goalToBeDeleted.Id = goalId;
+                        goalToBeDeleted.User = user;
                         db.Goals.Add(goalToBeDeleted);
                         db.SaveChanges();
                     }
@@ -580,13 +582,12 @@ namespace FinanceApi.Test.IntegrationTests
 
 
 
-        [Theory(Skip = "Not fully coded up.")]
-        //[Theory]
+        [Theory]
         [MemberData(nameof(TestData.AddCategoryToGoalValidInputTestData), MemberType = typeof(TestData))]
         public async Task AddCategory_ReturnsOk_WhenInputIsValidAndDoesNotExist(
             string username,
             int goalId,
-            ICollection<int> categoryIds,
+            List<int> categoryIds,
             string? optionalOwnerUsername
             )
         {
@@ -622,16 +623,108 @@ namespace FinanceApi.Test.IntegrationTests
                 }
                 finally
                 {
-                    bool isAdded = true;
+                    int amountAdded = db.GoalCategories
+                        .Where(x => x.GoalId == goalId && categoryIds.Contains(x.CategoryId)).Count();
+                    bool allAdded = categoryIds.Count() == amountAdded;
+                    Assert.True(allAdded);
 
-                    for (int i = 0; i < categoryIds.Count; ++i)
+                    if (amountAdded > 0)
                     {
-
+                        for (int i = 0; i < categoryIds.Count; ++i)
+                        {
+                            var addedGoalCategory = db.GoalCategories.FirstOrDefault(x => x.GoalId == goalId
+                            && x.CategoryId == categoryIds[i]);
+                            if (addedGoalCategory != null)
+                            {
+                                db.Remove(addedGoalCategory);
+                                db.SaveChanges();
+                            }
+                        }
                     }
 
                 }
 
 
+
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.AddCategoryToGoalBadRequestInputTestData), MemberType = typeof(TestData))]
+        public async Task AddCategory_ReturnsBadRequest_WhenInputIsWrongOrGoalCategoryAlreadyExists(
+            string username,
+            int goalId,
+            List<int> categoryIds,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var jsonCategoryIds = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Goal/associate_categories/{goalId}"
+                    : $"api/Goal/associate_categories/{goalId}?optionalOwnerId={optionalOwnerId}";
+
+
+                
+                var response = await client.PostAsync(requestUrl, jsonCategoryIds);
+
+                Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);          
+
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.AddCategoryToGoalNotFoundInputTestData), MemberType = typeof(TestData))]
+        public async Task AddCategory_ReturnsNotFound_WhenInputIsWrongOrGoalCategoryAlreadyExists(
+            string username,
+            int goalId,
+            List<int> categoryIds,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var jsonCategoryIds = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Goal/associate_categories/{goalId}"
+                    : $"api/Goal/associate_categories/{goalId}?optionalOwnerId={optionalOwnerId}";
+
+
+
+                var response = await client.PostAsync(requestUrl, jsonCategoryIds);
+
+                Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
             }
         }
