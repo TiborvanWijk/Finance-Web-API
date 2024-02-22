@@ -31,8 +31,7 @@ namespace FinanceApi.Test.IntegrationTests
 
 
 
-        //[Theory]
-        [Theory(Skip = "Progress of goalDto is not calculated correctly.")]
+        [Theory]
         [MemberData(nameof(TestData.GetGoalValidInputTestData), MemberType = typeof(TestData))]
         public async Task GetGoal_ReturnsOkObjectResult_WhenUserIsValid2(
             string userName,
@@ -83,12 +82,12 @@ namespace FinanceApi.Test.IntegrationTests
             var response = await client.GetAsync(requestUrl);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            ICollection<GoalDto> responseData = JsonConvert.DeserializeObject<ICollection<GoalDto>>(await response.Content.ReadAsStringAsync());
+            List<GoalDto> responseData = JsonConvert.DeserializeObject<List<GoalDto>>(await response.Content.ReadAsStringAsync());
 
 
             var ownerId = optionalOwnerId ?? user.Id;
 
-            ICollection<GoalDto> correctResponse = null;
+            List<GoalDto> correctResponse = null;
             using (var scope = factory.Services.CreateScope())
             {
 
@@ -102,7 +101,7 @@ namespace FinanceApi.Test.IntegrationTests
                     .Select(x =>
                     {
                         x.Progress = db.Incomes
-                        .Where(i => i.User.Id.Equals(ownerId) && i.IncomeCategories
+                        .Where(i => i.Date >= x.StartDate && i.Date <= DateTime.Now && i.User.Id.Equals(ownerId) && i.IncomeCategories
                         .Any(ic => ic.Category.GoalCategories.Any(gc => gc.Goal.User.Id.Equals(ownerId) && gc.GoalId == x.Id)))
                         .Select(d => d.Amount).Sum();
 
@@ -144,9 +143,7 @@ namespace FinanceApi.Test.IntegrationTests
                 }
             }
 
-            bool equals = Equals(correctResponse, responseData);
-            Assert.Equal(correctResponse, responseData);
-
+            Assert.Equivalent(correctResponse, responseData);
 
         }
 
