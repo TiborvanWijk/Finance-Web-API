@@ -47,7 +47,7 @@ namespace FinanceApi.Repositories
 
         public bool ExistsByTitle(string userId, string title)
         {
-            return dataContext.Goals.Any(g => g.Title.ToLower().Equals(title.ToLower()));
+            return dataContext.Goals.Any(g => g.User.Id.Equals(userId) && g.Title.ToLower().Equals(title.ToLower()));
         }
 
         public ICollection<Goal> GetAllOfUser(string userId)

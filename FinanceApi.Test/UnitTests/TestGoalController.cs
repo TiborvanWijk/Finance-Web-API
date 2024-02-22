@@ -297,11 +297,11 @@ namespace FinanceApi.Test.Tests
 
 
         [Theory(Skip = "Skipping because it is not ready at the current state.")]
-        [MemberData(nameof(TestData.RemoveCategoriesValidTestData), MemberType = typeof(TestData))]
+        [MemberData(nameof(TestData.RemoveCategoriesValidInputTestData), MemberType = typeof(TestData))]
         public void RemoveCategories_RetunsOkObjectResult_WhenGoalExistsAndCategoryIdsExist(
             string username,
             int goalId,
-            ICollection<int> catgoryIds,
+            int catgoryId,
             string? optionalOwnerUsername
             )
         {
@@ -327,7 +327,7 @@ namespace FinanceApi.Test.Tests
 
             // Act
 
-            var result = goalController.RemoveCategories(goalId, catgoryIds, optionalOwnerId);
+            var result = goalController.RemoveCategories(goalId, catgoryId, optionalOwnerId);
 
             // Assert
 

@@ -116,10 +116,6 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user1@example.com", 9, null };
             yield return new object[] { "user1@example.com", 10, null };
         }
-        public static IEnumerable<object[]> RemoveCategoriesValidTestData()
-        {
-            yield return new object[] { "user1@example.com", 1, new List<int>() { } };
-        }
 
         public static IEnumerable<object[]> GetUsersExpensesValidInputsTestData()
         {
@@ -272,11 +268,29 @@ namespace FinanceApi.Test.TestDataHolder
 
         public static IEnumerable<object[]> RemoveCategoriesValidInputTestData()
         {
-            yield return new object[] { "user1@example.com", 1, new List<int>() { 1 }, null };
-            yield return new object[] { "user1@example.com", 2, new List<int>() { 2 }, null };
-            yield return new object[] { "user1@example.com", 3, new List<int>() { 3 }, null };
-            yield return new object[] { "user1@example.com", 4, new List<int>() { 4 }, null };
-            yield return new object[] { "user3@example.com", 5, new List<int>() { 1 }, "user1@example.com" };
+            yield return new object[] { "user1@example.com", 1, 1, null };
+            yield return new object[] { "user1@example.com", 2, 2, null };
+            yield return new object[] { "user1@example.com", 3, 3, null };
+            yield return new object[] { "user1@example.com", 4, 4, null };
+            yield return new object[] { "user3@example.com", 5, 1, "user1@example.com" };
+        }
+
+        public static IEnumerable<object[]> RemoveCategoriesNotFoundInputsTestData()
+        {
+            yield return new object[] { "user1@example.com", 11, 2, null };
+            yield return new object[] { "user1@example.com", 1, 19, null };
+            yield return new object[] { "user1@example.com", 13, 132, null };
+            yield return new object[] { "user1@example.com", 3, 9, null };
+            yield return new object[] { "user3@example.com", 11, 11, "user1@example.com" };
+        }
+
+        public static IEnumerable<object[]> RemoveCategoriesBadRequestInputsTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, 2, null };
+            yield return new object[] { "user1@example.com", 2, 3, null};
+            yield return new object[] { "user1@example.com", 3, 4, null};
+            yield return new object[] { "user1@example.com", 4, 1, null};
+            yield return new object[] { "user3@example.com", 5, 2, "user1@example.com" };
         }
     }
 }

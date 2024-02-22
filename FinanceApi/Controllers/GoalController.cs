@@ -239,12 +239,12 @@ namespace FinanceApi.Controllers
         }
 
 
-        [HttpDelete("remove_categories/{goalId}")]
+        [HttpDelete("remove_category/{goalId}/{categoryId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult RemoveCategories(int goalId, ICollection<int> categoryIds, [FromQuery] string? optionalOwnerId)
+        public IActionResult RemoveCategories(int goalId, int categoryId, [FromQuery] string? optionalOwnerId)
         {
 
             if (!ModelState.IsValid)
@@ -265,7 +265,7 @@ namespace FinanceApi.Controllers
             var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
             var user = userService.GetById(userLookupId, true);
 
-            if (!goalService.TryRemoveCategories(user, goalId, categoryIds, out errorCode, out errorMessage))
+            if (!goalService.TryRemoveCategory(user, goalId, categoryId, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }

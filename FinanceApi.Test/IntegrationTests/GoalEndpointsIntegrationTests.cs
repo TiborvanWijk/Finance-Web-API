@@ -682,10 +682,10 @@ namespace FinanceApi.Test.IntegrationTests
                     : $"api/Goal/associate_categories/{goalId}?optionalOwnerId={optionalOwnerId}";
 
 
-                
+
                 var response = await client.PostAsync(requestUrl, jsonCategoryIds);
 
-                Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);          
+                Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
             }
         }
@@ -730,13 +730,12 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
-
-        [Theory(Skip = "Api endpoint needs refactorization. Uses a body but should not.")]
+        [Theory]
         [MemberData(nameof(TestData.RemoveCategoriesValidInputTestData), MemberType = typeof(TestData))]
         public async Task RemoveCategories_ReturnsOk_WhenGoalCategoryExistsAndIsUsers(
             string username,
             int goalId,
-            List<int> categoryIds,
+            int categoryId,
             string? optionalOwnerUsername
             )
         {
@@ -746,8 +745,8 @@ namespace FinanceApi.Test.IntegrationTests
 
                 var user = db.Users.First(x => x.UserName.Equals(username));
 
-                ICollection<GoalCategory> goalCategoriesToBeDeleted =
-                    db.GoalCategories.Where(x => x.GoalId == goalId && categoryIds.Contains(x.CategoryId)).ToList();
+                var goalCategoryToBeDeleted =
+                    db.GoalCategories.AsNoTracking().First(x => x.GoalId == goalId && x.CategoryId == categoryId);
 
                 string? optionalOwnerId = null;
                 if (optionalOwnerUsername != null)
@@ -755,26 +754,147 @@ namespace FinanceApi.Test.IntegrationTests
                     optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
                 }
 
-                var jsonCategoryIds = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
 
                 var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
 
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
                 var requestUrl = optionalOwnerId == null
-                    ? $"api/Goal/remove_categories/{goalId}"
-                    : $"api/Goal/remove_categories/{goalId}?optionalOwnerId={optionalOwnerId}";
+                    ? $"api/Goal/remove_category/{goalId}/{categoryId}"
+                    : $"api/Goal/remove_category/{goalId}/{categoryId}?optionalOwnerId={optionalOwnerId}";
 
 
                 try
                 {
-                    //var response = await client.DeleteAsync(requestUrl, jsonCategoryIds);
+                    var response = await client.DeleteAsync(requestUrl);
 
-                    //Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
                 }
                 finally
                 {
+                    bool isDeleted = !db.GoalCategories.Any(x => x.Equals(goalCategoryToBeDeleted));
+                    Assert.True(isDeleted);
+                    if (isDeleted)
+                    {
+                        db.GoalCategories.Add(goalCategoryToBeDeleted);
+                        db.SaveChanges();
+                    }
+                }
+            }
+        }
 
+
+        [Theory]
+        [MemberData(nameof(TestData.RemoveCategoriesNotFoundInputsTestData), MemberType = typeof(TestData))]
+        public async Task RemoveCategories_ReturnsNotFound_WhenGoalOrCategoryDoesNotExist(
+            string username,
+            int goalId,
+            int categoryId,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                var goalCategoryToBeDeleted =
+                    db.GoalCategories.AsNoTracking().FirstOrDefault(x => x.GoalId == goalId && x.CategoryId == categoryId);
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Goal/remove_category/{goalId}/{categoryId}"
+                    : $"api/Goal/remove_category/{goalId}/{categoryId}?optionalOwnerId={optionalOwnerId}";
+
+
+                try
+                {
+                    var response = await client.DeleteAsync(requestUrl);
+
+                    Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+                }
+                finally
+                {
+                    if (goalCategoryToBeDeleted != null)
+                    {
+
+                        bool isDeleted = !db.GoalCategories.Any(x => x.Equals(goalCategoryToBeDeleted));
+                        Assert.True(isDeleted);
+                        if (isDeleted)
+                        {
+                            db.GoalCategories.Add(goalCategoryToBeDeleted);
+                            db.SaveChanges();
+                        }
+                    }
+                }
+            }
+        }
+
+
+        [Theory]
+        [MemberData(nameof(TestData.RemoveCategoriesBadRequestInputsTestData), MemberType = typeof(TestData))]
+        public async Task RemoveCategories_ReturnsBadRequest_WhenGoalDoesNotHaveACategoryOrACategpry(
+            string username,
+            int goalId,
+            int categoryId,
+            string? optionalOwnerUsername
+        )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                var goalCategoryToBeDeleted =
+                    db.GoalCategories.AsNoTracking().FirstOrDefault(x => x.GoalId == goalId && x.CategoryId == categoryId);
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Goal/remove_category/{goalId}/{categoryId}"
+                    : $"api/Goal/remove_category/{goalId}/{categoryId}?optionalOwnerId={optionalOwnerId}";
+
+
+                try
+                {
+                    var response = await client.DeleteAsync(requestUrl);
+
+                    Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+                }
+                finally
+                {
+                    if (goalCategoryToBeDeleted != null)
+                    {
+
+                        bool isDeleted = !db.GoalCategories.Any(x => x.Equals(goalCategoryToBeDeleted));
+                        Assert.True(isDeleted);
+                        if (isDeleted)
+                        {
+                            db.GoalCategories.Add(goalCategoryToBeDeleted);
+                            db.SaveChanges();
+                        }
+                    }
                 }
             }
         }
