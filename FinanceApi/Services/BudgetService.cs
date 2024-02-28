@@ -274,7 +274,7 @@ namespace FinanceApi.Services
         }
 
 
-        public bool TryRemoveCategories(User user, int budgetId, ICollection<int> categoryIds, out int errorCode, out string errorMessage)
+        public bool TryRemoveCategory(User user, int budgetId, int categoryId, out int errorCode, out string errorMessage)
         {
 
             errorCode = 0;
@@ -296,32 +296,26 @@ namespace FinanceApi.Services
                 errorMessage = "Budget does not have any categories";
                 return false;
             }
-            foreach (var categoryId in categoryIds)
-            {
-                if (!categoryRepository.ExistsById(user.Id, categoryId))
-                {
-                    errorCode = 404;
-                    errorMessage = "Category not found.";
-                    return false;
-                }
 
-                if (!budgetCategories.Any(ic => ic.CategoryId == categoryId))
-                {
-                    errorCode = 400;
-                    errorMessage = "Budget does not have this category";
-                    return false;
-                }
+            if (!categoryRepository.ExistsById(user.Id, categoryId))
+            {
+                errorCode = 404;
+                errorMessage = "Category not found.";
+                return false;
             }
 
-            foreach (var categoryId in categoryIds)
+            if (!budgetCategories.Any(ic => ic.CategoryId == categoryId))
             {
+                errorCode = 400;
+                errorMessage = "Budget does not have this category";
+                return false;
+            }
 
-                if (!budgetRepository.DeleteBudgetCategoryWithId(user.Id, categoryId, budgetId))
-                {
-                    errorCode = 500;
-                    errorMessage = "Something went wrong while deleting budget category.";
-                    return false;
-                }
+            if (!budgetRepository.DeleteBudgetCategoryWithId(user.Id, categoryId, budgetId))
+            {
+                errorCode = 500;
+                errorMessage = "Something went wrong while deleting budget category.";
+                return false;
             }
 
             return true;

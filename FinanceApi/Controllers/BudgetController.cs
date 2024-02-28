@@ -209,7 +209,7 @@ namespace FinanceApi.Controllers
         }
 
 
-        [HttpDelete("delete/{budgetId}")]
+        [HttpDelete("delete/{budgetId}/")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -235,16 +235,16 @@ namespace FinanceApi.Controllers
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            return Ok("Budget succesfuly deleted.");
+            return NoContent();
         }
 
 
 
-        [HttpDelete("remove_categories/{budgetId}")]
+        [HttpDelete("remove_category/{budgetId}/{categoryId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult actionResult(int budgetId, [FromBody] ICollection<int> categoryIds, [FromQuery] string? optionalOwnerId)
+        public IActionResult RemoveCategory(int budgetId, int categoryId, [FromQuery] string? optionalOwnerId)
         {
 
             if (!ModelState.IsValid)
@@ -267,12 +267,12 @@ namespace FinanceApi.Controllers
 
             var user = userService.GetById(userLookupId, true);
 
-            if (!budgetService.TryRemoveCategories(user, budgetId, categoryIds, out errorCode, out errorMessage))
+            if (!budgetService.TryRemoveCategory(user, budgetId, categoryId, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            return Ok("Categories deleted succesfully.");
+            return NoContent();
         }
 
 

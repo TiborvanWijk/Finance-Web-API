@@ -150,7 +150,7 @@ namespace FinanceApi.Test.Tests
             };
 
             // Act
-            var result = incomeController.GetUsersIncomes(
+            var result = incomeController.GetIncomes(
                 from, to, list_order_by, list_dir, optionalOwnerId);
 
             // Assert
@@ -232,7 +232,7 @@ namespace FinanceApi.Test.Tests
             // Act
 
 
-            var result = incomeController.GetUsersIncomes(from,
+            var result = incomeController.GetIncomes(from,
                 to, list_order_by, list_dir, optionalOwnerId);
 
 
@@ -268,7 +268,7 @@ namespace FinanceApi.Test.Tests
 
             // Act
 
-            var result = incomeController.GetUsersIncomes(null, null, null, null, null);
+            var result = incomeController.GetIncomes(null, null, null, null, null);
 
             // Assert
 
@@ -300,7 +300,7 @@ namespace FinanceApi.Test.Tests
             };
 
             // Act
-            var result = incomeController.GetUsersIncomes(null, null, null, null, "THIS USER DOES NOT EXIST");
+            var result = incomeController.GetIncomes(null, null, null, null, "THIS USER DOES NOT EXIST");
 
             // Assert
 
@@ -343,7 +343,7 @@ namespace FinanceApi.Test.Tests
 
             // Act
 
-            var result = incomeController.GetUsersIncomes(null, null, null, null, "OWNER DID NOT AUTHORIZE CURRENT USER");
+            var result = incomeController.GetIncomes(null, null, null, null, "OWNER DID NOT AUTHORIZE CURRENT USER");
 
             // Assert
 

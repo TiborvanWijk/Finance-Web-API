@@ -235,7 +235,7 @@ namespace FinanceApi.Controllers
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            return Ok("Goal deleted succesfully.");
+            return NoContent();
         }
 
 
@@ -270,7 +270,7 @@ namespace FinanceApi.Controllers
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            return Ok("Categories removed succesfully.");
+            return NoContent();
         }
 
     }

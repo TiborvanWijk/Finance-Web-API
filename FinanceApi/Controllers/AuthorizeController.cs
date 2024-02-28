@@ -5,6 +5,7 @@ using FinanceApi.Models;
 using FinanceApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Security.Claims;
 
 namespace FinanceApi.Controllers
@@ -197,7 +198,7 @@ namespace FinanceApi.Controllers
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            return Ok("Authorization deleted succesfully.");
+            return NoContent();
         }
 
         [HttpDelete("delete_authorization_invite/{userId}")]
@@ -222,7 +223,7 @@ namespace FinanceApi.Controllers
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            return Ok("Authorization invite deleted succesfully.");
+            return NoContent();
         }
 
 
@@ -249,7 +250,7 @@ namespace FinanceApi.Controllers
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            return Ok("Authorization invite declined succesfully.");
+            return NoContent();
         }
     }
 }

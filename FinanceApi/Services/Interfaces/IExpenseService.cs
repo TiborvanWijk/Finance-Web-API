@@ -16,6 +16,6 @@ namespace FinanceApi.Services.Interfaces
         bool Delete(Expense expense);
         bool tryGetExpensesWithCategoryId(User user, int categoryId, out ICollection<Expense> expenses, out int errorCode, out string errorMessage);
         bool TryDeleteExpense(User user, int expenseId, out int errorCode, out string errorMessage);
-        bool TryRemoveCategories(User user, int expenseId, ICollection<int> categoryIds, out int errorCode, out string errorMessage);
+        bool TryRemoveCategories(User user, int expenseId, int categoryId, out int errorCode, out string errorMessage);
     }
 }

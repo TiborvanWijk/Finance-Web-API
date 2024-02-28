@@ -187,7 +187,7 @@ namespace FinanceApi.Controllers
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            return Ok("Category deleted succesfully.");
+            return NoContent();
         }
 
 

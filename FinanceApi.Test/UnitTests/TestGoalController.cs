@@ -223,8 +223,8 @@ namespace FinanceApi.Test.Tests
         [Theory]
         [MemberData(nameof(TestData.DeleteGoalValidTestData), MemberType = typeof(TestData))]
         public void DeleteGoal_ReturnsOkObjectResult_WhenInputIsValid(
-            int goalId,
             string username,
+            int goalId,
             string? optionalOwnerUsername
             )
         {

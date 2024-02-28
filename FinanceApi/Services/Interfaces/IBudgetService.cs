@@ -14,7 +14,7 @@ namespace FinanceApi.Services.Interfaces
         bool TryGetBudgetsByCategoryId(User user, int categoryId, out ICollection<Budget> budgets, out int errorCode, out string errorMessage);
         bool TryDeleteBudget(User user, int budgetId, out int errorCode, out string errorMessage);
         decimal GetBudgetSpending(string userId, int budgetId);
-        bool TryRemoveCategories(User user, int budgetId, ICollection<int> categoryIds, out int errorCode, out string errorMessage);
+        bool TryRemoveCategory(User user, int budgetId, int categoryId, out int errorCode, out string errorMessage);
         bool TryGetAllOrderedOrDefault(string userId, out ICollection<Budget> budgets, out int errorCode, out string errorMessage,
             DateTime? startDate, DateTime? endDate, string? listOrderBy, string? listDir);
     }

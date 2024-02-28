@@ -230,14 +230,14 @@ namespace FinanceApi.Controllers
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            return Ok("Expense succesfully deleted.");
+            return NoContent();
         }
 
-        [HttpDelete("remove_categories/{expenseId}")]
+        [HttpDelete("remove_category/{expenseId}/{categoryId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult actionResult(int expenseId, [FromBody] ICollection<int> categoryIds, [FromQuery] string? optionalOwnerId)
+        public IActionResult RemoveCategory(int expenseId, int categoryId, [FromQuery] string? optionalOwnerId)
         {
 
             if (!ModelState.IsValid)
@@ -258,12 +258,12 @@ namespace FinanceApi.Controllers
             var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
             var user = userService.GetById(userLookupId, true);
 
-            if (!expenseService.TryRemoveCategories(user, expenseId, categoryIds, out errorCode, out errorMessage))
+            if (!expenseService.TryRemoveCategories(user, expenseId, categoryId, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            return Ok("Categories deleted succesfully.");
+            return NoContent();
         }
 
 

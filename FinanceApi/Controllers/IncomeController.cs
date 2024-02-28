@@ -29,11 +29,11 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult GetUsersIncomes(
+        public IActionResult GetIncomes(
             [FromQuery] DateTime? from,
             [FromQuery] DateTime? to,
-            [FromQuery] string? list_order_by,
-            [FromQuery] string? list_dir,
+            [FromQuery] string? listOrderBy,
+            [FromQuery] string? listDir,
             [FromQuery] string? optionalOwnerId)
         {
 
@@ -56,7 +56,7 @@ namespace FinanceApi.Controllers
            
             ICollection<Income> incomes;
 
-            if(!incomeService.TryGetIncomesFilteredOrDefault(userLookupId, out incomes, from, to, list_order_by, list_dir, out errorCode, out errorMessage)){
+            if(!incomeService.TryGetIncomesFilteredOrDefault(userLookupId, out incomes, from, to, listOrderBy, listDir, out errorCode, out errorMessage)){
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
@@ -236,17 +236,17 @@ namespace FinanceApi.Controllers
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            return Ok("Income deleted succesfully.");
+            return NoContent();
         }
 
 
 
-        [HttpDelete("remove_categories/{incomeId}")]
+        [HttpDelete("remove_category/{incomeId}/{categoryId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult RemoveCategoriesFromIncome(int incomeId, [FromBody] ICollection<int> categoryIds, [FromQuery] string? optionalOwnerId)
+        public IActionResult RemoveCategory(int incomeId, int categoryId, [FromQuery] string? optionalOwnerId)
         {
 
             if (!ModelState.IsValid)
@@ -269,12 +269,12 @@ namespace FinanceApi.Controllers
             var user = userService.GetById(userLookupId, true);
 
 
-            if (!incomeService.TryRemoveCategories(user, incomeId, categoryIds, out errorCode, out errorMessage))
+            if (!incomeService.TryRemoveCategories(user, incomeId, categoryId, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
-            return Ok("Categories deleted succesfully.");
+            return NoContent();
         }
 
 
