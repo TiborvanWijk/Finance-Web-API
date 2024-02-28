@@ -506,7 +506,7 @@ namespace FinanceApi.Test.IntegrationTests
 
                     var response = await client.DeleteAsync(requestUrl);
                     db.SaveChanges();
-                    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                    Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
                 }
                 finally
                 {
@@ -765,7 +765,7 @@ namespace FinanceApi.Test.IntegrationTests
                 {
                     var response = await client.DeleteAsync(requestUrl);
 
-                    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                    Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
                 }
                 finally
                 {
