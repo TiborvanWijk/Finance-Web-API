@@ -735,7 +735,7 @@ namespace FinanceApi.Test.Tests
             // Assert
 
             Assert.NotNull(result);
-            Assert.IsType<OkObjectResult>(result);
+            Assert.IsType<NoContentResult>(result);
             ResetAllSetups();
         }
 

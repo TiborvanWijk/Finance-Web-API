@@ -253,8 +253,8 @@ namespace FinanceApi.Test.Tests
             // Assert
 
 
-            Assert.IsType<OkObjectResult>(result);
-            var okResult = result as OkObjectResult;
+            Assert.IsType<NoContentResult>(result);
+            var okResult = result as NoContentResult;
             Assert.NotNull(okResult);
         }
 
@@ -289,8 +289,8 @@ namespace FinanceApi.Test.Tests
 
             // Assert
 
-            Assert.IsType<NotFoundObjectResult>(result);
-            var notFoundResult = result as NotFoundObjectResult;
+            Assert.IsType<NoContentResult>(result);
+            var notFoundResult = result as NoContentResult;
             Assert.NotNull(notFoundResult);
         }
 
@@ -332,8 +332,8 @@ namespace FinanceApi.Test.Tests
             // Assert
 
 
-            Assert.IsType<OkObjectResult>(result);
-            var okResult = result as OkObjectResult;
+            Assert.IsType<NoContentResult>(result);
+            var okResult = result as NoContentResult;
             Assert.NotNull(okResult);
         }
 
