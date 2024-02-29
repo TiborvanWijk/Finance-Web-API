@@ -18,6 +18,7 @@ using FinanceApi.Test.TestDataHolder;
 using System.Data;
 using FinanceApi.Test.TestDatabase;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace FinanceApi.Test.IntegrationTests
 {
     public class IncomeEndpointsIntegrationTests : IDisposable
@@ -29,11 +30,6 @@ namespace FinanceApi.Test.IntegrationTests
             factory = new CustomWebApplicationFactory();
             client = factory.CreateClient();
 
-            using(var scope = factory.Services.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                DatabaseActions.SaveState(db);
-            }
         }
 
 
@@ -133,18 +129,94 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Theory]
+        [MemberData(nameof(TestData.CreateIncomeValidInputTestData), MemberType = typeof(TestData))]
+        public async Task CreateIncome_ReturnsOk_WhenInputIsValid(
+            string username,
+            IncomeDto incomeDto,
+            string optionalOwnerUsername
+            )
+        {
+            //arrange
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                string? optionalOwnerId = null;
+                var user = db.Users.First(u => u.UserName.Equals(username));
+
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(u => u.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Income/post"
+                    : $"api/Income/post?optionalOwnerId={optionalOwnerId}";
+
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(incomeDto), Encoding.UTF8, "application/json");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+
+
+                var response = await client.PostAsync(requestUrl, jsonContent);
+
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.CreateIncomeBadRequestInputTestData), MemberType = typeof(TestData))]
+        public async Task CreateIncome_ReturnsBadRequest_WhenInputIsInvalid(
+            string username,
+            IncomeDto incomeDto,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                // Arrange
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                string? optionalOwnerId = null;
+                var user = db.Users.First(u => u.UserName.Equals(username));
+
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(u => u.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Income/post"
+                    : $"api/Income/post?optionalOwnerId={optionalOwnerId}";
+
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(incomeDto), Encoding.UTF8, "application/json");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+
+                var response = await client.PostAsync(requestUrl, jsonContent);
+
+                Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            }
+        }
+
+
+        
 
 
         public void Dispose()
         {
-            using(var scope = factory.Services.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                DatabaseActions.ResetState(db);
-            }
             client.Dispose();
             factory.Dispose();
-            
+
         }
 
 

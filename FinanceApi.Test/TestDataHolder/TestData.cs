@@ -309,9 +309,18 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user1@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "eur", Amount = 23, Date = DateTime.Now, DocumentUrl = "receipt" }, null };
             yield return new object[] { "user1@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "php", Amount = 2353, Date = DateTime.Now, DocumentUrl = "receipt" }, null };
             yield return new object[] { "user1@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "usd", Amount = 24, Date = DateTime.Now.AddDays(-8), DocumentUrl = "receipt" }, null };
-            yield return new object[] { "user1@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "cyp", Amount = 45, Date = DateTime.Now.AddDays(-6), DocumentUrl = "receipt" }, null };
-            yield return new object[] { "user1@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "chk", Amount = 92, Date = DateTime.Now.AddDays(-2), DocumentUrl = "receipt" }, null };
-            yield return new object[] { "user3@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "jpg", Amount = 167, Date = DateTime.Now.AddMonths(-1), DocumentUrl = "receipt" }, "user1@example.com" };
+            yield return new object[] { "user1@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "fjd", Amount = 45, Date = DateTime.Now.AddDays(-6), DocumentUrl = "receipt" }, null };
+            yield return new object[] { "user1@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "gbp", Amount = 92, Date = DateTime.Now.AddDays(-2), DocumentUrl = "receipt" }, null };
+            yield return new object[] { "user3@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "fkp", Amount = 167, Date = DateTime.Now.AddMonths(-1), DocumentUrl = "receipt" }, "user1@example.com" };
+        }
+
+        public static IEnumerable<object[]> CreateIncomeBadRequestInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new IncomeDto() { Title = "work", Description = "40 week", Currency = "THIS IS WRONG", Amount = 23, Date = DateTime.Now, DocumentUrl = "receipt" }, null };
+            yield return new object[] { "user1@example.com", new IncomeDto() { Title = "work", Description = "40 week", Currency = "usd", Amount = -100, Date = DateTime.Now, DocumentUrl = "receipt" }, null };
+            yield return new object[] { "user1@example.com", new IncomeDto() { Title = "work", Description = "40 week", Currency = "usd", Amount = 8932785975270953757, Date = DateTime.Now, DocumentUrl = "receipt" }, null };
+            yield return new object[] { "user1@example.com", new IncomeDto() { Title = "work", Description = "40 week", Currency = "THIS IS WRONG", Amount = -100, Date = DateTime.Now, DocumentUrl = "receipt" }, null };
+            yield return new object[] { "user1@example.com", new IncomeDto() { Title = "work", Description = "40 week", Currency = "THIS IS WRONG", Amount = 8932785975270953757, Date = DateTime.Now, DocumentUrl = "receipt" }, null };
         }
     }
 }
