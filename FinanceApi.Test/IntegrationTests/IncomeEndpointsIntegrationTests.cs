@@ -36,7 +36,7 @@ namespace FinanceApi.Test.IntegrationTests
 
         [Theory]
         [MemberData(nameof(TestData.GetIncomesValidInputTestData), MemberType = typeof(TestData))]
-        public async Task GetIncomes_ReturnsOkObjectResult_WhenUserIsValid2(
+        public async Task GetIncomes_ReturnsOkObjectResult_WhenUserIsValid(
             string userName,
             DateTime? from,
             DateTime? to,
@@ -209,7 +209,131 @@ namespace FinanceApi.Test.IntegrationTests
         }
 
 
-        
+        [Theory]
+        [MemberData(nameof(TestData.UpdateIncomeValidInputTestData), MemberType = typeof(TestData))]
+        public async Task UpdateIncome_ReturnsOk_WhenIncomeExistsAndInputIsValid(
+            string username,
+            IncomeDto incomeDto,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(incomeDto), Encoding.UTF8, "application/json");
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Income/put"
+                    : $"api/Income/put?optionalOwnerId={optionalOwnerId}";
+
+                try
+                {
+                    var response = await client.PutAsync(requestUrl, jsonContent);
+                    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                }
+                finally
+                {
+                    var isUpdated = db.Incomes.AsNoTracking().ToList()
+                        .Any(x =>
+                        {
+                            bool isSame =
+                                x.Id == incomeDto.Id &&
+                                x.Title.ToLower().Equals(incomeDto.Title.ToLower()) &&
+                                x.Description.ToLower().Equals(incomeDto.Description.ToLower()) &&
+                                x.Currency.ToLower().Equals(incomeDto.Currency.ToLower()) &&
+                                x.Date.Equals(incomeDto.Date) &&
+                                x.DocumentUrl.ToLower().Equals(incomeDto.DocumentUrl.ToLower()) &&
+                                x.Amount.Equals(incomeDto.Amount);
+
+                            return isSame;
+                        });
+
+                    Assert.True(isUpdated);
+                }
+            }
+        }
+
+
+        [Theory]
+        [MemberData(nameof(TestData.UpdateGoalBadRequestInputTestData), MemberType = typeof(TestData))]
+        public async Task UpdateIncome_ReturnsBadRequest_WhenIncomeExistsAndInputIsInvalid(
+            string username,
+            IncomeDto incomeDto,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(incomeDto), Encoding.UTF8, "application/json");
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Income/put"
+                    : $"api/Income/put?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.PutAsync(requestUrl, jsonContent);
+                Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            }
+        }
+
+
+        [Theory]
+        [MemberData(nameof(TestData.UpdateIncomeNotFoundInputTestData), MemberType = typeof(TestData))]
+        public async Task UpdateIncome_ReturnsNotFound_WhenIncomeDoesNotExistOrIsNotUsersIncome(
+            string username,
+            IncomeDto incomeDto,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(incomeDto), Encoding.UTF8, "application/json");
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Income/put"
+                    : $"api/Income/put?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.PutAsync(requestUrl, jsonContent);
+                Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+            }
+        }
+
 
 
         public void Dispose()

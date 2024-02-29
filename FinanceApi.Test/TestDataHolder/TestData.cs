@@ -287,9 +287,9 @@ namespace FinanceApi.Test.TestDataHolder
         public static IEnumerable<object[]> RemoveCategoriesBadRequestInputsTestData()
         {
             yield return new object[] { "user1@example.com", 1, 2, null };
-            yield return new object[] { "user1@example.com", 2, 3, null};
-            yield return new object[] { "user1@example.com", 3, 4, null};
-            yield return new object[] { "user1@example.com", 4, 1, null};
+            yield return new object[] { "user1@example.com", 2, 3, null };
+            yield return new object[] { "user1@example.com", 3, 4, null };
+            yield return new object[] { "user1@example.com", 4, 1, null };
             yield return new object[] { "user3@example.com", 5, 2, "user1@example.com" };
         }
 
@@ -321,6 +321,42 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user1@example.com", new IncomeDto() { Title = "work", Description = "40 week", Currency = "usd", Amount = 8932785975270953757, Date = DateTime.Now, DocumentUrl = "receipt" }, null };
             yield return new object[] { "user1@example.com", new IncomeDto() { Title = "work", Description = "40 week", Currency = "THIS IS WRONG", Amount = -100, Date = DateTime.Now, DocumentUrl = "receipt" }, null };
             yield return new object[] { "user1@example.com", new IncomeDto() { Title = "work", Description = "40 week", Currency = "THIS IS WRONG", Amount = 8932785975270953757, Date = DateTime.Now, DocumentUrl = "receipt" }, null };
+        }
+
+        public static IEnumerable<object[]> UpdateIncomeValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new IncomeDto() { Id = 1, Title = "new Title", Description = "new Description", Currency = "php", Amount = 999999, Date = DateTime.Now, DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
+            yield return new object[] { "user1@example.com", new IncomeDto() { Id = 3, Title = "Random title-dwddwwa214", Description = "new Description", Currency = "all", Amount = 123, Date = DateTime.Now, DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
+            yield return new object[] { "user1@example.com", new IncomeDto() { Id = 4, Title = "A cool heading", Description = "new Description", Currency = "dzd", Amount = 438, Date = DateTime.Now, DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
+            yield return new object[] { "user1@example.com", new IncomeDto() { Id = 6, Title = "TITLE/TITLE", Description = "new Description", Currency = "aoa", Amount = 12, Date = DateTime.Now, DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
+            yield return new object[] { "user1@example.com", new IncomeDto() { Id = 8, Title = "FREELANCE", Description = "new Description", Currency = "xcd", Amount = 5953, Date = DateTime.Now, DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
+            yield return new object[] { "user3@example.com", new IncomeDto() { Id = 9, Title = "COMPANY-123", Description = "new Description", Currency = "ars", Amount = 198, Date = DateTime.Now, DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, "user1@example.com" };
+            yield return new object[] { "user3@example.com", new IncomeDto() { Id = 13, Title = "BET nr-1", Description = "new Description", Currency = "amd", Amount = 32, Date = DateTime.Now.AddDays(1), DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, "user1@example.com" };
+            yield return new object[] { "user3@example.com", new IncomeDto() { Id = 17, Title = "casino", Description = "new Description", Currency = "azn", Amount = 123, Date = DateTime.Now.AddDays(-2), DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, "user1@example.com" };
+            yield return new object[] { "user4@example.com", new IncomeDto() { Id = 62, Title = "new Title", Description = "new Description", Currency = "bbd", Amount = 5638, Date = DateTime.Now.AddDays(2), DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
+            yield return new object[] { "user4@example.com", new IncomeDto() { Id = 78, Title = "new Title", Description = "new Description", Currency = "bzd", Amount = 783, Date = DateTime.Now.AddDays(1), DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
+        }
+
+        public static IEnumerable<object[]> UpdateIncomeBadrequestInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new IncomeDto() { Id = 1, Title = null, Description = "new Description", Currency = "WRONG", Amount = 999999, Date = DateTime.Now, DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
+            yield return new object[] { "user1@example.com", new IncomeDto() { Id = 3, Title = "Random title-dwddwwa214", Description = "new Description", Currency = "all", Amount = -1000, Date = DateTime.Now, DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
+            yield return new object[] { "user1@example.com", new IncomeDto() { Id = 4, Title = "A cool heading", Description = "new Description", Currency = "dzd", Amount = 99999999999999999, Date = DateTime.Now, DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
+            yield return new object[] { "user3@example.com", new IncomeDto() { Id = 13, Title = "BET nr-1", Description = "new Description", Currency = "amd", Amount = -1000, Date = DateTime.Now.AddDays(1), DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, "user1@example.com" };
+            yield return new object[] { "user3@example.com", new IncomeDto() { Id = 17, Title = "casino", Description = "new Description", Currency = "WRONG", Amount = 000000000000000000, Date = DateTime.Now.AddDays(-2), DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, "user1@example.com" };
+            yield return new object[] { "user4@example.com", new IncomeDto() { Id = 62, Title = "new Title", Description = "new Description", Currency = "WRONG", Amount = 100, Date = DateTime.Now.AddDays(2), DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
+            yield return new object[] { "user4@example.com", new IncomeDto() { Id = 78, Title = "new Title", Description = "new Description", Currency = "WRONG", Amount = 783, Date = DateTime.Now.AddDays(1), DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
+        }
+
+        public static IEnumerable<object[]> UpdateIncomeNotFoundInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new IncomeDto() { Id = 69, Title = "TITLE/TITLE", Description = "new Description", Currency = "aoa", Amount = 12, Date = DateTime.Now, DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
+            yield return new object[] { "user1@example.com", new IncomeDto() { Id = 83, Title = "FREELANCE", Description = "new Description", Currency = "xcd", Amount = 5953, Date = DateTime.Now, DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
+            yield return new object[] { "user3@example.com", new IncomeDto() { Id = 92, Title = "COMPANY-123", Description = "new Description", Currency = "ars", Amount = 198, Date = DateTime.Now, DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
+            yield return new object[] { "user3@example.com", new IncomeDto() { Id = 132, Title = "BET nr-1", Description = "new Description", Currency = "amd", Amount = 32, Date = DateTime.Now.AddDays(1), DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
+            yield return new object[] { "user4@example.com", new IncomeDto() { Id = 622, Title = "new Title", Description = "new Description", Currency = "bbd", Amount = 5638, Date = DateTime.Now.AddDays(2), DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
+            yield return new object[] { "user4@example.com", new IncomeDto() { Id = 782, Title = "new Title", Description = "new Description", Currency = "bzd", Amount = 783, Date = DateTime.Now.AddDays(1), DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
+
         }
     }
 }
