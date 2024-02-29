@@ -358,5 +358,36 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user4@example.com", new IncomeDto() { Id = 782, Title = "new Title", Description = "new Description", Currency = "bzd", Amount = 783, Date = DateTime.Now.AddDays(1), DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, null };
 
         }
+
+        public static IEnumerable<object[]> DeleteIncomeValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, null };
+            yield return new object[] { "user1@example.com", 3, null };
+            yield return new object[] { "user1@example.com", 4, null };
+            yield return new object[] { "user1@example.com", 6, null };
+            yield return new object[] { "user1@example.com", 8, null };
+            yield return new object[] { "user2@example.com", 21, null };
+            yield return new object[] { "user2@example.com", 27, null };
+            yield return new object[] { "user2@example.com", 32, null };
+            yield return new object[] { "user3@example.com", 9, "user1@example.com" };
+            yield return new object[] { "user3@example.com", 13, "user1@example.com" };
+            yield return new object[] { "user3@example.com", 17, "user1@example.com" };
+            yield return new object[] { "user4@example.com", 62, null };
+            yield return new object[] { "user4@example.com", 78, null };
+
+        }
+
+        public static IEnumerable<object[]> DeleteIncomeNotFoundInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 69, null };
+            yield return new object[] { "user1@example.com", 83, null };
+            yield return new object[] { "user2@example.com", 93, null };
+            yield return new object[] { "user2@example.com", 102, null };
+            yield return new object[] { "user3@example.com", 111, null };
+            yield return new object[] { "user3@example.com", 132, null };
+            yield return new object[] { "user4@example.com", 622, null };
+            yield return new object[] { "user4@example.com", 782, null };
+
+        }
     }
 }

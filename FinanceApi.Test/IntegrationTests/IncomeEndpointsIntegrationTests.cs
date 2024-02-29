@@ -335,6 +335,83 @@ namespace FinanceApi.Test.IntegrationTests
         }
 
 
+        [Theory]
+        [MemberData(nameof(TestData.DeleteIncomeValidInputTestData), MemberType = typeof(TestData))]
+        public async Task DeleteIncome_ReturnsNoContent_WhenIncomeExists(
+            string username,
+            int incomeId,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Income/delete/{incomeId}"
+                    : $"api/Income/delete/{incomeId}?optionalOwnerId={optionalOwnerId}";
+
+                try
+                {
+                    var response = await client.DeleteAsync(requestUrl);
+                    Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+                }
+                finally
+                {
+                    bool isDeleted = !db.Incomes.Any(x => x.Id == incomeId);
+                    Assert.True(isDeleted);
+
+                }
+
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.DeleteIncomeNotFoundInputTestData), MemberType = typeof(TestData))]
+        public async Task DeleteIncome_ReturnsNotFound_WhenIncomeDoesNotExists(
+            string username,
+            int incomeId,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Income/delete/{incomeId}"
+                    : $"api/Income/delete/{incomeId}?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.DeleteAsync(requestUrl);
+
+                Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            }
+        }
+
+
+
+
+
 
         public void Dispose()
         {
