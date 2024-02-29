@@ -411,6 +411,131 @@ namespace FinanceApi.Test.IntegrationTests
 
 
 
+        [Theory]
+        [MemberData(nameof(TestData.AddCategoryToIncomeValidInputTestData), MemberType = typeof(TestData))]
+        public async Task AddCategory_ReturnsOk_WhenInputIsValidAndDoesNotExist(
+            string username,
+            int incomeId,
+            List<int> categoryIds,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var jsonCategoryIds = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Income/associate_categories/{incomeId}"
+                    : $"api/Income/associate_categories/{incomeId}?optionalOwnerId={optionalOwnerId}";
+
+
+                try
+                {
+                    var response = await client.PostAsync(requestUrl, jsonCategoryIds);
+
+                    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+                }
+                finally
+                {
+                    int amountAdded = db.IncomeCategories
+                        .Where(x => x.IncomeId == incomeId && categoryIds.Contains(x.CategoryId)).Count();
+                    bool allAdded = categoryIds.Count() == amountAdded;
+                    Assert.True(allAdded);
+
+                }
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.AddCategoryToIncomeBadRequestInputTestData), MemberType = typeof(TestData))]
+        public async Task AddCategory_ReturnsBadRequest_WhenInputIsInvalid(
+            string username,
+            int incomeId,
+            List<int> categoryIds,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var jsonCategoryIds = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Income/associate_categories/{incomeId}"
+                    : $"api/Income/associate_categories/{incomeId}?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.PostAsync(requestUrl, jsonCategoryIds);
+
+                Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.AddCategoryToIncomeNotFoundInputTestData), MemberType = typeof(TestData))]
+        public async Task AddCategory_ReturnsNotFound_WhenIncomeOrCategoryDoNotExist(
+            string username,
+            int incomeId,
+            List<int> categoryIds,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var jsonCategoryIds = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Income/associate_categories/{incomeId}"
+                    : $"api/Income/associate_categories/{incomeId}?optionalOwnerId={optionalOwnerId}";
+
+
+                var response = await client.PostAsync(requestUrl, jsonCategoryIds);
+
+                Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            }
+        }
+
 
 
         public void Dispose()

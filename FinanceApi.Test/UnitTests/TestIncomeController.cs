@@ -479,7 +479,7 @@ namespace FinanceApi.Test.Tests
 
 
         [Theory]
-        [MemberData(nameof(TestData.AddCategoryToIncomeValidInputTestData), MemberType = typeof(TestData))]
+        [MemberData(nameof(TestData.AddCategoryToIncomeValidInputTestDataUnitTest), MemberType = typeof(TestData))]
         public void AddCategoryToIncome_ReturnsOkObjectResult_WhenIncomeExistsAndCategoryIdsAreValid(
             int incomeId, ICollection<int> categoryIds, string? optionalOwnerId
             )

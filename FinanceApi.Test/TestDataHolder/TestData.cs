@@ -177,7 +177,7 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { new IncomeDto() { Id = 3, Title = "Title-3", Description = "Description-3", Amount = -1, Currency = "INVALID", Date = DateTime.Now, DocumentUrl = "URL-3" }, null };
             yield return new object[] { new IncomeDto() { Id = 4, Title = "Title-4", Description = "Description-4", Amount = 9, Currency = "INVALID", Date = DateTime.Now, DocumentUrl = "URL-4" }, null };
         }
-        public static IEnumerable<object[]> AddCategoryToIncomeValidInputTestData()
+        public static IEnumerable<object[]> AddCategoryToIncomeValidInputTestDataUnitTest()
         {
             yield return new object[] { 1,
                 new List<int>(){
@@ -388,6 +388,33 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user4@example.com", 622, null };
             yield return new object[] { "user4@example.com", 782, null };
 
+        }
+
+        public static IEnumerable<object[]> AddCategoryToIncomeValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, new List<int>() { 2,3,4 }, null };
+            yield return new object[] { "user1@example.com", 2, new List<int>() { 1,3,4 }, null };
+            yield return new object[] { "user1@example.com", 3, new List<int>() { 2,4,1 }, null };
+            yield return new object[] { "user1@example.com", 4, new List<int>() { 1,2,3 }, null };
+        }
+
+        public static IEnumerable<object[]> AddCategoryToIncomeBadRequestInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, new List<int>() { 1 }, null };
+            yield return new object[] { "user1@example.com", 2, new List<int>() { 2 }, null };
+            yield return new object[] { "user1@example.com", 3, new List<int>() { 3 }, null };
+            yield return new object[] { "user1@example.com", 4, new List<int>() { 4 }, null };
+            yield return new object[] { "user1@example.com", 5, new List<int>() { 1 }, null };
+
+        }
+
+        public static IEnumerable<object[]> AddCategoryToIncomeNotFoundInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 21, new List<int>() { 2 }, null };
+            yield return new object[] { "user1@example.com", 22, new List<int>() { 3 }, null };
+            yield return new object[] { "user1@example.com", 2, new List<int>() { 8 }, null };
+            yield return new object[] { "user1@example.com", 3, new List<int>() { 25 }, null };
+            yield return new object[] { "user1@example.com", 25, new List<int>() { 25 }, null };
         }
     }
 }
