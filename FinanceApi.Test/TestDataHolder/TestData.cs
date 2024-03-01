@@ -1,4 +1,5 @@
 ﻿using FinanceApi.Data.Dtos;
+using FinanceApi.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -139,7 +140,7 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { new ExpenseDto() { Id = 3, Title = "Title-3", Description = "Description-3", Amount = -1, Currency = "INVALID", Date = DateTime.Now, DocumentUrl = "URL-3" }, null };
             yield return new object[] { new ExpenseDto() { Id = 4, Title = "Title-4", Description = "Description-4", Amount = 9, Currency = "INVALID", Date = DateTime.Now, DocumentUrl = "URL-4" }, null };
         }
-        public static IEnumerable<object[]> AddCategoryToExpenseValidInputTestData()
+        public static IEnumerable<object[]> AddCategoryToExpenseValidInputTestDataUnitTest()
         {
             yield return new object[] { 1,
                 new List<int>(){
@@ -392,10 +393,10 @@ namespace FinanceApi.Test.TestDataHolder
 
         public static IEnumerable<object[]> AddCategoryToIncomeValidInputTestData()
         {
-            yield return new object[] { "user1@example.com", 1, new List<int>() { 2,3,4 }, null };
-            yield return new object[] { "user1@example.com", 2, new List<int>() { 1,3,4 }, null };
-            yield return new object[] { "user1@example.com", 3, new List<int>() { 2,4,1 }, null };
-            yield return new object[] { "user1@example.com", 4, new List<int>() { 1,2,3 }, null };
+            yield return new object[] { "user1@example.com", 1, new List<int>() { 2, 3, 4 }, null };
+            yield return new object[] { "user1@example.com", 2, new List<int>() { 1, 3, 4 }, null };
+            yield return new object[] { "user1@example.com", 3, new List<int>() { 2, 4, 1 }, null };
+            yield return new object[] { "user1@example.com", 4, new List<int>() { 1, 2, 3 }, null };
         }
 
         public static IEnumerable<object[]> AddCategoryToIncomeBadRequestInputTestData()
@@ -416,5 +417,212 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user1@example.com", 3, new List<int>() { 25 }, null };
             yield return new object[] { "user1@example.com", 25, new List<int>() { 25 }, null };
         }
+
+        public static IEnumerable<object[]> RemoveCategoriesFromIncomeValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, 1, null };
+            yield return new object[] { "user1@example.com", 2, 2, null };
+            yield return new object[] { "user1@example.com", 3, 3, null };
+            yield return new object[] { "user1@example.com", 4, 4, null };
+            yield return new object[] { "user1@example.com", 5, 1, null };
+        }
+        public static IEnumerable<object[]> RemoveCategoriesFromIncomeNotFoundInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 21, 1, null };
+            yield return new object[] { "user1@example.com", 22, 22, null };
+            yield return new object[] { "user1@example.com", 1, 8, null };
+            yield return new object[] { "user1@example.com", 19, 7, null };
+            yield return new object[] { "user1@example.com", 25, 2, null };
+        }
+
+        public static IEnumerable<object[]> RemoveCategoriesIncomeNotFoundInputsTestData()
+        {
+            yield return new object[] { "user1@example.com", 21, 1, null };
+            yield return new object[] { "user1@example.com", 22, 2, null };
+            yield return new object[] { "user3@example.com", 23, 3, "user1@example.com" };
+            yield return new object[] { "user2@example.com", 42, 20, null };
+            yield return new object[] { "user2@example.com", 43, 3, null };
+            yield return new object[] { "user3@example.com", 62, 3, null };
+            yield return new object[] { "user3@example.com", 464, 3, null };
+            yield return new object[] { "user4@example.com", 81, 1, null };
+            yield return new object[] { "user4@example.com", 123, 56, null };
+
+        }
+        // More test data needed (REMOVE THIS COMMAND WHEN DONE) \\
+        public static IEnumerable<object[]> RemoveCategoriesFromIncomeBadRequestInputsTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, 2, null };
+            yield return new object[] { "user1@example.com", 2, 3, null };
+            yield return new object[] { "user1@example.com", 3, 4, null };
+            yield return new object[] { "user1@example.com", 4, 1, null };
+            yield return new object[] { "user1@example.com", 5, 2, null };
+        }
+
+        public static IEnumerable<object[]> GetExpenseValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new DateTime(2022, 4, 8), new DateTime(2025, 5, 8), "title", "desc", null };
+            yield return new object[] { "user1@example.com", new DateTime(2023, 3, 8), new DateTime(2024, 1, 1), "amount", "desc", null };
+            yield return new object[] { "user1@example.com", new DateTime(2019, 2, 8), new DateTime(2020, 1, 1), "urgency", "desc", null };
+            yield return new object[] { "user1@example.com", new DateTime(2020, 6, 9), new DateTime(2023, 1, 1), "title", null, null };
+            yield return new object[] { "user1@example.com", new DateTime(2021, 6, 2), new DateTime(2024, 1, 1), "amount", null, null };
+            yield return new object[] { "user3@example.com", new DateTime(2022, 4, 5), new DateTime(2023, 6, 8), "urgency", null, "user1@example.com" };
+            yield return new object[] { "user2@example.com", new DateTime(2022, 4, 8), new DateTime(2025, 5, 8), "title", "desc", null };
+            yield return new object[] { "user2@example.com", new DateTime(2023, 3, 8), new DateTime(2024, 1, 1), "amount", "desc", null };
+            yield return new object[] { "user3@example.com", new DateTime(2019, 2, 8), new DateTime(2020, 1, 1), "urgency", "desc", null };
+            yield return new object[] { "user3@example.com", new DateTime(2020, 6, 9), new DateTime(2023, 1, 1), "title", null, null };
+            yield return new object[] { "user4@example.com", new DateTime(2021, 6, 2), new DateTime(2024, 1, 1), "amount", null, null };
+        }
+
+        public static IEnumerable<object[]> CreateExpenseValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Title = "Food", Description = "Ate at a restaurant", Amount = 54, Currency = "eur", Date = DateTime.Now, DocumentUrl = "www.restaurant.com/receipt", Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Title = "shopping", Description = "shoes", Amount = 460, Currency = "php", Date = DateTime.Now.AddDays(3), DocumentUrl = "shoes", Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Title = "insurance", Description = "insurance", Amount = 395, Currency = "usd", Date = DateTime.Now.AddDays(2), DocumentUrl = "receipt", Urgency = Urgency.High }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Title = "gym", Description = "", Amount = 323, Currency = "eur", Date = DateTime.Now.AddDays(7), DocumentUrl = "receipt", Urgency = Urgency.Medium }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Title = "gym", Description = "", Amount = 100000, Currency = "eur", Date = DateTime.Now.AddDays(7), DocumentUrl = "receipt", Urgency = Urgency.Medium }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Title = "gym", Description = "", Amount = 1, Currency = "eur", Date = DateTime.Now.AddDays(7), DocumentUrl = "receipt", Urgency = Urgency.Medium }, null };
+        }
+        // datetime null should return bad request. Does not in current state\\
+        public static IEnumerable<object[]> CreateExpenseBadRequestInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Title = "Food", Description = "Ate at a restaurant", Amount = -1, Currency = "WRONG", Date = DateTime.Now, DocumentUrl = "www.restaurant.com/receipt", Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Title = "shopping", Description = "shoes", Amount = 460, Currency = "WRONG", Date = DateTime.Now.AddDays(3), DocumentUrl = "shoes", Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Title = "insurance", Description = "insurance", Amount = 10000000000000000000, Currency = "usd", Date = DateTime.Now.AddDays(2), DocumentUrl = "receipt", Urgency = Urgency.High }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Title = "gym", Description = "", Amount = 10000000000000000000, Currency = "WRONG", Date = DateTime.Now.AddDays(7), DocumentUrl = "receipt", Urgency = Urgency.Medium }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Title = "gym", Description = "", Amount = 1, Date = DateTime.Now.AddDays(7), DocumentUrl = "receipt" }, null };
+        }
+
+        public static IEnumerable<object[]> UpdateExpenseValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Id = 1, Title = "new title", Description = "The desciption-2223355aa-23bcis45bsBD", Amount = 32, Currency = "eur", Date = DateTime.Now.AddDays(-100), DocumentUrl = "new receipt", Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Id = 2, Title = "new title", Description = "The desciption-2223355aa-23bcis45bsBD", Amount = 290, Currency = "php", Date = DateTime.Now.AddDays(-165), DocumentUrl = "new receipt", Urgency = Urgency.Medium }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Id = 3, Title = "new title", Description = "The desciption-2223355aa-23bcis45bsBD", Amount = 213, Currency = "eur", Date = DateTime.Now.AddDays(-45), DocumentUrl = "new receipt", Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Id = 4, Title = "new title", Description = "The desciption-2223355aa-23bcis45bsBD", Amount = 376, Currency = "php", Date = DateTime.Now.AddDays(234), DocumentUrl = "new receipt", Urgency = Urgency.Medium }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Id = 5, Title = "new title", Description = "The desciption-2223355aa-23bcis45bsBD", Amount = 9023, Currency = "usd", Date = DateTime.Now.AddDays(442), DocumentUrl = "new receipt", Urgency = Urgency.High }, null };
+        }
+        // datetime null should return bad request. Does not in current state\\
+        public static IEnumerable<object[]> UpdateExpenseBadrequestInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Id = 1, Title = "Food", Description = "Ate at a restaurant", Amount = -1, Currency = "WRONG", Date = DateTime.Now, DocumentUrl = "www.restaurant.com/receipt", Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Id = 2, Title = "shopping", Description = "shoes", Amount = 460, Currency = "WRONG", Date = DateTime.Now.AddDays(3), DocumentUrl = "shoes", Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Id = 3, Title = "insurance", Description = "insurance", Amount = 10000000000000000000, Currency = "usd", Date = DateTime.Now.AddDays(2), DocumentUrl = "receipt", Urgency = Urgency.High }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Id = 4, Title = "gym", Description = "", Amount = 10000000000000000000, Currency = "WRONG", Date = DateTime.Now.AddDays(7), DocumentUrl = "receipt", Urgency = Urgency.Medium }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Id = 6, Title = "gym", Description = "", Amount = 1, Date = DateTime.Now.AddDays(7), DocumentUrl = "receipt" }, null };
+        }
+
+        public static IEnumerable<object[]> UpdateExpenseNotFoundInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Id = 21, Title = "new title", Description = "The desciption-2223355aa-23bcis45bsBD", Amount = 32, Currency = "eur", Date = DateTime.Now.AddDays(-100), DocumentUrl = "new receipt", Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Id = 62, Title = "new title", Description = "The desciption-2223355aa-23bcis45bsBD", Amount = 290, Currency = "php", Date = DateTime.Now.AddDays(-165), DocumentUrl = "new receipt", Urgency = Urgency.Medium }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Id = 83, Title = "new title", Description = "The desciption-2223355aa-23bcis45bsBD", Amount = 213, Currency = "eur", Date = DateTime.Now.AddDays(-45), DocumentUrl = "new receipt", Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Id = 34, Title = "new title", Description = "The desciption-2223355aa-23bcis45bsBD", Amount = 376, Currency = "php", Date = DateTime.Now.AddDays(234), DocumentUrl = "new receipt", Urgency = Urgency.Medium }, null };
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Id = 45, Title = "new title", Description = "The desciption-2223355aa-23bcis45bsBD", Amount = 9023, Currency = "usd", Date = DateTime.Now.AddDays(442), DocumentUrl = "new receipt", Urgency = Urgency.High }, null };
+        }
+
+        public static IEnumerable<object[]> DeleteExpenseValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, null };
+            yield return new object[] { "user1@example.com", 5, null };
+            yield return new object[] { "user3@example.com", 16, "user1@example.com" };
+            yield return new object[] { "user2@example.com", 25, null };
+            yield return new object[] { "user2@example.com", 35, null };
+            yield return new object[] { "user3@example.com", 46, null };
+            yield return new object[] { "user3@example.com", 57, null };
+            yield return new object[] { "user4@example.com", 63, null };
+            yield return new object[] { "user4@example.com", 76, null };
+        }
+        public static IEnumerable<object[]> DeleteExpenseNotFoundInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 21, null };
+            yield return new object[] { "user1@example.com", 25, null };
+            yield return new object[] { "user3@example.com", 116, "user1@example.com" };
+            yield return new object[] { "user2@example.com", 125, null };
+            yield return new object[] { "user2@example.com", 135, null };
+            yield return new object[] { "user3@example.com", 146, null };
+            yield return new object[] { "user3@example.com", 157, null };
+            yield return new object[] { "user4@example.com", 163, null };
+            yield return new object[] { "user4@example.com", 176, null };
+        }
+        public static IEnumerable<object[]> AddCategoryToExpenseValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, new List<int>() { 2, 3, 4 }, null };
+            yield return new object[] { "user1@example.com", 2, new List<int>() { 3, 4 }, null };
+            yield return new object[] { "user3@example.com", 3, new List<int>() { 1,2,4 }, "user1@example.com" };
+            yield return new object[] { "user2@example.com", 20, new List<int>() { 1 }, null };
+            yield return new object[] { "user2@example.com", 21, new List<int>() { 2 }, null };
+            yield return new object[] { "user3@example.com", 40, new List<int>() { 2 }, null };
+            yield return new object[] { "user4@example.com", 60, new List<int>() { 2 }, null };
+            yield return new object[] { "user4@example.com", 62, new List<int>() { 4 }, null };
+        }
+
+        public static IEnumerable<object[]> AddCategoryToExpenseNotFoundInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, new List<int>() { 5 }, null };
+            yield return new object[] { "user1@example.com", 324, new List<int>() { 3 }, null };
+            yield return new object[] { "user3@example.com", 3, new List<int>() { 5 }, null };
+            yield return new object[] { "user2@example.com", 432, new List<int>() { 2 }, null };
+            yield return new object[] { "user2@example.com", 21, new List<int>() { 9 }, null };
+            yield return new object[] { "user3@example.com", 123, new List<int>() { 2 }, null };
+            yield return new object[] { "user3@example.com", 43, new List<int>() { 5 }, null };
+            yield return new object[] { "user4@example.com", 1, new List<int>() { 2 }, null };
+            yield return new object[] { "user4@example.com", 62, new List<int>() { 5 }, null };
+        }
+
+        public static IEnumerable<object[]> AddCategoryToExpenseBadRequestInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, new List<int>() { 1 }, null };
+            yield return new object[] { "user1@example.com", 2, new List<int>() { 2 }, null };
+            yield return new object[] { "user3@example.com", 3, new List<int>() { 3 }, "user1@example.com" };
+            yield return new object[] { "user2@example.com", 21, new List<int>() { }, null };
+            yield return new object[] { "user2@example.com", 22, new List<int>() { }, null };
+            yield return new object[] { "user3@example.com", 41, new List<int>() { }, null };
+            yield return new object[] { "user3@example.com", 43, new List<int>() { }, null };
+            yield return new object[] { "user4@example.com", 61, new List<int>() { 13 }, null };
+            yield return new object[] { "user4@example.com", 62, new List<int>() { 14 }, null };
+
+        }
+
+        public static IEnumerable<object[]> RemoveCategoriesFromExpenseValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, 1, null };
+            yield return new object[] { "user1@example.com", 2, 2, null };
+            yield return new object[] { "user3@example.com", 3, 3, null };
+            yield return new object[] { "user2@example.com", 20, 1, null };
+            yield return new object[] { "user2@example.com", 21, 2, null };
+            yield return new object[] { "user3@example.com", 40, 1, null };
+            yield return new object[] { "user3@example.com", 43, 3, null };
+            yield return new object[] { "user4@example.com", 60, 1, null };
+            yield return new object[] { "user4@example.com", 62, 2, null };
+        }
+
+        public static IEnumerable<object[]> RemoveCategoriesFromExpenseNotFoundInputsTestData()
+        {
+            yield return new object[] { "user1@example.com", 123, 1, null };
+            yield return new object[] { "user1@example.com", 2123, 2, null };
+            yield return new object[] { "user3@example.com", 53, 3, null };
+            yield return new object[] { "user2@example.com", 221, 23, null };
+            yield return new object[] { "user2@example.com", 221, 2, null };
+            yield return new object[] { "user3@example.com", 42, 6, null };
+            yield return new object[] { "user3@example.com", 443, 3, null };
+            yield return new object[] { "user4@example.com", 62, 76, null };
+            yield return new object[] { "user4@example.com", 662, 2, null };
+
+        }
+
+        public static IEnumerable<object[]> RemoveCategoriesFromExpenseBadRequestInputsTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, 2, null };
+            yield return new object[] { "user1@example.com", 2, 3, null };
+            yield return new object[] { "user3@example.com", 3, 4, "user1@example.com" };
+            yield return new object[] { "user2@example.com", 21, 8, null };
+            yield return new object[] { "user2@example.com", 22, 8, null };
+            yield return new object[] { "user3@example.com", 41, 12, null };
+            yield return new object[] { "user3@example.com", 43, 12, null };
+            yield return new object[] { "user4@example.com", 61, 14, null };
+            yield return new object[] { "user4@example.com", 62, 15, null };
+
+        }
+
+
     }
 }

@@ -487,7 +487,7 @@ namespace FinanceApi.Test.Tests
 
 
         [Theory]
-        [MemberData(nameof(TestData.AddCategoryToExpenseValidInputTestData), MemberType = typeof(TestData))]
+        [MemberData(nameof(TestData.AddCategoryToExpenseValidInputTestDataUnitTest), MemberType = typeof(TestData))]
         public void AddCategoryToExpense_ReturnsOkObjectResult_WhenExpenseExistsAndCategoryIdsAreValid(
             int expenseId, ICollection<int> categoryIds, string? optionalOwnerId
             )
