@@ -266,7 +266,7 @@ namespace FinanceApi.Test.IntegrationTests
 
 
         [Theory]
-        [MemberData(nameof(TestData.UpdateGoalBadRequestInputTestData), MemberType = typeof(TestData))]
+        [MemberData(nameof(TestData.UpdateIncomeBadrequestInputTestData), MemberType = typeof(TestData))]
         public async Task UpdateIncome_ReturnsBadRequest_WhenIncomeExistsAndInputIsInvalid(
             string username,
             IncomeDto incomeDto,
@@ -536,6 +536,133 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Theory]
+        [MemberData(nameof(TestData.RemoveCategoriesFromIncomeValidInputTestData), MemberType = typeof(TestData))]
+        public async Task RemoveCategories_ReturnsOk_WhenIncomeAndCategoryExistsAndIsUsers(
+            string username,
+            int incomeId,
+            int categoryId,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                var incomeCategoriesToBeDeleted =
+                    db.IncomeCategories.AsNoTracking().First(x => x.IncomeId == incomeId && x.CategoryId == categoryId);
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Income/remove_category/{incomeId}/{categoryId}"
+                    : $"api/Income/remove_category/{incomeId}/{categoryId}?optionalOwnerId={optionalOwnerId}";
+
+
+                try
+                {
+                    var response = await client.DeleteAsync(requestUrl);
+
+                    Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+                }
+                finally
+                {
+                    bool isDeleted = !db.IncomeCategories.Any(x => x.Equals(incomeCategoriesToBeDeleted));
+                    Assert.True(isDeleted);
+                    if (isDeleted)
+                    {
+                        db.IncomeCategories.Add(incomeCategoriesToBeDeleted);
+                        db.SaveChanges();
+                    }
+                }
+            }
+        }
+
+
+        [Theory]
+        [MemberData(nameof(TestData.RemoveCategoriesIncomeNotFoundInputsTestData), MemberType = typeof(TestData))]
+        public async Task RemoveCategories_ReturnsNotFound_WhenGoalOrCategoryDoesNotExist(
+            string username,
+            int incomeId,
+            int categoryId,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Income/remove_category/{incomeId}/{categoryId}"
+                    : $"api/Income/remove_category/{incomeId}/{categoryId}?optionalOwnerId={optionalOwnerId}";
+
+
+                var response = await client.DeleteAsync(requestUrl);
+                Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+            }
+        }
+
+
+        [Theory]
+        [MemberData(nameof(TestData.RemoveCategoriesFromIncomeBadRequestInputsTestData), MemberType = typeof(TestData))]
+        public async Task RemoveCategories_ReturnsBadRequest_WhenGoalDoesNotHaveACategoryOrACategpry(
+            string username,
+            int incomeId,
+            int categoryId,
+            string? optionalOwnerUsername
+        )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Income/remove_category/{incomeId}/{categoryId}"
+                    : $"api/Income/remove_category/{incomeId}/{categoryId}?optionalOwnerId={optionalOwnerId}";
+
+
+                var response = await client.DeleteAsync(requestUrl);
+
+                Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            }
+        }
 
 
         public void Dispose()
