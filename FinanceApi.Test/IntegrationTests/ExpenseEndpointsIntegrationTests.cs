@@ -415,7 +415,7 @@ namespace FinanceApi.Test.IntegrationTests
 
 
 
-        [Theory(Skip = "testData not ready")]
+        [Theory()]
         [MemberData(nameof(TestData.AddCategoryToExpenseValidInputTestData), MemberType = typeof(TestData))]
         public async Task AddCategoryToExpense_ReturnsOk_WhenInputIsValidAndDoesNotExist(
             string username,
@@ -450,7 +450,7 @@ namespace FinanceApi.Test.IntegrationTests
                 try
                 {
                     var response = await client.PostAsync(requestUrl, jsonCategoryIds);
-
+                    bool equal = HttpStatusCode.OK == response.StatusCode;
                     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
                     ///////////////////////////////////////////////
                 }
@@ -544,7 +544,7 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
-        [Theory(Skip = "testdata not ready")]
+        [Theory]
         [MemberData(nameof(TestData.RemoveCategoriesFromExpenseValidInputTestData), MemberType = typeof(TestData))]
         public async Task RemoveCategoriesFromExpense_ReturnsOk_WhenIncomeAndCategoryExistsAndIsUsers(
             string username,

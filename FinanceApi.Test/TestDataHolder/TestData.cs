@@ -548,11 +548,11 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user1@example.com", 1, new List<int>() { 2, 3, 4 }, null };
             yield return new object[] { "user1@example.com", 2, new List<int>() { 3, 4 }, null };
             yield return new object[] { "user3@example.com", 3, new List<int>() { 1,2,4 }, "user1@example.com" };
-            yield return new object[] { "user2@example.com", 20, new List<int>() { 1 }, null };
-            yield return new object[] { "user2@example.com", 21, new List<int>() { 2 }, null };
-            yield return new object[] { "user3@example.com", 40, new List<int>() { 2 }, null };
-            yield return new object[] { "user4@example.com", 60, new List<int>() { 2 }, null };
-            yield return new object[] { "user4@example.com", 62, new List<int>() { 4 }, null };
+            yield return new object[] { "user2@example.com", 21, new List<int>() { 6 }, null };
+            yield return new object[] { "user2@example.com", 22, new List<int>() { 7 }, null };
+            yield return new object[] { "user3@example.com", 41, new List<int>() { 11 }, null };
+            yield return new object[] { "user4@example.com", 61, new List<int>() { 14 }, null };
+            yield return new object[] { "user4@example.com", 62, new List<int>() { 15 }, null };
         }
 
         public static IEnumerable<object[]> AddCategoryToExpenseNotFoundInputTestData()
@@ -586,13 +586,13 @@ namespace FinanceApi.Test.TestDataHolder
         {
             yield return new object[] { "user1@example.com", 1, 1, null };
             yield return new object[] { "user1@example.com", 2, 2, null };
-            yield return new object[] { "user3@example.com", 3, 3, null };
-            yield return new object[] { "user2@example.com", 20, 1, null };
-            yield return new object[] { "user2@example.com", 21, 2, null };
-            yield return new object[] { "user3@example.com", 40, 1, null };
-            yield return new object[] { "user3@example.com", 43, 3, null };
-            yield return new object[] { "user4@example.com", 60, 1, null };
-            yield return new object[] { "user4@example.com", 62, 2, null };
+            yield return new object[] { "user3@example.com", 3, 3, "user1@example.com" };
+            yield return new object[] { "user2@example.com", 21, 5, null };
+            yield return new object[] { "user2@example.com", 22, 6, null };
+            yield return new object[] { "user3@example.com", 41, 9, null };
+            yield return new object[] { "user3@example.com", 43, 11, null };
+            yield return new object[] { "user4@example.com", 61, 13, null };
+            yield return new object[] { "user4@example.com", 62, 14, null };
         }
 
         public static IEnumerable<object[]> RemoveCategoriesFromExpenseNotFoundInputsTestData()
