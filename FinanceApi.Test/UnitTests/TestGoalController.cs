@@ -297,7 +297,7 @@ namespace FinanceApi.Test.Tests
 
 
         [Theory(Skip = "Skipping because it is not ready at the current state.")]
-        [MemberData(nameof(TestData.RemoveCategoriesValidInputTestData), MemberType = typeof(TestData))]
+        [MemberData(nameof(TestData.RemoveCategoriesFromGoalValidInputTestData), MemberType = typeof(TestData))]
         public void RemoveCategories_RetunsOkObjectResult_WhenGoalExistsAndCategoryIdsExist(
             string username,
             int goalId,

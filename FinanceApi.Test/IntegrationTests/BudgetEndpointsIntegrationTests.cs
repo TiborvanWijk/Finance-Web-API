@@ -19,11 +19,11 @@ using System.Data;
 
 namespace FinanceApi.Test.IntegrationTests
 {
-    public class GoalEndpointsIntegrationTests : IDisposable
+    public class BudgetEndpointsIntegrationTests : IDisposable
     {
         private CustomWebApplicationFactory factory;
         private HttpClient client;
-        public GoalEndpointsIntegrationTests()
+        public BudgetEndpointsIntegrationTests()
         {
             factory = new CustomWebApplicationFactory();
             client = factory.CreateClient();
@@ -32,7 +32,7 @@ namespace FinanceApi.Test.IntegrationTests
 
 
         [Theory]
-        [MemberData(nameof(TestData.GetGoalValidInputTestData), MemberType = typeof(TestData))]
+        [MemberData(nameof(TestData.GetBudgetValidInputTestData), MemberType = typeof(TestData))]
         public async Task GetGoal_ReturnsOkObjectResult_WhenUserIsValid2(
             string userName,
             DateTime? startDate,
@@ -62,7 +62,7 @@ namespace FinanceApi.Test.IntegrationTests
 
             object[] paramValues = { startDate, endDate, listOrderBy, listDir, optionalOwnerId };
             string[] paramNames = { "startDate", "endDate", "listOrderBy", "listDir", "optionalOwnerId" };
-            var requestUrl = $"/api/Goal/current";
+            var requestUrl = $"/api/Budget/current";
             bool added = false;
             for (var i = 0; i < paramValues.Length; ++i)
             {
@@ -82,26 +82,26 @@ namespace FinanceApi.Test.IntegrationTests
             var response = await client.GetAsync(requestUrl);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            List<GoalDto> responseData = JsonConvert.DeserializeObject<List<GoalDto>>(await response.Content.ReadAsStringAsync());
+            List<BudgetDto> responseData = JsonConvert.DeserializeObject<List<BudgetDto>>(await response.Content.ReadAsStringAsync());
 
 
             var ownerId = optionalOwnerId ?? user.Id;
 
-            List<GoalDto> correctResponse = null;
+            List<BudgetDto> correctResponse = null;
             using (var scope = factory.Services.CreateScope())
             {
 
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
 
-                correctResponse = db.Goals.Include(g => g.GoalCategories).ThenInclude(gc => gc.Category.IncomeCategories)
+                correctResponse = db.Budgets.Include(g => g.BudgetCategories).ThenInclude(gc => gc.Category.IncomeCategories)
                     .Where(x => x.User.Id.Equals(ownerId)
                         && (startDate == null || x.StartDate >= startDate)
                         && (endDate == null || x.EndDate <= endDate))
-                    .Select(Map.ToGoalDto)
+                    .Select(Map.ToBudgetDto)
                     .Select(x =>
                     {
-                        x.Progress = db.Incomes
-                        .Where(i => i.Date >= x.StartDate && i.Date <= DateTime.Now && i.User.Id.Equals(ownerId) && i.IncomeCategories
+                        x.Spending = db.Expenses
+                        .Where(i => i.Date >= x.StartDate && i.Date <= DateTime.Now && i.User.Id.Equals(ownerId) && i.ExpenseCategories
                         .Any(ic => ic.Category.GoalCategories.Any(gc => gc.Goal.User.Id.Equals(ownerId) && gc.GoalId == x.Id)))
                         .Select(d => d.Amount).Sum();
 
@@ -122,17 +122,17 @@ namespace FinanceApi.Test.IntegrationTests
                             :
                             correctResponse.OrderBy(x => x.Title).ToList();
                         break;
-                    case "amount":
+                    case "spending":
                         correctResponse = listDir != null && listDir.Equals("desc") ?
-                            correctResponse.OrderByDescending(x => x.Amount).ToList()
+                            correctResponse.OrderByDescending(x => x.Spending).ToList()
                             :
-                            correctResponse.OrderBy(x => x.Amount).ToList();
+                            correctResponse.OrderBy(x => x.Spending).ToList();
                         break;
-                    case "progress":
+                    case "limitAmount":
                         correctResponse = listDir != null && listDir.Equals("desc") ?
-                            correctResponse.OrderByDescending(x => x.Progress).ToList()
+                            correctResponse.OrderByDescending(x => x.LimitAmount).ToList()
                             :
-                            correctResponse.OrderBy(x => x.Progress).ToList();
+                            correctResponse.OrderBy(x => x.LimitAmount).ToList();
                         break;
                     default:
                         correctResponse = listDir != null && listDir.Equals("desc") ?
@@ -148,10 +148,10 @@ namespace FinanceApi.Test.IntegrationTests
         }
 
         [Theory]
-        [MemberData(nameof(TestData.CreateGoalValidInputTestData), MemberType = typeof(TestData))]
-        public async Task CreateGoal_ReturnsOk_WhenInputIsValid(
+        [MemberData(nameof(TestData.CreateBudgetValidInputTestData), MemberType = typeof(TestData))]
+        public async Task CreateBudget_ReturnsOk_WhenInputIsValid(
             string username,
-            GoalManageDto goalManageDto,
+            BudgetManageDto budgetManageDto,
             string optionalOwnerUsername
             )
         {
@@ -170,14 +170,14 @@ namespace FinanceApi.Test.IntegrationTests
 
                 var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
 
-                var requestUrl = "api/Goal/post";
+                var requestUrl = "api/Budget/post";
 
                 if (optionalOwnerId != null)
                 {
                     requestUrl += $"?optionalOwnerId={optionalOwnerId}";
                 }
 
-                var jsonContent = new StringContent(JsonConvert.SerializeObject(goalManageDto), Encoding.UTF8, "application/json");
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(budgetManageDto), Encoding.UTF8, "application/json");
 
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
@@ -186,23 +186,18 @@ namespace FinanceApi.Test.IntegrationTests
                 {
                     var response = await client.PostAsync(requestUrl, jsonContent);
 
+                    if(response.StatusCode == HttpStatusCode.BadRequest)
+                    {
 
+                    }
                     // Assert
                     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
                 }
                 finally
                 {
 
-                    bool isAdded = db.Goals.Any(g => g.Title.Equals(goalManageDto.Title));
+                    bool isAdded = db.Budgets.Any(g => g.Title.Equals(budgetManageDto.Title));
                     Assert.True(isAdded);
-                    if (isAdded)
-                    {
-                        string ownerId = optionalOwnerId ?? user.Id;
-
-                        db.Goals.Remove(db.Goals.First(g => g.User.Id.Equals(ownerId)
-                        && g.Title.Equals(goalManageDto.Title)));
-                        db.SaveChanges();
-                    }
                 }
 
             }
@@ -210,10 +205,10 @@ namespace FinanceApi.Test.IntegrationTests
 
 
         [Theory]
-        [MemberData(nameof(TestData.CreateGoalInvalidtestTestData), MemberType = typeof(TestData))]
-        public async Task CreateGoal_ReturnsBadrequest_WhenInputIsInvalid(
+        [MemberData(nameof(TestData.CreateBudgetBadRequestTestTestData), MemberType = typeof(TestData))]
+        public async Task CreateBudget_ReturnsBadrequest_WhenInputIsInvalid(
             string username,
-            GoalManageDto goalManageDto,
+            BudgetManageDto budgetManageDto,
             string? optionalOwnerUsername
             )
         {
@@ -231,14 +226,14 @@ namespace FinanceApi.Test.IntegrationTests
 
                 var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
 
-                var requestUrl = "api/Goal/post";
+                var requestUrl = "api/Budget/post";
 
                 if (optionalOwnerId != null)
                 {
                     requestUrl += $"?optionalOwnerId={optionalOwnerId}";
                 }
 
-                var jsonContent = new StringContent(JsonConvert.SerializeObject(goalManageDto), Encoding.UTF8, "application/json");
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(budgetManageDto), Encoding.UTF8, "application/json");
 
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
@@ -253,14 +248,14 @@ namespace FinanceApi.Test.IntegrationTests
                 }
                 finally
                 {
-                    bool isAdded = db.Goals.Any(g => g.Title.Equals(goalManageDto.Title));
+                    bool isAdded = db.Goals.Any(g => g.Title.Equals(budgetManageDto.Title));
                     Assert.False(isAdded);
                     if (isAdded)
                     {
                         string ownerId = optionalOwnerId ?? user.Id;
 
                         db.Goals.Remove(db.Goals.First(g => g.User.Id.Equals(ownerId)
-                        && g.Title.Equals(goalManageDto.Title)));
+                        && g.Title.Equals(budgetManageDto.Title)));
                         db.SaveChanges();
                     }
                 }
@@ -270,10 +265,10 @@ namespace FinanceApi.Test.IntegrationTests
 
 
         [Theory]
-        [MemberData(nameof(TestData.UpdateGoalValidInputTestData), MemberType = typeof(TestData))]
-        public async Task UpdateGoal_ReturnsOk_WhenGoalExistsAndInputIsValid(
+        [MemberData(nameof(TestData.UpdateBudgetValidInputTestData), MemberType = typeof(TestData))]
+        public async Task UpdateBudget_ReturnsOk_WhenGoalExistsAndInputIsValid(
             string username,
-            GoalManageDto goalManageDto,
+            BudgetManageDto budgetManageDto,
             string? optionalOwnerUsername
             )
         {
@@ -282,7 +277,7 @@ namespace FinanceApi.Test.IntegrationTests
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var user = db.Users.First(x => x.UserName.Equals(username));
 
-                var goalToBeUpdated = db.Goals.AsNoTracking().First(x => x.Id == goalManageDto.Id);
+                var budgetToBeUpdated = db.Budgets.AsNoTracking().First(x => x.Id == budgetManageDto.Id);
 
                 string? optionalOwnerId = null;
                 if (optionalOwnerUsername != null)
@@ -293,54 +288,51 @@ namespace FinanceApi.Test.IntegrationTests
                 var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
-                var jsonGoalManageDto = new StringContent(JsonConvert.SerializeObject(goalManageDto), Encoding.UTF8, "application/json");
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(budgetManageDto), Encoding.UTF8, "application/json");
 
                 var requestUrl = optionalOwnerId == null
-                    ? $"api/Goal/put"
-                    : $"api/Goal/put?optionalOwnerId={optionalOwnerId}";
+                    ? $"api/Budget/put"
+                    : $"api/Budget/put?optionalOwnerId={optionalOwnerId}";
 
                 try
                 {
-                    var response = await client.PutAsync(requestUrl, jsonGoalManageDto);
+                    var response = await client.PutAsync(requestUrl, jsonContent);
+                    if(response.StatusCode != HttpStatusCode.OK)
+                    {
+
+                    }
                     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
                 }
                 finally
                 {
-                    var isUpdated = db.Goals.AsNoTracking().ToList()
-                        .Select(Map.ToGoalManageDto)
+                    var isUpdated = db.Budgets.AsNoTracking().ToList()
+                        .Select(Map.ToBudgetDto)
                         .Any(x =>
                         {
                             bool isSame =
-                                x.Id == goalManageDto.Id &&
-                                x.Title.ToLower().Equals(goalManageDto.Title.ToLower()) &&
-                                x.Description.ToLower().Equals(goalManageDto.Description.ToLower()) &&
-                                x.Currency.ToLower().Equals(goalManageDto.Currency.ToLower()) &&
-                                x.StartDate.Equals(goalManageDto.StartDate) &&
-                                x.StartDate.Equals(goalManageDto.StartDate) &&
-                                x.EndDate.Equals(goalManageDto.EndDate) &&
-                                x.Amount == goalManageDto.Amount;
+                                x.Id == budgetManageDto.Id &&
+                                x.Title.ToLower().Equals(budgetManageDto.Title.ToLower()) &&
+                                x.Description.ToLower().Equals(budgetManageDto.Description.ToLower()) &&
+                                x.Currency.ToLower().Equals(budgetManageDto.Currency.ToLower()) &&
+                                x.StartDate.Equals(budgetManageDto.StartDate) &&
+                                x.StartDate.Equals(budgetManageDto.StartDate) &&
+                                x.EndDate.Equals(budgetManageDto.EndDate) &&
+                                x.LimitAmount == budgetManageDto.LimitAmount;
 
                             return isSame;
                         });
 
                     Assert.True(isUpdated);
-
-                    if (isUpdated)
-                    {
-                        db.Goals.Update(goalToBeUpdated);
-                        db.SaveChanges();
-                    }
-
                 }
             }
         }
 
 
         [Theory]
-        [MemberData(nameof(TestData.UpdateGoalBadRequestInputTestData), MemberType = typeof(TestData))]
-        public async Task UpdateGoal_ReturnsBadRequest_WhenGoalExistsAndInputIsInvalid(
+        [MemberData(nameof(TestData.UpdateBudgetBadRequestInputTestData), MemberType = typeof(TestData))]
+        public async Task UpdateBudget_ReturnsBadRequest_WhenGoalExistsAndInputIsInvalid(
             string username,
-            GoalManageDto goalManageDto,
+            BudgetManageDto budgetManageDto,
             string? optionalOwnerUsername
             )
         {
@@ -350,7 +342,7 @@ namespace FinanceApi.Test.IntegrationTests
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var user = db.Users.First(x => x.UserName.Equals(username));
 
-                var goalToBeUpdated = db.Goals.AsNoTracking().First(x => x.Id == goalManageDto.Id);
+                var budgetToBeUpdated = db.Budgets.AsNoTracking().First(x => x.Id == budgetManageDto.Id);
 
                 string? optionalOwnerId = null;
                 if (optionalOwnerUsername != null)
@@ -361,54 +353,47 @@ namespace FinanceApi.Test.IntegrationTests
                 var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
-                var jsonGoalManageDto = new StringContent(JsonConvert.SerializeObject(goalManageDto), Encoding.UTF8, "application/json");
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(budgetManageDto), Encoding.UTF8, "application/json");
 
                 var requestUrl = optionalOwnerId == null
-                    ? $"api/Goal/put"
-                    : $"api/Goal/put?optionalOwnerId={optionalOwnerId}";
+                    ? $"api/Budget/put"
+                    : $"api/Budget/put?optionalOwnerId={optionalOwnerId}";
 
                 try
                 {
-                    var response = await client.PutAsync(requestUrl, jsonGoalManageDto);
+                    var response = await client.PutAsync(requestUrl, jsonContent);
                     Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
                 }
                 finally
                 {
-                    var isUpdated = db.Goals.AsNoTracking().ToList()
-                        .Select(Map.ToGoalManageDto)
+                    var isUpdated = db.Budgets.AsNoTracking().ToList()
+                        .Select(Map.ToBudgetDto)
                         .Any(x =>
                         {
                             bool isSame =
-                                x.Id == goalManageDto.Id &&
-                                x.Title.ToLower().Equals(goalManageDto.Title.ToLower()) &&
-                                x.Description.ToLower().Equals(goalManageDto.Description.ToLower()) &&
-                                x.Currency.ToLower().Equals(goalManageDto.Currency.ToLower()) &&
-                                x.StartDate.Equals(goalManageDto.StartDate) &&
-                                x.StartDate.Equals(goalManageDto.StartDate) &&
-                                x.EndDate.Equals(goalManageDto.EndDate) &&
-                                x.Amount == goalManageDto.Amount;
+                                x.Id == budgetManageDto.Id &&
+                                x.Title.ToLower().Equals(budgetManageDto.Title.ToLower()) &&
+                                x.Description.ToLower().Equals(budgetManageDto.Description.ToLower()) &&
+                                x.Currency.ToLower().Equals(budgetManageDto.Currency.ToLower()) &&
+                                x.StartDate.Equals(budgetManageDto.StartDate) &&
+                                x.StartDate.Equals(budgetManageDto.StartDate) &&
+                                x.EndDate.Equals(budgetManageDto.EndDate) &&
+                                x.LimitAmount == budgetManageDto.LimitAmount;
 
                             return isSame;
                         });
 
                     Assert.False(isUpdated);
-
-                    if (isUpdated)
-                    {
-                        db.Goals.Update(goalToBeUpdated);
-                        db.SaveChanges();
-                    }
-
                 }
             }
         }
 
 
         [Theory]
-        [MemberData(nameof(TestData.UpdateGoalNotFoundRequestInputTestData), MemberType = typeof(TestData))]
-        public async Task UpdateGoal_ReturnsNotFound_WhenGoalDoesNotExistOrIsNotUsersGoal(
+        [MemberData(nameof(TestData.UpdateBudgetNotFoundRequestInputTestData), MemberType = typeof(TestData))]
+        public async Task UpdateBudget_ReturnsNotFound_WhenGoalDoesNotExistOrIsNotUsersGoal(
             string username,
-            GoalManageDto goalManageDto,
+            BudgetManageDto budgetManageDto,
             string? optionalOwnerUsername
             )
         {
@@ -417,7 +402,7 @@ namespace FinanceApi.Test.IntegrationTests
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var user = db.Users.First(x => x.UserName.Equals(username));
 
-                var goalToBeUpdatedIfExists = db.Goals.AsNoTracking().FirstOrDefault(x => x.Id == goalManageDto.Id);
+                var budgetToBeUpdatedIfExists = db.Goals.AsNoTracking().FirstOrDefault(x => x.Id == budgetManageDto.Id);
 
                 string? optionalOwnerId = null;
                 if (optionalOwnerUsername != null)
@@ -428,45 +413,39 @@ namespace FinanceApi.Test.IntegrationTests
                 var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
-                var jsonGoalManageDto = new StringContent(JsonConvert.SerializeObject(goalManageDto), Encoding.UTF8, "application/json");
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(budgetManageDto), Encoding.UTF8, "application/json");
 
                 var requestUrl = optionalOwnerId == null
-                    ? $"api/Goal/put"
-                    : $"api/Goal/put?optionalOwnerId={optionalOwnerId}";
+                    ? $"api/Budget/put"
+                    : $"api/Budget/put?optionalOwnerId={optionalOwnerId}";
 
                 try
                 {
-                    var response = await client.PutAsync(requestUrl, jsonGoalManageDto);
+                    var response = await client.PutAsync(requestUrl, jsonContent);
                     Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
                 }
                 finally
                 {
-                    if (goalToBeUpdatedIfExists != null)
+                    if (budgetToBeUpdatedIfExists != null)
                     {
-                        var isUpdated = db.Goals.AsNoTracking().ToList()
-                            .Select(Map.ToGoalManageDto)
+                        var isUpdated = db.Budgets.AsNoTracking().ToList()
+                            .Select(Map.ToBudgetDto)
                             .Any(x =>
                             {
                                 bool isSame =
-                                    x.Id == goalManageDto.Id &&
-                                    x.Title.ToLower().Equals(goalManageDto.Title.ToLower()) &&
-                                    x.Description.ToLower().Equals(goalManageDto.Description.ToLower()) &&
-                                    x.Currency.ToLower().Equals(goalManageDto.Currency.ToLower()) &&
-                                    x.StartDate.Equals(goalManageDto.StartDate) &&
-                                    x.StartDate.Equals(goalManageDto.StartDate) &&
-                                    x.EndDate.Equals(goalManageDto.EndDate) &&
-                                    x.Amount == goalManageDto.Amount;
+                                    x.Id == budgetManageDto.Id &&
+                                    x.Title.ToLower().Equals(budgetManageDto.Title.ToLower()) &&
+                                    x.Description.ToLower().Equals(budgetManageDto.Description.ToLower()) &&
+                                    x.Currency.ToLower().Equals(budgetManageDto.Currency.ToLower()) &&
+                                    x.StartDate.Equals(budgetManageDto.StartDate) &&
+                                    x.StartDate.Equals(budgetManageDto.StartDate) &&
+                                    x.EndDate.Equals(budgetManageDto.EndDate) &&
+                                    x.LimitAmount == budgetManageDto.LimitAmount;
 
                                 return isSame;
                             });
 
                         Assert.False(isUpdated);
-
-                        if (isUpdated)
-                        {
-                            db.Goals.Update(goalToBeUpdatedIfExists);
-                            db.SaveChanges();
-                        }
                     }
                 }
             }
@@ -474,10 +453,10 @@ namespace FinanceApi.Test.IntegrationTests
 
 
         [Theory]
-        [MemberData(nameof(TestData.DeleteGoalValidTestData), MemberType = typeof(TestData))]
-        public async Task DeleteGoal_ReturnsOk_WhenGoalExists(
+        [MemberData(nameof(TestData.DeleteBudgetValidTestData), MemberType = typeof(TestData))]
+        public async Task DeleteBudget_ReturnsOk_WhenGoalExists(
             string username,
-            int goalId,
+            int budgetId,
             string? optionalOwnerUsername
             )
         {
@@ -486,7 +465,7 @@ namespace FinanceApi.Test.IntegrationTests
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var user = db.Users.First(x => x.UserName.Equals(username));
 
-                var goalToBeDeleted = db.Goals.AsNoTracking().First(x => x.Id == goalId);
+                var budgetToBeDeleted = db.Budgets.AsNoTracking().First(x => x.Id == budgetId);
 
                 string? optionalOwnerId = null;
                 if (optionalOwnerUsername != null)
@@ -498,38 +477,33 @@ namespace FinanceApi.Test.IntegrationTests
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
                 var requestUrl = optionalOwnerId == null
-                    ? $"api/Goal/delete/{goalId}"
-                    : $"api/Goal/delete/{goalId}?optionalOwnerId={optionalOwnerId}";
+                    ? $"api/Budget/delete/{budgetId}"
+                    : $"api/Budget/delete/{budgetId}?optionalOwnerId={optionalOwnerId}";
 
                 try
                 {
 
                     var response = await client.DeleteAsync(requestUrl);
-                    db.SaveChanges();
                     Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
                 }
                 finally
                 {
-                    bool isDeleted = !db.Goals.Any(x => x.Equals(goalToBeDeleted));
-                    Assert.True(isDeleted);
-
-                    if (isDeleted)
+                    bool isDeleted = !db.Budgets.Any(x => x.Equals(budgetToBeDeleted));
+                    if (!isDeleted)
                     {
-                        goalToBeDeleted.Id = goalId;
-                        goalToBeDeleted.User = user;
-                        db.Goals.Add(goalToBeDeleted);
-                        db.SaveChanges();
+
                     }
+                    Assert.True(isDeleted);
                 }
 
             }
         }
 
         [Theory]
-        [MemberData(nameof(TestData.DeleteGoalNotFoundInputTestData), MemberType = typeof(TestData))]
-        public async Task DeleteGoal_ReturnsNotFound_WhenUserDoesNotHaveAGoalWithInputId(
+        [MemberData(nameof(TestData.DeleteBudgetNotFoundInputTestData), MemberType = typeof(TestData))]
+        public async Task DeleteBudget_ReturnsNotFound_WhenUserDoesNotHaveAGoalWithInputId(
             string username,
-            int goalId,
+            int budgetId,
             string? optionalOwnerUsername
             )
         {
@@ -538,7 +512,7 @@ namespace FinanceApi.Test.IntegrationTests
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var user = db.Users.First(x => x.UserName.Equals(username));
 
-                var goalToBeDeleted = db.Goals.AsNoTracking().FirstOrDefault(x => x.Id == goalId);
+                var budgetToBeDeleted = db.Budgets.AsNoTracking().FirstOrDefault(x => x.Id == budgetId);
 
                 string? optionalOwnerId = null;
                 if (optionalOwnerUsername != null)
@@ -550,28 +524,19 @@ namespace FinanceApi.Test.IntegrationTests
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
                 var requestUrl = optionalOwnerId == null
-                    ? $"api/Goal/delete/{goalId}"
-                    : $"api/Goal/delete/{goalId}?optionalOwnerId={optionalOwnerId}";
+                    ? $"api/Budget/delete/{budgetId}"
+                    : $"api/Budget/delete/{budgetId}?optionalOwnerId={optionalOwnerId}";
 
                 try
                 {
-
                     var response = await client.DeleteAsync(requestUrl);
 
                     Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
                 }
                 finally
                 {
-                    bool isDeleted = !db.Goals.Any(x => x.Equals(goalToBeDeleted));
+                    bool isDeleted = !db.Budgets.Any(x => x.Equals(budgetToBeDeleted));
                     Assert.False(isDeleted);
-
-                    if (isDeleted)
-                    {
-                        Assert.Equal(user, goalToBeDeleted.User);
-
-                        db.Goals.Add(goalToBeDeleted);
-                        db.SaveChanges();
-                    }
                 }
 
             }
@@ -581,10 +546,10 @@ namespace FinanceApi.Test.IntegrationTests
 
 
         [Theory]
-        [MemberData(nameof(TestData.AddCategoryToGoalValidInputTestData), MemberType = typeof(TestData))]
-        public async Task AddCategory_ReturnsOk_WhenInputIsValidAndDoesNotExist(
+        [MemberData(nameof(TestData.AddCategoryToBudgetValidInputTestData), MemberType = typeof(TestData))]
+        public async Task AddCategoryToBudget_ReturnsOk_WhenInputIsValidAndDoesNotExist(
             string username,
-            int goalId,
+            int budgetId,
             List<int> categoryIds,
             string? optionalOwnerUsername
             )
@@ -601,57 +566,38 @@ namespace FinanceApi.Test.IntegrationTests
                     optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
                 }
 
-                var jsonCategoryIds = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
 
                 var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
 
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
                 var requestUrl = optionalOwnerId == null
-                    ? $"api/Goal/associate_categories/{goalId}"
-                    : $"api/Goal/associate_categories/{goalId}?optionalOwnerId={optionalOwnerId}";
+                    ? $"api/Budget/associate_categories/{budgetId}"
+                    : $"api/Budget/associate_categories/{budgetId}?optionalOwnerId={optionalOwnerId}";
 
 
                 try
                 {
-                    var response = await client.PostAsync(requestUrl, jsonCategoryIds);
+                    var response = await client.PostAsync(requestUrl, jsonContent);
 
                     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
                 }
                 finally
                 {
-                    int amountAdded = db.GoalCategories
-                        .Where(x => x.GoalId == goalId && categoryIds.Contains(x.CategoryId)).Count();
+                    int amountAdded = db.BudgetCategories
+                        .Where(x => x.BudgetId == budgetId && categoryIds.Contains(x.CategoryId)).Count();
                     bool allAdded = categoryIds.Count() == amountAdded;
                     Assert.True(allAdded);
-
-                    if (amountAdded > 0)
-                    {
-                        for (int i = 0; i < categoryIds.Count; ++i)
-                        {
-                            var addedGoalCategory = db.GoalCategories.FirstOrDefault(x => x.GoalId == goalId
-                            && x.CategoryId == categoryIds[i]);
-                            if (addedGoalCategory != null)
-                            {
-                                db.Remove(addedGoalCategory);
-                                db.SaveChanges();
-                            }
-                        }
-                    }
-
                 }
-
-
-
             }
         }
 
         [Theory]
-        [MemberData(nameof(TestData.AddCategoryToGoalBadRequestInputTestData), MemberType = typeof(TestData))]
-        public async Task AddCategory_ReturnsBadRequest_WhenInputIsWrongOrGoalCategoryAlreadyExists(
+        [MemberData(nameof(TestData.AddCategoryToBudgetBadRequestInputTestData), MemberType = typeof(TestData))]
+        public async Task AddCategoryToBudget_ReturnsBadRequest_WhenInputIsWrongOrGoalCategoryAlreadyExists(
             string username,
-            int goalId,
+            int budgetId,
             List<int> categoryIds,
             string? optionalOwnerUsername
             )
@@ -668,30 +614,26 @@ namespace FinanceApi.Test.IntegrationTests
                     optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
                 }
 
-                var jsonCategoryIds = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
 
                 var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
 
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
                 var requestUrl = optionalOwnerId == null
-                    ? $"api/Goal/associate_categories/{goalId}"
-                    : $"api/Goal/associate_categories/{goalId}?optionalOwnerId={optionalOwnerId}";
+                    ? $"api/Goal/associate_categories/{budgetId}"
+                    : $"api/Goal/associate_categories/{budgetId}?optionalOwnerId={optionalOwnerId}";
 
-
-
-                var response = await client.PostAsync(requestUrl, jsonCategoryIds);
-
+                var response = await client.PostAsync(requestUrl, jsonContent);
                 Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-
             }
         }
 
         [Theory]
-        [MemberData(nameof(TestData.AddCategoryToGoalNotFoundInputTestData), MemberType = typeof(TestData))]
-        public async Task AddCategory_ReturnsNotFound_WhenInputIsWrongOrGoalCategoryAlreadyExists(
+        [MemberData(nameof(TestData.AddCategoryToBudgetNotFoundInputTestData), MemberType = typeof(TestData))]
+        public async Task AddCategoryToBudget_ReturnsNotFound_WhenInputIsWrongOrGoalCategoryAlreadyExists(
             string username,
-            int goalId,
+            int budgetId,
             List<int> categoryIds,
             string? optionalOwnerUsername
             )
@@ -708,30 +650,26 @@ namespace FinanceApi.Test.IntegrationTests
                     optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
                 }
 
-                var jsonCategoryIds = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
 
                 var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
 
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
                 var requestUrl = optionalOwnerId == null
-                    ? $"api/Goal/associate_categories/{goalId}"
-                    : $"api/Goal/associate_categories/{goalId}?optionalOwnerId={optionalOwnerId}";
+                    ? $"api/Budget/associate_categories/{budgetId}"
+                    : $"api/Budget/associate_categories/{budgetId}?optionalOwnerId={optionalOwnerId}";
 
-
-
-                var response = await client.PostAsync(requestUrl, jsonCategoryIds);
-
+                var response = await client.PostAsync(requestUrl, jsonContent);
                 Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-
             }
         }
 
         [Theory]
-        [MemberData(nameof(TestData.RemoveCategoriesFromGoalValidInputTestData), MemberType = typeof(TestData))]
-        public async Task RemoveCategories_ReturnsOk_WhenGoalCategoryExistsAndIsUsers(
+        [MemberData(nameof(TestData.RemoveCategoriesFromBudgetValidInputTestData), MemberType = typeof(TestData))]
+        public async Task RemoveCategoriesFromBudget_ReturnsOk_WhenGoalCategoryExistsAndIsUsers(
             string username,
-            int goalId,
+            int budgetId,
             int categoryId,
             string? optionalOwnerUsername
             )
@@ -742,8 +680,8 @@ namespace FinanceApi.Test.IntegrationTests
 
                 var user = db.Users.First(x => x.UserName.Equals(username));
 
-                var goalCategoryToBeDeleted =
-                    db.GoalCategories.AsNoTracking().First(x => x.GoalId == goalId && x.CategoryId == categoryId);
+                var budgetCategoryToBeDeleted =
+                    db.BudgetCategories.AsNoTracking().First(x => x.BudgetId == budgetId && x.CategoryId == categoryId);
 
                 string? optionalOwnerId = null;
                 if (optionalOwnerUsername != null)
@@ -751,15 +689,13 @@ namespace FinanceApi.Test.IntegrationTests
                     optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
                 }
 
-
                 var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
 
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
                 var requestUrl = optionalOwnerId == null
-                    ? $"api/Goal/remove_category/{goalId}/{categoryId}"
-                    : $"api/Goal/remove_category/{goalId}/{categoryId}?optionalOwnerId={optionalOwnerId}";
-
+                    ? $"api/Budget/remove_category/{budgetId}/{categoryId}"
+                    : $"api/Budget/remove_category/{budgetId}/{categoryId}?optionalOwnerId={optionalOwnerId}";
 
                 try
                 {
@@ -769,23 +705,18 @@ namespace FinanceApi.Test.IntegrationTests
                 }
                 finally
                 {
-                    bool isDeleted = !db.GoalCategories.Any(x => x.Equals(goalCategoryToBeDeleted));
+                    bool isDeleted = !db.BudgetCategories.Any(x => x.Equals(budgetCategoryToBeDeleted));
                     Assert.True(isDeleted);
-                    if (isDeleted)
-                    {
-                        db.GoalCategories.Add(goalCategoryToBeDeleted);
-                        db.SaveChanges();
-                    }
                 }
             }
         }
 
 
         [Theory]
-        [MemberData(nameof(TestData.RemoveCategoriesFromGoalNotFoundInputsTestData), MemberType = typeof(TestData))]
-        public async Task RemoveCategories_ReturnsNotFound_WhenGoalOrCategoryDoesNotExist(
+        [MemberData(nameof(TestData.RemoveCategoriesFromBudgetNotFoundInputsTestData), MemberType = typeof(TestData))]
+        public async Task RemoveCategoriesFromBudget_ReturnsNotFound_WhenGoalOrCategoryDoesNotExist(
             string username,
-            int goalId,
+            int budgetId,
             int categoryId,
             string? optionalOwnerUsername
             )
@@ -796,8 +727,8 @@ namespace FinanceApi.Test.IntegrationTests
 
                 var user = db.Users.First(x => x.UserName.Equals(username));
 
-                var goalCategoryToBeDeleted =
-                    db.GoalCategories.AsNoTracking().FirstOrDefault(x => x.GoalId == goalId && x.CategoryId == categoryId);
+                var budgetCategoryToBeDeleted =
+                    db.BudgetCategories.AsNoTracking().FirstOrDefault(x => x.BudgetId == budgetId && x.CategoryId == categoryId);
 
                 string? optionalOwnerId = null;
                 if (optionalOwnerUsername != null)
@@ -805,15 +736,13 @@ namespace FinanceApi.Test.IntegrationTests
                     optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
                 }
 
-
                 var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
 
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
                 var requestUrl = optionalOwnerId == null
-                    ? $"api/Goal/remove_category/{goalId}/{categoryId}"
-                    : $"api/Goal/remove_category/{goalId}/{categoryId}?optionalOwnerId={optionalOwnerId}";
-
+                    ? $"api/Budget/remove_category/{budgetId}/{categoryId}"
+                    : $"api/Budget/remove_category/{budgetId}/{categoryId}?optionalOwnerId={optionalOwnerId}";
 
                 try
                 {
@@ -823,16 +752,11 @@ namespace FinanceApi.Test.IntegrationTests
                 }
                 finally
                 {
-                    if (goalCategoryToBeDeleted != null)
+                    if (budgetCategoryToBeDeleted != null)
                     {
-
-                        bool isDeleted = !db.GoalCategories.Any(x => x.Equals(goalCategoryToBeDeleted));
-                        Assert.True(isDeleted);
-                        if (isDeleted)
-                        {
-                            db.GoalCategories.Add(goalCategoryToBeDeleted);
-                            db.SaveChanges();
-                        }
+                        //CHECK GOAL INTEGRATION TEST
+                        bool isDeleted = !db.BudgetCategories.Any(x => x.Equals(budgetCategoryToBeDeleted));
+                        Assert.False(isDeleted);
                     }
                 }
             }
@@ -840,10 +764,10 @@ namespace FinanceApi.Test.IntegrationTests
 
 
         [Theory]
-        [MemberData(nameof(TestData.RemoveCategoriesFromGoalBadRequestInputsTestData), MemberType = typeof(TestData))]
-        public async Task RemoveCategories_ReturnsBadRequest_WhenGoalDoesNotHaveACategoryOrACategpry(
+        [MemberData(nameof(TestData.RemoveCategoriesFromBudgetBadRequestInputsTestData), MemberType = typeof(TestData))]
+        public async Task RemoveCategoriesFromBudget_ReturnsBadRequest_WhenGoalDoesNotHaveACategoryOrACategpry(
             string username,
-            int goalId,
+            int budgetId,
             int categoryId,
             string? optionalOwnerUsername
         )
@@ -854,8 +778,8 @@ namespace FinanceApi.Test.IntegrationTests
 
                 var user = db.Users.First(x => x.UserName.Equals(username));
 
-                var goalCategoryToBeDeleted =
-                    db.GoalCategories.AsNoTracking().FirstOrDefault(x => x.GoalId == goalId && x.CategoryId == categoryId);
+                var budgetCategoryToBeDeleted =
+                    db.BudgetCategories.AsNoTracking().FirstOrDefault(x => x.BudgetId == budgetId && x.CategoryId == categoryId);
 
                 string? optionalOwnerId = null;
                 if (optionalOwnerUsername != null)
@@ -863,15 +787,13 @@ namespace FinanceApi.Test.IntegrationTests
                     optionalOwnerId = db.Users.FirstOrDefault(x => x.UserName.Equals(optionalOwnerUsername)).Id;
                 }
 
-
                 var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
 
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
                 var requestUrl = optionalOwnerId == null
-                    ? $"api/Goal/remove_category/{goalId}/{categoryId}"
-                    : $"api/Goal/remove_category/{goalId}/{categoryId}?optionalOwnerId={optionalOwnerId}";
-
+                    ? $"api/Budget/remove_category/{budgetId}/{categoryId}"
+                    : $"api/Budget/remove_category/{budgetId}/{categoryId}?optionalOwnerId={optionalOwnerId}";
 
                 try
                 {
@@ -881,16 +803,11 @@ namespace FinanceApi.Test.IntegrationTests
                 }
                 finally
                 {
-                    if (goalCategoryToBeDeleted != null)
+                    if (budgetCategoryToBeDeleted != null)
                     {
-
-                        bool isDeleted = !db.GoalCategories.Any(x => x.Equals(goalCategoryToBeDeleted));
-                        Assert.True(isDeleted);
-                        if (isDeleted)
-                        {
-                            db.GoalCategories.Add(goalCategoryToBeDeleted);
-                            db.SaveChanges();
-                        }
+                        //CHECK GOAL INTEGRATION TEST
+                        bool isDeleted = !db.BudgetCategories.Any(x => x.Equals(budgetCategoryToBeDeleted));
+                        Assert.False(isDeleted);
                     }
                 }
             }

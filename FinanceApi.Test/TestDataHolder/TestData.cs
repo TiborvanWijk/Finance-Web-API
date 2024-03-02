@@ -10,113 +10,6 @@ namespace FinanceApi.Test.TestDataHolder
 {
     public abstract class TestData
     {
-        public static IEnumerable<object[]> CreateGoalValidInputTestData()
-        {
-            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 1, Title = "Test-Title-1", Description = "Description-1", Amount = 2000, Currency = "eur", StartDate = DateTime.Now, EndDate = new DateTime(2026, 1, 1) }, null };
-            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 2, Title = "Test-Title-1", Description = "Description for a valid goal with a different currency", Amount = 1500, Currency = "usd", StartDate = DateTime.Now.AddDays(5), EndDate = new DateTime(2026, 1, 1) }, null };
-            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 3, Title = "Test-Title-1", Description = "Description for a valid goal with a longer time period", Amount = 3000, Currency = "eur", StartDate = DateTime.Now.AddDays(10), EndDate = new DateTime(2026, 2, 15) }, null };
-            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 4, Title = "Test-Title-1", Description = "Description for a valid goal with a larger amount", Amount = 5000, Currency = "php", StartDate = DateTime.Now.AddDays(3), EndDate = new DateTime(2026, 1, 1) }, null };
-        }
-        public static IEnumerable<object[]> GetGoalValidInputTestData()
-        {
-            yield return new object[] { "user1@example.com", new DateTime(2020, 3, 15), new DateTime(2022, 7, 10), "progress", "desc", null };
-            yield return new object[] { "user1@example.com", new DateTime(2021, 6, 5), new DateTime(2023, 4, 25), "amount", "desc", null };
-            yield return new object[] { "user1@example.com", new DateTime(2019, 2, 10), new DateTime(2024, 11, 30), "title", "desc", null };
-            yield return new object[] { "user1@example.com", new DateTime(2020, 9, 20), new DateTime(2023, 1, 5), null, null, null };
-
-            yield return new object[] { "user2@example.com", new DateTime(2020, 8, 12), new DateTime(2023, 6, 18), "progress", "desc", null };
-            yield return new object[] { "user2@example.com", new DateTime(2022, 4, 30), new DateTime(2023, 2, 8), null, null, null };
-            yield return new object[] { "user2@example.com", new DateTime(2019, 11, 8), new DateTime(2024, 9, 22), "amount", "desc", null };
-            yield return new object[] { "user2@example.com", new DateTime(2021, 7, 3), new DateTime(2023, 4, 2), "title", "desc", null };
-
-            yield return new object[] { "user3@example.com", new DateTime(2020, 5, 22), new DateTime(2023, 10, 15), null, null, null };
-            yield return new object[] { "user3@example.com", new DateTime(2022, 1, 17), new DateTime(2024, 8, 7), "progress", "desc", null };
-            yield return new object[] { "user3@example.com", new DateTime(2019, 10, 3), new DateTime(2024, 3, 12), "amount", "desc", null };
-            yield return new object[] { "user3@example.com", new DateTime(2020, 6, 28), new DateTime(2023, 12, 5), "title", "desc", null };
-
-            yield return new object[] { "user4@example.com", new DateTime(2021, 12, 7), new DateTime(2023, 5, 28), "progress", "desc", null };
-            yield return new object[] { "user4@example.com", new DateTime(2019, 2, 25), new DateTime(2024, 1, 20), "amount", "desc", null };
-            yield return new object[] { "user4@example.com", new DateTime(2020, 7, 14), new DateTime(2023, 9, 10), "title", "desc", null };
-            yield return new object[] { "user4@example.com", new DateTime(2022, 4, 18), new DateTime(2024, 3, 30), null, null, null };
-
-            yield return new object[] { "user1@example.com", null, null, "progress", "desc", null };
-            yield return new object[] { "user1@example.com", null, null, "amount", "desc", null };
-            yield return new object[] { "user1@example.com", null, null, "title", "desc", null };
-            yield return new object[] { "user1@example.com", null, null, null, null, null };
-
-            yield return new object[] { "user2@example.com", null, null, "progress", "desc", null };
-            yield return new object[] { "user2@example.com", null, null, null, null, null };
-            yield return new object[] { "user2@example.com", null, null, "amount", "desc", null };
-            yield return new object[] { "user2@example.com", null, null, "title", "desc", null };
-
-            yield return new object[] { "user3@example.com", null, null, null, null, null };
-            yield return new object[] { "user3@example.com", null, null, "progress", "desc", null };
-            yield return new object[] { "user3@example.com", null, null, "amount", "desc", null };
-            yield return new object[] { "user3@example.com", null, null, "title", "desc", null };
-
-            yield return new object[] { "user4@example.com", null, null, "progress", "desc", null };
-            yield return new object[] { "user4@example.com", null, null, "amount", "desc", null };
-            yield return new object[] { "user4@example.com", null, null, "title", "desc", null };
-            yield return new object[] { "user4@example.com", null, null, null, null, null };
-
-            yield return new object[] { "user2@example.com", null, null, null, null, "user1@example.com" };
-            yield return new object[] { "user3@example.com", null, null, null, null, "user1@example.com" };
-
-        }
-        public static IEnumerable<object[]> CreateGoalInvalidtestTestData()
-        {
-            // Invalid amount (less than or equal to 0)
-            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 0, Currency = "USD", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
-
-            // Invalid currency ISO code
-            yield return new object[] { "user2@example.com", new GoalManageDto { Amount = 1000, Currency = "InvalidCurrency", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
-
-            // Invalid time period (e.g., end date earlier than start date)
-            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 2000, Currency = "EUR", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-7) }, null };
-
-
-            // Combining multiple invalid conditions
-            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 0, Currency = "InvalidCode", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
-
-            // Invalid amount (zero or negative)
-            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 0, Currency = "USD", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
-            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = -500, Currency = "EUR", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
-
-            // Invalid currency ISO code
-            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 1000, Currency = "", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
-            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 1500, Currency = "InvalidCurrencyCode", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
-
-            // Invalid time period (end date earlier than start date)
-            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 2000, Currency = "GBP", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-7) }, null };
-
-            // Combining multiple invalid conditions
-            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 0, Currency = "InvalidCode", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
-            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = -500, Currency = "", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
-            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 1000, Currency = "InvalidCurrency", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
-            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 2000, Currency = "USD", StartDate = DateTime.Now.AddDays(15), EndDate = DateTime.Now }, null };
-            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 3000, Currency = "GBP", StartDate = DateTime.Now.AddDays(15), EndDate = DateTime.Now.AddDays(10) }, null };
-        }
-        public static IEnumerable<object[]> DeleteGoalValidTestData()
-        {
-            yield return new object[] { "user1@example.com", 1, null };
-            yield return new object[] { "user1@example.com", 2, null };
-            yield return new object[] { "user1@example.com", 3, null };
-            yield return new object[] { "user3@example.com", 4, "user1@example.com" };
-            yield return new object[] { "user3@example.com", 5, "user1@example.com" };
-            yield return new object[] { "user2@example.com", 6, null };
-            yield return new object[] { "user2@example.com", 7, null };
-            yield return new object[] { "user2@example.com", 8, null };
-            yield return new object[] { "user2@example.com", 9, null };
-            yield return new object[] { "user2@example.com", 10, null };
-        }
-        public static IEnumerable<object[]> DeleteGoalNotFoundInputTestData()
-        {
-            yield return new object[] { "user1@example.com", 6, null };
-            yield return new object[] { "user1@example.com", 7, null };
-            yield return new object[] { "user1@example.com", 8, null };
-            yield return new object[] { "user1@example.com", 9, null };
-            yield return new object[] { "user1@example.com", 10, null };
-        }
 
         public static IEnumerable<object[]> GetUsersExpensesValidInputsTestData()
         {
@@ -267,7 +160,7 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user1@example.com", -1, new List<int>() { -1 }, null };
         }
 
-        public static IEnumerable<object[]> RemoveCategoriesValidInputTestData()
+        public static IEnumerable<object[]> RemoveCategoriesFromGoalValidInputTestData()
         {
             yield return new object[] { "user1@example.com", 1, 1, null };
             yield return new object[] { "user1@example.com", 2, 2, null };
@@ -276,7 +169,7 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user3@example.com", 5, 1, "user1@example.com" };
         }
 
-        public static IEnumerable<object[]> RemoveCategoriesNotFoundInputsTestData()
+        public static IEnumerable<object[]> RemoveCategoriesFromGoalNotFoundInputsTestData()
         {
             yield return new object[] { "user1@example.com", 11, 2, null };
             yield return new object[] { "user1@example.com", 1, 19, null };
@@ -285,7 +178,7 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user3@example.com", 11, 11, "user1@example.com" };
         }
 
-        public static IEnumerable<object[]> RemoveCategoriesBadRequestInputsTestData()
+        public static IEnumerable<object[]> RemoveCategoriesFromGoalBadRequestInputsTestData()
         {
             yield return new object[] { "user1@example.com", 1, 2, null };
             yield return new object[] { "user1@example.com", 2, 3, null };
@@ -623,6 +516,309 @@ namespace FinanceApi.Test.TestDataHolder
 
         }
 
+        public static IEnumerable<object[]> GetBudgetValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new DateTime(2020, 3, 15), new DateTime(2022, 7, 10), "spending", "desc", null };
+            yield return new object[] { "user1@example.com", new DateTime(2021, 6, 5), new DateTime(2023, 4, 25), "limitAmount", "desc", null };
+            yield return new object[] { "user1@example.com", new DateTime(2019, 2, 10), new DateTime(2024, 11, 30), "title", "desc", null };
+            yield return new object[] { "user1@example.com", new DateTime(2020, 9, 20), new DateTime(2023, 1, 5), null, null, null };
 
+            yield return new object[] { "user2@example.com", new DateTime(2020, 8, 12), new DateTime(2023, 6, 18), "spending", "desc", null };
+            yield return new object[] { "user2@example.com", new DateTime(2022, 4, 30), new DateTime(2023, 2, 8), null, null, null };
+            yield return new object[] { "user2@example.com", new DateTime(2019, 11, 8), new DateTime(2024, 9, 22), "limitAmoun", "desc", null };
+            yield return new object[] { "user2@example.com", new DateTime(2021, 7, 3), new DateTime(2023, 4, 2), "title", "desc", null };
+
+            yield return new object[] { "user3@example.com", new DateTime(2020, 5, 22), new DateTime(2023, 10, 15), null, null, null };
+            yield return new object[] { "user3@example.com", new DateTime(2022, 1, 17), new DateTime(2024, 8, 7), "spending", "desc", null };
+            yield return new object[] { "user3@example.com", new DateTime(2019, 10, 3), new DateTime(2024, 3, 12), "limitAmoun", "desc", null };
+            yield return new object[] { "user3@example.com", new DateTime(2020, 6, 28), new DateTime(2023, 12, 5), "title", "desc", null };
+
+            yield return new object[] { "user4@example.com", new DateTime(2021, 12, 7), new DateTime(2023, 5, 28), "progress", "desc", null };
+            yield return new object[] { "user4@example.com", new DateTime(2019, 2, 25), new DateTime(2024, 1, 20), "limitAmoun", "desc", null };
+            yield return new object[] { "user4@example.com", new DateTime(2020, 7, 14), new DateTime(2023, 9, 10), "title", "desc", null };
+            yield return new object[] { "user4@example.com", new DateTime(2022, 4, 18), new DateTime(2024, 3, 30), null, null, null };
+
+            yield return new object[] { "user1@example.com", null, null, "spending", "desc", null };
+            yield return new object[] { "user1@example.com", null, null, "limitAmoun", "desc", null };
+            yield return new object[] { "user1@example.com", null, null, "title", "desc", null };
+            yield return new object[] { "user1@example.com", null, null, null, null, null };
+
+            yield return new object[] { "user2@example.com", null, null, "spending", "desc", null };
+            yield return new object[] { "user2@example.com", null, null, null, null, null };
+            yield return new object[] { "user2@example.com", null, null, "limitAmoun", "desc", null };
+            yield return new object[] { "user2@example.com", null, null, "title", "desc", null };
+
+            yield return new object[] { "user3@example.com", null, null, null, null, null };
+            yield return new object[] { "user3@example.com", null, null, "spending", "desc", null };
+            yield return new object[] { "user3@example.com", null, null, "limitAmoun", "desc", null };
+            yield return new object[] { "user3@example.com", null, null, "title", "desc", null };
+
+            yield return new object[] { "user4@example.com", null, null, "spending", "desc", null };
+            yield return new object[] { "user4@example.com", null, null, "limitAmoun", "desc", null };
+            yield return new object[] { "user4@example.com", null, null, "title", "desc", null };
+            yield return new object[] { "user4@example.com", null, null, null, null, null };
+
+            yield return new object[] { "user2@example.com", null, null, null, null, "user1@example.com" };
+            yield return new object[] { "user3@example.com", null, null, null, null, "user1@example.com" };
+
+        }
+
+        public static IEnumerable<object[]> CreateBudgetValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new BudgetManageDto() { Title = "Test-Title-1", Description = "Description-1", LimitAmount = 2000, Currency = "eur", StartDate = DateTime.Now, EndDate = DateTime.Now.AddYears(2), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto() { Title = "Test-Title-2", Description = "Description for a valid goal with a different currency", LimitAmount = 1500, Currency = "usd", StartDate = DateTime.Now.AddDays(5), EndDate = DateTime.Now.AddYears(3), Urgency = Urgency.Medium }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto() { Title = "Test-Title-3", Description = "Description for a valid goal with a longer time period", LimitAmount = 3000, Currency = "eur", StartDate = DateTime.Now.AddDays(10), EndDate = DateTime.Now.AddYears(3).AddMonths(2), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto() { Title = "Test-Title-4", Description = "Description for a valid goal with a larger amount", LimitAmount = 5000, Currency = "php", StartDate = DateTime.Now.AddDays(3), EndDate = DateTime.Now.AddYears(2), Urgency = Urgency.High }, null };
+
+        }
+
+        public static IEnumerable<object[]> CreateBudgetBadRequestTestTestData()
+        {
+            yield return new object[] { "user1@example.com", new BudgetManageDto { LimitAmount = 0, Currency = "USD", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user2@example.com", new BudgetManageDto { LimitAmount = 1000, Currency = "InvalidCurrency", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto { LimitAmount = 2000, Currency = "EUR", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-7), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto { LimitAmount = 0, Currency = "InvalidCode", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto { LimitAmount = 0, Currency = "USD", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto { LimitAmount = -500, Currency = "EUR", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto { LimitAmount = 1000, Currency = "", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto { LimitAmount = 1500, Currency = "InvalidCurrencyCode", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto { LimitAmount = 2000, Currency = "GBP", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-7), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto { LimitAmount = 0, Currency = "InvalidCode", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto { LimitAmount = -500, Currency = "", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto { LimitAmount = 1000, Currency = "InvalidCurrency", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto { LimitAmount = 2000, Currency = "USD", StartDate = DateTime.Now.AddDays(15), EndDate = DateTime.Now, Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto { LimitAmount = 3000, Currency = "GBP", StartDate = DateTime.Now.AddDays(15), EndDate = DateTime.Now.AddDays(10), Urgency = Urgency.Low }, null };
+
+        }
+
+        public static IEnumerable<object[]> UpdateBudgetValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new BudgetManageDto() { Title = "title: hdawudb", Id = 1, LimitAmount = 9100, Currency = "usd", Description = "description: dwj4", StartDate = new DateTime(2020, 1, 1), EndDate = new DateTime(2030, 2, 13), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto() { Title = "title: dnwaujdnaw", Id = 2, LimitAmount = 375400, Currency = "eur", Description = "description: diw038", StartDate = new DateTime(2022, 5, 3), EndDate = new DateTime(2025, 8, 17), Urgency = Urgency.Medium }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto() { Title = "title: opjkyuypmm", Id = 3, LimitAmount = 13820, Currency = "fjd", Description = "description: hduwe92", StartDate = new DateTime(2019, 12, 21), EndDate = new DateTime(2023, 6, 21), Urgency = Urgency.High }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto() { Title = "title: jdiwjdw", Id = 4, LimitAmount = 29100, Currency = "gbp", Description = "description: 82639", StartDate = new DateTime(2015, 9, 12), EndDate = new DateTime(2017, 5, 11), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user3@example.com", new BudgetManageDto() { Title = "title: hduwaw", Id = 4, LimitAmount = 101100, Currency = "fkp", Description = "description: djwirb", StartDate = new DateTime(2023, 2, 25), EndDate = new DateTime(2027, 3, 12) }, "user1@example.com" };
+
+        }
+
+        public static IEnumerable<object[]> UpdateBudgetBadRequestInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new BudgetManageDto() { Title = "title: hdawudb", Id = 1, LimitAmount = 9100, Currency = "usd", Description = "description: dwj4", StartDate = new DateTime(2020, 1, 1), EndDate = new DateTime(2019, 2, 13), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto() { Title = "title: dnwaujdnaw", Id = 2, LimitAmount = 375400, Currency = "NOT VALID", Description = "description: diw038", StartDate = new DateTime(2022, 5, 3), EndDate = new DateTime(2025, 8, 17), Urgency = Urgency.Medium }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto() { Title = "title: opjkyuypmm", Id = 3, LimitAmount = 0, Currency = "fjd", Description = "description: hduwe92", StartDate = new DateTime(2019, 12, 21), EndDate = new DateTime(2023, 6, 21), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto() { Title = "title: jdiwjdw", Id = 4, LimitAmount = -100, Currency = "gbp", Description = "description: 82639", StartDate = new DateTime(2015, 9, 12), EndDate = new DateTime(2017, 5, 11), Urgency = Urgency.High }, null };
+            yield return new object[] { "user3@example.com", new BudgetManageDto() { Title = "title: hduwaw", Id = 4, LimitAmount = -100, Currency = "NOT VALID", Description = "description: djwirb", StartDate = new DateTime(2030, 2, 25), EndDate = new DateTime(2027, 3, 12) }, "user1@example.com" };
+
+        }
+
+        public static IEnumerable<object[]> DeleteBudgetNotFoundInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 6, null };
+            yield return new object[] { "user1@example.com", 7, null };
+            yield return new object[] { "user1@example.com", 8, null };
+            yield return new object[] { "user1@example.com", 9, null };
+            yield return new object[] { "user1@example.com", 10, null };
+        }
+
+        public static IEnumerable<object[]> AddCategoryToBudgetValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, new List<int>() { 2, 3, 4 }, null };
+            yield return new object[] { "user1@example.com", 2, new List<int>() { 3, 4, 1 }, null };
+            yield return new object[] { "user1@example.com", 3, new List<int>() { 4, 1, 2 }, null };
+            yield return new object[] { "user1@example.com", 4, new List<int>() { 1, 2, 3 }, null };
+            yield return new object[] { "user2@example.com", 5, new List<int>() { 6, 7, 8 }, null };
+        }
+
+        public static IEnumerable<object[]> AddCategoryToBudgetBadRequestInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, new List<int>() { }, null };
+            yield return new object[] { "user1@example.com", 2, new List<int>() { }, null };
+            yield return new object[] { "user1@example.com", 3, new List<int>() { }, null };
+            yield return new object[] { "user1@example.com", 4, new List<int>() { }, null };
+            yield return new object[] { "user1@example.com", 1, new List<int>() { 1 }, null };
+            yield return new object[] { "user1@example.com", 2, new List<int>() { 2 }, null };
+            yield return new object[] { "user1@example.com", 3, new List<int>() { 3 }, null };
+            yield return new object[] { "user1@example.com", 4, new List<int>() { 4 }, null };
+            yield return new object[] { "user1@example.com", 5, new List<int>() { 1 }, null };
+
+        }
+
+        public static IEnumerable<object[]> AddCategoryToBudgetNotFoundInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 10, new List<int>() { 2 }, null };
+            yield return new object[] { "user1@example.com", 13, new List<int>() { 3 }, null };
+            yield return new object[] { "user1@example.com", 19, new List<int>() { 4 }, null };
+            yield return new object[] { "user1@example.com", 1, new List<int>() { 10 }, null };
+            yield return new object[] { "user1@example.com", 2, new List<int>() { 13 }, null };
+            yield return new object[] { "user1@example.com", 3, new List<int>() { 19 }, null };
+            yield return new object[] { "user1@example.com", 4, new List<int>() { -1 }, null };
+            yield return new object[] { "user1@example.com", -1, new List<int>() { -1 }, null };
+
+        }
+
+        public static IEnumerable<object[]> RemoveCategoriesFromBudgetValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, 1, null };
+            yield return new object[] { "user1@example.com", 2, 2, null };
+            yield return new object[] { "user1@example.com", 3, 3, null };
+            yield return new object[] { "user1@example.com", 4, 4, null };
+            yield return new object[] { "user2@example.com", 5, 5, null };
+
+        }
+
+        public static IEnumerable<object[]> RemoveCategoriesFromBudgetNotFoundInputsTestData()
+        {
+            yield return new object[] { "user1@example.com", 11, 2, null };
+            yield return new object[] { "user1@example.com", 1, 19, null };
+            yield return new object[] { "user1@example.com", 13, 132, null };
+            yield return new object[] { "user1@example.com", 3, 9, null };
+            yield return new object[] { "user3@example.com", 11, 11, "user1@example.com" };
+        }
+
+        public static IEnumerable<object[]> RemoveCategoriesFromBudgetBadRequestInputsTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, 2, null };
+            yield return new object[] { "user1@example.com", 2, 3, null };
+            yield return new object[] { "user1@example.com", 3, 4, null };
+            yield return new object[] { "user1@example.com", 4, 1, null };
+            yield return new object[] { "user2@example.com", 5, 6, null };
+        }
+
+        public static IEnumerable<object[]> UpdateBudgetNotFoundRequestInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new BudgetManageDto() { Title = "title: hdawudb", Id = 20, LimitAmount = 9100, Currency = "usd", Description = "description: dwj4", StartDate = new DateTime(2020, 1, 1), EndDate = new DateTime(2030, 2, 13), Urgency = Urgency.High }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto() { Title = "title: dnwaujdnaw", Id = 22, LimitAmount = 375400, Currency = "eur", Description = "description: diw038", StartDate = new DateTime(2022, 5, 3), EndDate = new DateTime(2025, 8, 17), Urgency = Urgency.Medium }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto() { Title = "title: opjkyuypmm", Id = 23, LimitAmount = 13820, Currency = "fjd", Description = "description: hduwe92", StartDate = new DateTime(2019, 12, 21), EndDate = new DateTime(2023, 6, 21), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user1@example.com", new BudgetManageDto() { Title = "title: jdiwjdw", Id = 24, LimitAmount = 29100, Currency = "gbp", Description = "description: 82639", StartDate = new DateTime(2015, 9, 12), EndDate = new DateTime(2017, 5, 11), Urgency = Urgency.Medium }, null };
+            yield return new object[] { "user2@example.com", new BudgetManageDto() { Title = "title: jdiwjdw", Id = 94, LimitAmount = 29100, Currency = "gbp", Description = "description: 82639", StartDate = new DateTime(2015, 9, 12), EndDate = new DateTime(2017, 5, 11), Urgency = Urgency.Low }, null };
+            yield return new object[] { "user2@example.com", new BudgetManageDto() { Title = "title: jdiwjdw", Id = 124, LimitAmount = 29100, Currency = "gbp", Description = "description: 82639", StartDate = new DateTime(2015, 9, 12), EndDate = new DateTime(2017, 5, 11), Urgency = Urgency.High }, null };
+            yield return new object[] { "user2@example.com", new BudgetManageDto() { Title = "title: jdiwjdw", Id = 345, LimitAmount = 29100, Currency = "gbp", Description = "description: 82639", StartDate = new DateTime(2015, 9, 12), EndDate = new DateTime(2017, 5, 11), Urgency = Urgency.Medium }, null };
+            yield return new object[] { "user3@example.com", new BudgetManageDto() { Title = "title: hduwaw", Id = -1, LimitAmount = 101100, Currency = "fkp", Description = "description: djwirb", StartDate = new DateTime(2023, 2, 25), EndDate = new DateTime(2027, 3, 12), Urgency = Urgency.High }, null };
+            yield return new object[] { "user3@example.com", new BudgetManageDto() { Title = "title: hduwaw", Id = 2134, LimitAmount = 101100, Currency = "fkp", Description = "description: djwirb", StartDate = new DateTime(2023, 2, 25), EndDate = new DateTime(2027, 3, 12) }, "user1@example.com" };
+            yield return new object[] { "user3@example.com", new BudgetManageDto() { Title = "title: hduwaw", Id = 456, LimitAmount = 101100, Currency = "fkp", Description = "description: djwirb", StartDate = new DateTime(2023, 2, 25), EndDate = new DateTime(2027, 3, 12) }, "user1@example.com" };
+
+        }
+
+        public static IEnumerable<object[]> DeleteBudgetValidTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, null };
+            yield return new object[] { "user1@example.com", 2, null };
+            yield return new object[] { "user1@example.com", 3, null };
+            yield return new object[] { "user3@example.com", 4, "user1@example.com" };
+            yield return new object[] { "user2@example.com", 6, null };
+            yield return new object[] { "user2@example.com", 7, null };
+            yield return new object[] { "user2@example.com", 8, null };
+            yield return new object[] { "user3@example.com", 9, null };
+            yield return new object[] { "user3@example.com", 10, null };
+
+        }
+        public static IEnumerable<object[]> CreateGoalValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 1, Title = "Test-Title-1", Description = "Description-1", Amount = 2000, Currency = "eur", StartDate = DateTime.Now, EndDate = new DateTime(2026, 1, 1) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 2, Title = "Test-Title-1", Description = "Description for a valid goal with a different currency", Amount = 1500, Currency = "usd", StartDate = DateTime.Now.AddDays(5), EndDate = new DateTime(2026, 1, 1) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 3, Title = "Test-Title-1", Description = "Description for a valid goal with a longer time period", Amount = 3000, Currency = "eur", StartDate = DateTime.Now.AddDays(10), EndDate = new DateTime(2026, 2, 15) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 4, Title = "Test-Title-1", Description = "Description for a valid goal with a larger amount", Amount = 5000, Currency = "php", StartDate = DateTime.Now.AddDays(3), EndDate = new DateTime(2026, 1, 1) }, null };
+        }
+
+        public static IEnumerable<object[]> GetGoalValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new DateTime(2020, 3, 15), new DateTime(2022, 7, 10), "progress", "desc", null };
+            yield return new object[] { "user1@example.com", new DateTime(2021, 6, 5), new DateTime(2023, 4, 25), "amount", "desc", null };
+            yield return new object[] { "user1@example.com", new DateTime(2019, 2, 10), new DateTime(2024, 11, 30), "title", "desc", null };
+            yield return new object[] { "user1@example.com", new DateTime(2020, 9, 20), new DateTime(2023, 1, 5), null, null, null };
+
+            yield return new object[] { "user2@example.com", new DateTime(2020, 8, 12), new DateTime(2023, 6, 18), "progress", "desc", null };
+            yield return new object[] { "user2@example.com", new DateTime(2022, 4, 30), new DateTime(2023, 2, 8), null, null, null };
+            yield return new object[] { "user2@example.com", new DateTime(2019, 11, 8), new DateTime(2024, 9, 22), "amount", "desc", null };
+            yield return new object[] { "user2@example.com", new DateTime(2021, 7, 3), new DateTime(2023, 4, 2), "title", "desc", null };
+
+            yield return new object[] { "user3@example.com", new DateTime(2020, 5, 22), new DateTime(2023, 10, 15), null, null, null };
+            yield return new object[] { "user3@example.com", new DateTime(2022, 1, 17), new DateTime(2024, 8, 7), "progress", "desc", null };
+            yield return new object[] { "user3@example.com", new DateTime(2019, 10, 3), new DateTime(2024, 3, 12), "amount", "desc", null };
+            yield return new object[] { "user3@example.com", new DateTime(2020, 6, 28), new DateTime(2023, 12, 5), "title", "desc", null };
+
+            yield return new object[] { "user4@example.com", new DateTime(2021, 12, 7), new DateTime(2023, 5, 28), "progress", "desc", null };
+            yield return new object[] { "user4@example.com", new DateTime(2019, 2, 25), new DateTime(2024, 1, 20), "amount", "desc", null };
+            yield return new object[] { "user4@example.com", new DateTime(2020, 7, 14), new DateTime(2023, 9, 10), "title", "desc", null };
+            yield return new object[] { "user4@example.com", new DateTime(2022, 4, 18), new DateTime(2024, 3, 30), null, null, null };
+
+            yield return new object[] { "user1@example.com", null, null, "progress", "desc", null };
+            yield return new object[] { "user1@example.com", null, null, "amount", "desc", null };
+            yield return new object[] { "user1@example.com", null, null, "title", "desc", null };
+            yield return new object[] { "user1@example.com", null, null, null, null, null };
+
+            yield return new object[] { "user2@example.com", null, null, "progress", "desc", null };
+            yield return new object[] { "user2@example.com", null, null, null, null, null };
+            yield return new object[] { "user2@example.com", null, null, "amount", "desc", null };
+            yield return new object[] { "user2@example.com", null, null, "title", "desc", null };
+
+            yield return new object[] { "user3@example.com", null, null, null, null, null };
+            yield return new object[] { "user3@example.com", null, null, "progress", "desc", null };
+            yield return new object[] { "user3@example.com", null, null, "amount", "desc", null };
+            yield return new object[] { "user3@example.com", null, null, "title", "desc", null };
+
+            yield return new object[] { "user4@example.com", null, null, "progress", "desc", null };
+            yield return new object[] { "user4@example.com", null, null, "amount", "desc", null };
+            yield return new object[] { "user4@example.com", null, null, "title", "desc", null };
+            yield return new object[] { "user4@example.com", null, null, null, null, null };
+
+            yield return new object[] { "user2@example.com", null, null, null, null, "user1@example.com" };
+            yield return new object[] { "user3@example.com", null, null, null, null, "user1@example.com" };
+
+        }
+        public static IEnumerable<object[]> CreateGoalInvalidtestTestData()
+        {
+            // Invalid amount (less than or equal to 0)
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 0, Currency = "USD", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
+
+            // Invalid currency ISO code
+            yield return new object[] { "user2@example.com", new GoalManageDto { Amount = 1000, Currency = "InvalidCurrency", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
+
+            // Invalid time period (e.g., end date earlier than start date)
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 2000, Currency = "EUR", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-7) }, null };
+
+
+            // Combining multiple invalid conditions
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 0, Currency = "InvalidCode", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
+
+            // Invalid amount (zero or negative)
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 0, Currency = "USD", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = -500, Currency = "EUR", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
+
+            // Invalid currency ISO code
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 1000, Currency = "", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 1500, Currency = "InvalidCurrencyCode", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(30) }, null };
+
+            // Invalid time period (end date earlier than start date)
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 2000, Currency = "GBP", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-7) }, null };
+
+            // Combining multiple invalid conditions
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 0, Currency = "InvalidCode", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = -500, Currency = "", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 1000, Currency = "InvalidCurrency", StartDate = DateTime.Now, EndDate = DateTime.Now.AddDays(-15) }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 2000, Currency = "USD", StartDate = DateTime.Now.AddDays(15), EndDate = DateTime.Now }, null };
+            yield return new object[] { "user1@example.com", new GoalManageDto { Amount = 3000, Currency = "GBP", StartDate = DateTime.Now.AddDays(15), EndDate = DateTime.Now.AddDays(10) }, null };
+        }
+        public static IEnumerable<object[]> DeleteGoalValidTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, null };
+            yield return new object[] { "user1@example.com", 2, null };
+            yield return new object[] { "user1@example.com", 3, null };
+            yield return new object[] { "user3@example.com", 4, "user1@example.com" };
+            yield return new object[] { "user3@example.com", 5, "user1@example.com" };
+            yield return new object[] { "user2@example.com", 6, null };
+            yield return new object[] { "user2@example.com", 7, null };
+            yield return new object[] { "user2@example.com", 8, null };
+            yield return new object[] { "user2@example.com", 9, null };
+            yield return new object[] { "user2@example.com", 10, null };
+        }
+        public static IEnumerable<object[]> DeleteGoalNotFoundInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 6, null };
+            yield return new object[] { "user1@example.com", 7, null };
+            yield return new object[] { "user1@example.com", 8, null };
+            yield return new object[] { "user1@example.com", 9, null };
+            yield return new object[] { "user1@example.com", 10, null };
+        }
     }
 }
