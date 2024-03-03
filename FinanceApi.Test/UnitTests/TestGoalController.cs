@@ -262,7 +262,7 @@ namespace FinanceApi.Test.Tests
 
         [Theory]
         [MemberData(nameof(TestData.DeleteGoalNotFoundInputTestData), MemberType = typeof(TestData))]
-        public void DeleteIncome_ReturnsNotFoundObjectResult_WhenGoalDoesNotExist(
+        public void DeleteGoal_ReturnsNotFoundObjectResult_WhenGoalDoesNotExist(
             string username,
             int goalId,
             string? optionalOwnerUsername
@@ -289,8 +289,8 @@ namespace FinanceApi.Test.Tests
 
             // Assert
 
-            Assert.IsType<NoContentResult>(result);
-            var notFoundResult = result as NoContentResult;
+            Assert.IsType<NotFoundObjectResult>(result);
+            var notFoundResult = result as NotFoundObjectResult;
             Assert.NotNull(notFoundResult);
         }
 
