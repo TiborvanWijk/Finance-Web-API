@@ -11,27 +11,29 @@ namespace FinanceApi.Services
         private readonly ICategoryRepository categoryRepository;
         private readonly IExpenseRepository expenseRepository;
         private readonly IUserRepository userRepository;
+        private readonly IIncomeRepository incomeRepository;
 
-        public CategoryService(ICategoryRepository categoryRepository, IExpenseRepository expenseRepository, IUserRepository userRepository)
+        public CategoryService(ICategoryRepository categoryRepository, IExpenseRepository expenseRepository, IUserRepository userRepository, IIncomeRepository incomeRepository)
         {
             this.categoryRepository = categoryRepository;
             this.expenseRepository = expenseRepository;
             this.userRepository = userRepository;
+            this.incomeRepository = incomeRepository;
         }
 
-        public bool Create(User user, CategoryDto categoryDto, out int errorCode, out string errorMessage)
+        public bool Create(User user, CategoryManageDto categoryManageDto, out int errorCode, out string errorMessage)
         {
             errorMessage = string.Empty;
             errorCode = 0;
 
-            if (categoryRepository.ExistsBytitle(user.Id, categoryDto.Title))
+            if (categoryRepository.ExistsBytitle(user.Id, categoryManageDto.Title))
             {
                 errorCode = 400;
                 errorMessage = "Category with this title already exists.";
                 return false;
             }
 
-            var category = Map.ToCategory(categoryDto);
+            var category = Map.ToCategoryFromManageDto(categoryManageDto);
             category.User = user;
 
             if (!categoryRepository.Create(category))
@@ -43,7 +45,7 @@ namespace FinanceApi.Services
 
             return true;
         }
-        public bool Update(User user, CategoryDto categoryDto, out int errorCode, out string errorMessage)
+        public bool Update(User user, CategoryManageDto categoryDto, out int errorCode, out string errorMessage)
         {
             errorCode = 0;
             errorMessage = string.Empty;
@@ -62,7 +64,7 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            var category = Map.ToCategory(categoryDto);
+            var category = Map.ToCategoryFromManageDto(categoryDto);
 
             if (!categoryRepository.Update(category))
             {
@@ -84,35 +86,18 @@ namespace FinanceApi.Services
             return categoryRepository.ExistsBytitle(userId, title);
         }
 
-        public Category GetById(int categoryId, bool tracking)
+        private decimal GetExpenseAmountOfCategoryById(string userId, int id)
         {
-            return categoryRepository.GetById(categoryId, tracking);
+
+            var expenseAmount = expenseRepository.GetAllOfUserByCategoryId(userId, id)
+                .Select(x => x.Amount).Sum();
+            return expenseAmount;
         }
-
-        public bool TryGetCategoryExpenseAmount(User user, int categoryId, out decimal expenseAmount, out int errorCode, out string errorMessage)
+        private decimal GetIncomeAmountOfCategoryById(string userId, int id)
         {
-            errorCode = 0;
-            errorMessage = string.Empty;
-            expenseAmount = 0;
-
-            if(!categoryRepository.ExistsById(user.Id, categoryId))
-            {
-                errorCode = 404;
-                errorMessage = "Category not found.";
-                return false;
-            }
-
-
-            if (!categoryRepository.HasExpenses(categoryId))
-            {
-                errorCode = 400;
-                errorMessage = "Category has no expenses.";
-                return false;
-            }
-
-            expenseAmount = expenseRepository.GetAllOfUserByCategoryId(user.Id, categoryId).Sum(e => e.Amount);
-
-            return true;
+            var incomeAmount = incomeRepository.GetAllOfUserByCategoryId(userId, id)
+                .Select(x => x.Amount).Sum();
+            return incomeAmount;
         }
 
         public bool TryDelete(User user, int categoryId, out int errorCode, out string errorMessage)
@@ -141,11 +126,11 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool TryGetCategoriesFilteredOrDefault(string userId, out ICollection<Category> categories, out int errorCode, out string errorMessage, string ListOrderBy, string listDir)
+        public bool TryGetCategoryDtosOrderedOrDefault(string userId, out ICollection<CategoryDto> categories, out int errorCode, out string errorMessage, string ListOrderBy, string listDir)
         {
             errorCode = 0;
             errorMessage = string.Empty;
-            categories = new List<Category>();
+            categories = new List<CategoryDto>();
 
             if (!userRepository.ExistsById(userId))
             {
@@ -159,23 +144,30 @@ namespace FinanceApi.Services
 
                 var user = userRepository.GetById(userId, true);
 
-                categories = categoryRepository.GetAllOfUser(userId);
+                categories = categoryRepository.GetAllOfUser(userId).Select(Map.ToCategoryDto).ToList();
+
+                categories = categories.Select(x =>
+                {
+                    x.ExpenseAmount = GetExpenseAmountOfCategoryById(userId, x.Id);
+                    x.IncomeAmount = GetIncomeAmountOfCategoryById(userId, x.Id);
+                    return x;
+                }).ToList();
 
                 categories = listDir != null && listDir.Equals("desc") ?
                     (ListOrderBy switch
                     {
                         "title" => categories.OrderByDescending(c => c.Title),
-                        "expense" => categoryRepository.GetCategoriesIncludingExpenseCategoriesAndExpense(user.Id)
-                                .OrderByDescending(c => c.ExpenseCategories.Sum(ec => ec.Expense != null ? ec.Expense.Amount : 0)),
+                        "expense" => categories.OrderByDescending(c => c.ExpenseAmount),
+                        "income" => categories.OrderByDescending(c => c.IncomeAmount),
                                 _ => categories.OrderByDescending(c => c.Id),
                                 
                     }).ToList()
                     :
                     (ListOrderBy switch
                     {
-                        "expense" => categories.OrderBy(c => c.Title),
-                        "spending" => categoryRepository.GetCategoriesIncludingExpenseCategoriesAndExpense(user.Id)
-                                .OrderBy(c => c.ExpenseCategories.Sum(ec => ec.Expense != null ? ec.Expense.Amount : 0)),
+                        "title" => categories.OrderBy(c => c.Title),
+                        "expense" => categories.OrderBy(c => c.ExpenseAmount),
+                        "income" => categories.OrderBy(c => c.IncomeAmount),
                         _ => categories.OrderBy(c => c.Id),
 
                     }).ToList();

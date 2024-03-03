@@ -262,5 +262,16 @@ namespace FinanceApi.Mapper
             };
             return authorizedUserDto;
         }
+
+        public static Category ToCategoryFromManageDto(CategoryManageDto categoryManageDto)
+        {
+            var category = new Category()
+            {
+                Id = categoryManageDto.Id,
+                Title = categoryManageDto.Title,
+                Description = categoryManageDto.Description,
+            };
+            return category;
+        }
     }
 }
