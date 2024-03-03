@@ -820,5 +820,29 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user1@example.com", 9, null };
             yield return new object[] { "user1@example.com", 10, null };
         }
+
+        public static IEnumerable<object[]> GetUserValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com" };
+            yield return new object[] { "user2@example.com" };
+            yield return new object[] { "user3@example.com" };
+            yield return new object[] { "user4@example.com" };
+        }
+
+        public static IEnumerable<object[]> UpdateUsersCurrencyValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", "usd" };
+            yield return new object[] { "user2@example.com", "eur" };
+            yield return new object[] { "user3@example.com", "php" };
+            yield return new object[] { "user4@example.com", "usd" };
+        }
+
+        public static IEnumerable<object[]> UpdateUsersCurrencyBadRequestInputTestData()
+        {
+            yield return new object[] { "user1@example.com", "THIS IS WRONG" };
+            yield return new object[] { "user2@example.com", "WRONG" };
+            yield return new object[] { "user3@example.com", "123" };
+            yield return new object[] { "user4@example.com", "512" };
+        }
     }
 }

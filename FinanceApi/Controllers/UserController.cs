@@ -24,7 +24,7 @@ namespace FinanceApi.Controllers
 
         [HttpGet("current")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(401)]
         public IActionResult GetCurrentUser()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -51,7 +51,7 @@ namespace FinanceApi.Controllers
         [HttpPatch("patch_currency/{currency}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(401)]
         [ProducesResponseType(500)]
         public IActionResult UpdateUsersCurrency(string currency)
         {
