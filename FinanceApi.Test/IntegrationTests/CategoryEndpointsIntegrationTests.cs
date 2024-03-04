@@ -208,6 +208,46 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+
+        [Theory]
+        [MemberData(nameof(TestData.UpdateCategoryValidInputTestData), MemberType = typeof(TestData))]
+        public async Task UpdateCategory_ReturnsOk_WhenInputIsValid(
+            string username,
+            CategoryManageDto categoryManageDto,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                string? optionalOwnerId = null;
+                if(optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(categoryManageDto), Encoding.UTF8, "application/json");
+
+                var requestUrl = optionalOwnerId == null
+                    ? "api/Category/put"
+                    : $"api/Category/put?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.PutAsync(requestUrl, jsonContent);
+
+
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+
+            }
+        }
+
+
         public void Dispose()
         {
             client.Dispose();

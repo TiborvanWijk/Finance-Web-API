@@ -885,6 +885,24 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user4@example.com", new CategoryManageDto() { Title = "title-16", Description = "DOES NOT MATTER"}, null };
         }
 
-
+        public static IEnumerable<object[]> UpdateCategoryValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new CategoryManageDto() { Id = 1, Title = "new-title-1", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user1@example.com", new CategoryManageDto() { Id = 2, Title = "new-title-2", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user1@example.com", new CategoryManageDto() { Id = 3, Title = "new-title-3", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user1@example.com", new CategoryManageDto() { Id = 4, Title = "new-title-4", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user2@example.com", new CategoryManageDto() { Id = 5, Title = "new-title-5", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user2@example.com", new CategoryManageDto() { Id = 6, Title = "new-title-6", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user2@example.com", new CategoryManageDto() { Id = 7, Title = "new-title-7", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user2@example.com", new CategoryManageDto() { Id = 8, Title = "new-title-8", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user3@example.com", new CategoryManageDto() { Id = 9, Title = "new-title-9", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user3@example.com", new CategoryManageDto() { Id = 10, Title = "new-title-10", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user3@example.com", new CategoryManageDto() { Id = 11, Title = "new-title-11", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user3@example.com", new CategoryManageDto() { Id = 12, Title = "new-title-12", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user4@example.com", new CategoryManageDto() { Id = 13, Title = "new-title-13", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user4@example.com", new CategoryManageDto() { Id = 14, Title = "new-title-14", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user4@example.com", new CategoryManageDto() { Id = 15, Title = "new-title-15", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user4@example.com", new CategoryManageDto() { Id = 16, Title = "new-title-16", Description = "DOES NOT MATTER"}, null };
+        }
     }
 }
