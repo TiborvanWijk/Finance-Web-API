@@ -864,5 +864,27 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user1@example.com", new CategoryManageDto() { Title = "Party", Description = "Anything that has to do with parties" }, null };
 
         }
+
+        public static IEnumerable<object[]> CreateCategoryBadRequestTestData()
+        {
+            yield return new object[] { "user1@example.com", new CategoryManageDto() { Title = "title-1", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user1@example.com", new CategoryManageDto() { Title = "title-2", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user1@example.com", new CategoryManageDto() { Title = "title-3", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user1@example.com", new CategoryManageDto() { Title = "title-4", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user2@example.com", new CategoryManageDto() { Title = "title-5", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user2@example.com", new CategoryManageDto() { Title = "title-6", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user2@example.com", new CategoryManageDto() { Title = "title-7", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user2@example.com", new CategoryManageDto() { Title = "title-8", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user3@example.com", new CategoryManageDto() { Title = "title-9", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user3@example.com", new CategoryManageDto() { Title = "title-10", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user3@example.com", new CategoryManageDto() { Title = "title-11", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user3@example.com", new CategoryManageDto() { Title = "title-12", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user4@example.com", new CategoryManageDto() { Title = "title-13", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user4@example.com", new CategoryManageDto() { Title = "title-14", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user4@example.com", new CategoryManageDto() { Title = "title-15", Description = "DOES NOT MATTER"}, null };
+            yield return new object[] { "user4@example.com", new CategoryManageDto() { Title = "title-16", Description = "DOES NOT MATTER"}, null };
+        }
+
+
     }
 }
