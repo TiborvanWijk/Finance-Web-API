@@ -844,5 +844,17 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user3@example.com", "123" };
             yield return new object[] { "user4@example.com", "512" };
         }
+
+        public static IEnumerable<object[]> GetCategoryValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", "title", "desc", null };
+            yield return new object[] { "user1@example.com", "income", "desc", null };
+            yield return new object[] { "user1@example.com", "expense", "desc", null };
+            yield return new object[] { "user1@example.com", null, "desc", null };
+            yield return new object[] { "user1@example.com", "title", null, null };
+            yield return new object[] { "user1@example.com", "income", null, null };
+            yield return new object[] { "user1@example.com", "expense", null, null };
+            yield return new object[] { "user1@example.com", null, null, null };
+        }
     }
 }
