@@ -946,5 +946,46 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user4@example.com", new CategoryManageDto() { Id = 5, Title = "new-title-16", Description = "DOES NOT MATTER" }, null };
 
         }
+
+        public static IEnumerable<object[]> DeleteCategoryValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", 1, null };
+            yield return new object[] { "user1@example.com", 2, null };
+            yield return new object[] { "user1@example.com", 3, null };
+            yield return new object[] { "user1@example.com", 4, null };
+            yield return new object[] { "user2@example.com", 5, null };
+            yield return new object[] { "user2@example.com", 6, null };
+            yield return new object[] { "user2@example.com", 7, null };
+            yield return new object[] { "user2@example.com", 8, null };
+            yield return new object[] { "user3@example.com", 9, null };
+            yield return new object[] { "user3@example.com", 10, null };
+            yield return new object[] { "user3@example.com", 11, null };
+            yield return new object[] { "user3@example.com", 12, null };
+            yield return new object[] { "user4@example.com", 13, null };
+            yield return new object[] { "user4@example.com", 14, null };
+            yield return new object[] { "user4@example.com", 15, null };
+            yield return new object[] { "user4@example.com", 16, null };
+        }
+
+        public static IEnumerable<object[]> DeleteCategoryNotFoundTestData()
+        {
+            yield return new object[] { "user1@example.com", 16, null };
+            yield return new object[] { "user1@example.com", 15, null };
+            yield return new object[] { "user1@example.com", 14, null };
+            yield return new object[] { "user1@example.com", 13, null };
+            yield return new object[] { "user2@example.com", 12, null };
+            yield return new object[] { "user2@example.com", 11, null };
+            yield return new object[] { "user2@example.com", 10, null };
+            yield return new object[] { "user2@example.com", 9, null };
+            yield return new object[] { "user3@example.com", 8, null };
+            yield return new object[] { "user3@example.com", 7, null };
+            yield return new object[] { "user3@example.com", 6, null };
+            yield return new object[] { "user3@example.com", 5, null };
+            yield return new object[] { "user4@example.com", 4, null };
+            yield return new object[] { "user4@example.com", 3, null };
+            yield return new object[] { "user4@example.com", 2, null };
+            yield return new object[] { "user4@example.com", 1, null };
+
+        }
     }
 }

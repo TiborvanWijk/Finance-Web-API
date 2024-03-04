@@ -172,7 +172,7 @@ namespace FinanceApi.Test.IntegrationTests
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             }
         }
-            
+
 
 
         [Theory]
@@ -224,7 +224,7 @@ namespace FinanceApi.Test.IntegrationTests
                 var user = db.Users.First(x => x.UserName.Equals(username));
 
                 string? optionalOwnerId = null;
-                if(optionalOwnerUsername != null)
+                if (optionalOwnerUsername != null)
                 {
                     optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
                 }
@@ -319,6 +319,72 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+
+        [Theory]
+        [MemberData(nameof(TestData.DeleteCategoryValidInputTestData), MemberType = typeof(TestData))]
+        public async Task DeleteCategory_ReturnsNoContent_WhenInputIsValid(
+            string username,
+            int categoryId,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Category/delete/{categoryId}"
+                    : $"api/Category/delete/{categoryId}?optionalOwnerId={optionalOwnerId}";
+
+
+                var response = await client.DeleteAsync(requestUrl);
+
+                Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.DeleteCategoryNotFoundTestData), MemberType = typeof(TestData))]
+        public async Task DeleteCategory_ReturnsNotFound_WhenInputIsValid(
+            string username,
+            int categoryId,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var requestUrl = optionalOwnerId == null
+                    ? $"api/Category/delete/{categoryId}"
+                    : $"api/Category/delete/{categoryId}?optionalOwnerId={optionalOwnerId}";
+
+
+                var response = await client.DeleteAsync(requestUrl);
+
+                Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            }
+        }
 
         public void Dispose()
         {
