@@ -440,7 +440,7 @@ namespace FinanceApi.Test.TestDataHolder
         {
             yield return new object[] { "user1@example.com", 1, new List<int>() { 2, 3, 4 }, null };
             yield return new object[] { "user1@example.com", 2, new List<int>() { 3, 4 }, null };
-            yield return new object[] { "user3@example.com", 3, new List<int>() { 1,2,4 }, "user1@example.com" };
+            yield return new object[] { "user3@example.com", 3, new List<int>() { 1, 2, 4 }, "user1@example.com" };
             yield return new object[] { "user2@example.com", 21, new List<int>() { 6 }, null };
             yield return new object[] { "user2@example.com", 22, new List<int>() { 7 }, null };
             yield return new object[] { "user3@example.com", 41, new List<int>() { 11 }, null };
@@ -855,6 +855,14 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user1@example.com", "income", null, null };
             yield return new object[] { "user1@example.com", "expense", null, null };
             yield return new object[] { "user1@example.com", null, null, null };
+        }
+        public static IEnumerable<object[]> CreateCategoryValidInputTestData()
+        {
+            yield return new object[] { "user1@example.com", new CategoryManageDto() { Title = "Food", Description = "Anything that has to do with food" }, null };
+            yield return new object[] { "user1@example.com", new CategoryManageDto() { Title = "Drinks", Description = "Anything that has to do with drinks" }, null };
+            yield return new object[] { "user1@example.com", new CategoryManageDto() { Title = "Shopping", Description = "Anything that has to do with shopping" }, null };
+            yield return new object[] { "user1@example.com", new CategoryManageDto() { Title = "Party", Description = "Anything that has to do with parties" }, null };
+
         }
     }
 }

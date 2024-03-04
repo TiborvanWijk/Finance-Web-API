@@ -32,7 +32,7 @@ namespace FinanceApi.Test.IntegrationTests
             string username
             )
         {
-            using(var scope = factory.Services.CreateScope())
+            using (var scope = factory.Services.CreateScope())
             {
 
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
@@ -56,15 +56,10 @@ namespace FinanceApi.Test.IntegrationTests
         [Fact]
         public async Task GetUser_ReturnsUnauthorized_WhenUserIsNotLoggedIn()
         {
-            using (var scope = factory.Services.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+            var requestUrl = "api/User/current";
+            var response = await client.GetAsync(requestUrl);
 
-                var requestUrl = "api/User/current";
-                var response = await client.GetAsync(requestUrl);
-
-                Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            }
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Theory]
@@ -74,7 +69,7 @@ namespace FinanceApi.Test.IntegrationTests
             string currency
             )
         {
-            using(var scope =  factory.Services.CreateScope())
+            using (var scope = factory.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
 

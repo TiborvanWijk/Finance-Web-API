@@ -13,6 +13,7 @@ using System.Net.Http.Headers;
 using System.Net;
 using FinanceApi.Data.Dtos;
 using FinanceApi.Mapper;
+using Azure;
 
 namespace FinanceApi.Test.IntegrationTests
 {
@@ -127,6 +128,50 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Fact]
+        public async Task GetCategories_returnsUnauthorized_WhenUserIsNotLoggedIn()
+        {
+            var requestUrl = "api/Category/current";
+
+            var response = await client.GetAsync(requestUrl);
+
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+
+
+        [Theory]
+        [MemberData(nameof(TestData.CreateCategoryValidInputTestData), MemberType = typeof(TestData))]
+        public async Task CreateCategory_ReturnsOk_WhenInputIsValid(
+            string username,
+            CategoryManageDto categoryManageDto,
+            string? optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string? optionalOwnerId = null;
+                if (optionalOwnerUsername != null)
+                {
+                    optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+                }
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(categoryManageDto), Encoding.UTF8, "application/json");
+
+                var requestUrl = optionalOwnerId == null
+                    ? "api/Category/post"
+                    : $"api/Category/post?optionalOwnerId={optionalOwnerId}";
+
+
+                var response = await client.PostAsync(requestUrl, jsonContent);
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            }
+        }
 
 
         public void Dispose()

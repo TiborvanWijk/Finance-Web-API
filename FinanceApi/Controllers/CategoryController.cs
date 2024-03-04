@@ -28,7 +28,6 @@ namespace FinanceApi.Controllers
 
         [HttpGet("current")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
         public IActionResult GetAllCategories([FromQuery] string? listOrderBy, [FromQuery] string? listDir, [FromQuery] string? optionalOwnerId)
         {
 
