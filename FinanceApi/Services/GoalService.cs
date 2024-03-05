@@ -31,7 +31,7 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            if(ExistsByTitle(user.Id, goalManageDto.Title))
+            if(goalRepository.ExistsByTitle(user.Id, goalManageDto.Title))
             {
                 errorCode = 400;
                 errorMessage = "Goal with this title already in use.";
@@ -80,41 +80,11 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool Delete(Goal goal)
-        {
-            return goalRepository.Delete(goal);
-        }
-
-        public bool ExistsById(string userId, int goalId)
-        {
-            return goalRepository.ExistsById(userId, goalId);
-        }
-
-        public bool ExistsByTitle(string userId, string title)
-        {
-            return goalRepository.ExistsByTitle(userId, title);
-        }
-
-        public Goal GetById(int goalId, bool tracking)
-        {
-            return goalRepository.GetById(goalId, tracking);
-        }
-
-        public bool HasGoals(string userId)
-        {
-            return goalRepository.HasGoals(userId);
-        }
-
-        public bool Update(Goal goal)
-        {
-            return goalRepository.Update(goal);
-        }
-
         public bool AddCategories(string userId, int goalId, ICollection<int> categoryIds, out string errorMessage, out int errorCode)
         {
             errorMessage = string.Empty;
             errorCode = 0;
-            if (!ExistsById(userId, goalId))
+            if (!goalRepository.ExistsById(userId, goalId))
             {
                 errorMessage = "Goal not found.";
                 errorCode = 404;
@@ -129,7 +99,7 @@ namespace FinanceApi.Services
             }
 
 
-            var goal = GetById(goalId, true);
+            var goal = goalRepository.GetById(goalId, true);
 
             var goalCategories = categoryRepository.GetGoalCategories(userId, goalId);
 
@@ -161,7 +131,7 @@ namespace FinanceApi.Services
                     Goal = goal,
                 };
 
-                if (!AddCategory(goalCategory))
+                if (!goalRepository.AddCategory(goalCategory))
                 {
                     errorMessage = "Something went wrong while adding category to goal.";
                     errorCode = 500;
@@ -170,11 +140,6 @@ namespace FinanceApi.Services
             }
 
             return true;
-        }
-
-        public bool AddCategory(GoalCategory goalCategory)
-        {
-            return goalRepository.AddCategory(goalCategory);
         }
 
         public bool Update(User user, GoalManageDto goalManageDto, out int errorCode, out string errorMessage)
@@ -211,26 +176,6 @@ namespace FinanceApi.Services
                 errorMessage = "Something went wrong while updating goal.";
                 return false;
             }
-
-            return true;
-        }
-
-        public bool TryGetGoalsByCategoryId(User user, int categoryId, out ICollection<Goal> goals, out int errorCode, out string errorMessage)
-        {
-
-            errorCode = 0;
-            errorMessage = string.Empty;
-            goals = new List<Goal>();
-
-            if(!categoryRepository.ExistsById(user.Id, categoryId))
-            {
-                errorCode = 404;
-                errorMessage = "Category not found.";
-                return false;
-            }
-
-            goals = goalRepository.GetAllOfUserByCategoryId(user.Id, categoryId);
-
 
             return true;
         }
@@ -326,18 +271,26 @@ namespace FinanceApi.Services
             return amount;
         }
 
-        public bool TryGetAllOrderedOrDefault(string userId, out ICollection<Goal> goals, out int errorCode, out string errorMessage, DateTime? startDate, DateTime? endDate, string? listOrderBy, string? listDir)
+        public bool TryGetAllOrderedOrDefault(
+            string userId,
+            out ICollection<Goal> goals,
+            out int errorCode,
+            out string errorMessage,
+            DateTime? startDate,
+            DateTime? endDate,
+            string? listOrderBy,
+            string? listDir,
+            int? categoryId)
         {
             errorCode = 0;
             errorMessage = string.Empty;
             goals = null;
 
-
             try
             {
-
-
-                goals = goalRepository.GetAllOfUser(userId);
+                goals = categoryId == null
+                    ? goalRepository.GetAllOfUser(userId)
+                    : goalRepository.GetAllOfUserByCategoryId(userId, (int) categoryId);
 
                 if (startDate != null || endDate != null)
                 {

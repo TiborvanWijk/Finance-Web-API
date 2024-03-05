@@ -30,8 +30,14 @@ namespace FinanceApi.Controllers
         [HttpGet("current")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult GetUsersExpenses([FromQuery] DateTime? from, [FromQuery] DateTime? to,
-            [FromQuery] string? list_order_by, [FromQuery] string? list_dir, [FromQuery] string? optionalOwnerId)
+        public IActionResult GetUsersExpenses(
+            [FromQuery] DateTime? from,
+            [FromQuery] DateTime? to,
+            [FromQuery] string? list_order_by,
+            [FromQuery] string? list_dir,
+            [FromQuery] string? optionalOwnerId,
+            [FromQuery] int? categoryId
+            )
         {
 
             if (!ModelState.IsValid)
@@ -54,7 +60,7 @@ namespace FinanceApi.Controllers
             
             ICollection<Expense> expenses;
 
-            if (!expenseService.TryGetExpensesFilteredOrDefault(userLookupId, out expenses, from, to, list_order_by, list_dir, out errorCode, out errorMessage))
+            if (!expenseService.TryGetExpensesFilteredOrDefault(userLookupId, out expenses, from, to, list_order_by, list_dir, categoryId, out errorCode, out errorMessage))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
@@ -63,44 +69,6 @@ namespace FinanceApi.Controllers
 
             return Ok(expenseDtos);
         }
-
-        [HttpGet("current/expenses/{categoryId}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        public IActionResult GetExpenses(int categoryId, [FromQuery] string? optionalOwnerId)
-        {
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var currUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-
-            int errorCode;
-            string errorMessage;
-
-            if (!authorizeService.ValidateUsers(HttpContext, currUserId, optionalOwnerId, out errorCode, out errorMessage))
-            {
-                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
-            }
-
-            var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
-            var user = userService.GetById(userLookupId, true);
-
-            ICollection<Expense> expenses;
-
-            if (!expenseService.tryGetExpensesWithCategoryId(user, categoryId, out expenses, out errorCode, out errorMessage))
-            {
-                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
-            }
-
-            var expenseDtos = expenses.Select(Map.ToExpenseDto);
-
-            return Ok(expenseDtos);
-        }
-
-
 
         [HttpPost("post")]
         [ProducesResponseType(200)]

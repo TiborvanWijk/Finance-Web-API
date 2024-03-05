@@ -101,6 +101,7 @@ namespace FinanceApi.Services
             DateTime? endDate,
             string? list_order_by,
             string? list_dir,
+            int? categoryId,
             out int errorCode,
             out string errorMessage)
         {
@@ -108,7 +109,9 @@ namespace FinanceApi.Services
             errorCode = 0;
             errorMessage = string.Empty;
 
-            incomes = incomeRepository.GetAllOfUser(userId);
+            incomes = categoryId == null
+                ? incomeRepository.GetAllOfUser(userId)
+                : incomeRepository.GetAllOfUserByCategoryId(userId, (int) categoryId);
 
 
             if (startDate != null || endDate != null)
@@ -218,26 +221,6 @@ namespace FinanceApi.Services
                 errorMessage = "Something went wrong while updating income.";
                 return false;
             }
-
-            return true;
-        }
-
-        public bool tryGetIncomesWithCategoryId(User user, int categoryId, out ICollection<Income> incomes, out int errorCode, out string errorMessage)
-        {
-            errorCode = 0;
-            errorMessage = string.Empty;
-            incomes = new List<Income>();
-
-
-
-            if (!categoryRepository.ExistsById(user.Id, categoryId))
-            {
-                errorCode = 404;
-                errorMessage = "Category not found.";
-                return false;
-            }
-
-            incomes = incomeRepository.GetAllOfUserByCategoryId(user.Id, categoryId);
 
             return true;
         }

@@ -35,12 +35,12 @@ namespace FinanceApi.Controllers
             [FromQuery] DateTime? endDate,
             [FromQuery] string? listOrderBy,
             [FromQuery] string? listDir,
-            [FromQuery] string? optionalOwnerId)
+            [FromQuery] string? optionalOwnerId,
+            [FromQuery] int? categoryId
+            )
         {
 
-
             var currUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
 
             int errorCode;
             string errorMessage;
@@ -52,11 +52,9 @@ namespace FinanceApi.Controllers
 
             var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
 
-
             ICollection<Budget> budgets;
 
-
-            if(!budgetService.TryGetAllOrderedOrDefault(userLookupId, out budgets, out errorCode, out errorMessage, startDate, endDate, listOrderBy, listDir))
+            if(!budgetService.TryGetAllOrderedOrDefault(userLookupId, out budgets, out errorCode, out errorMessage, startDate, endDate, listOrderBy, listDir, categoryId))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
@@ -70,40 +68,6 @@ namespace FinanceApi.Controllers
             
             return Ok(budgetDtos);
         }
-        
-        [HttpGet("current/budgets/{categoryId}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        public IActionResult GetBudgetByCategoryId(int categoryId, [FromQuery] string? optionalOwnerId)
-        {
-
-            var currUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-
-            int errorCode;
-            string errorMessage;
-
-            if (!authorizeService.ValidateUsers(HttpContext, currUserId, optionalOwnerId, out errorCode, out errorMessage))
-            {
-                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
-            }
-
-            var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
-
-            var user = userService.GetById(userLookupId, true);
-            ICollection<Budget> budgets;
-
-            if (!budgetService.TryGetBudgetsByCategoryId(user, categoryId, out budgets, out errorCode, out errorMessage))
-            {
-                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
-            }
-
-
-            var budgetDtos = budgets.Select(Map.ToBudgetDto);
-
-            return Ok(budgetDtos);
-        }
-
 
         [HttpPost("post")]
         [ProducesResponseType(200)]

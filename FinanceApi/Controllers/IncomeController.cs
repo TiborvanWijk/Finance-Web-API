@@ -34,7 +34,9 @@ namespace FinanceApi.Controllers
             [FromQuery] DateTime? to,
             [FromQuery] string? listOrderBy,
             [FromQuery] string? listDir,
-            [FromQuery] string? optionalOwnerId)
+            [FromQuery] string? optionalOwnerId,
+            [FromQuery] int? categoryId
+            )
         {
 
             if (!ModelState.IsValid)
@@ -56,7 +58,7 @@ namespace FinanceApi.Controllers
            
             ICollection<Income> incomes;
 
-            if(!incomeService.TryGetIncomesFilteredOrDefault(userLookupId, out incomes, from, to, listOrderBy, listDir, out errorCode, out errorMessage)){
+            if(!incomeService.TryGetIncomesFilteredOrDefault(userLookupId, out incomes, from, to, listOrderBy, listDir, categoryId, out errorCode, out errorMessage)){
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
 
@@ -64,45 +66,6 @@ namespace FinanceApi.Controllers
 
             return Ok(incomeDtos);
         }
-
-        [HttpGet("current/incomes/{categoryId}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        public IActionResult GetUsersIncomesByCategoryId(int categoryId, [FromQuery] string? optionalOwnerId)
-        {
-
-            if(!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var currUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            int errorCode;
-            string errorMessage;
-
-            if (!authorizeService.ValidateUsers(HttpContext, currUserId, optionalOwnerId, out errorCode, out errorMessage))
-            {
-                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
-            }
-
-            var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
-
-            var user = userService.GetById(userLookupId, true);
-
-            ICollection<Income> incomes;
-
-            if(!incomeService.tryGetIncomesWithCategoryId(user, categoryId, out incomes, out errorCode, out errorMessage))
-            {
-                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
-            }
-
-            var incomeDtos = incomes.Select(Map.ToIncomeDto).ToList();
-
-            return Ok(incomeDtos);
-        }
-
 
         [HttpPost("post")]
         [ProducesResponseType(200)]

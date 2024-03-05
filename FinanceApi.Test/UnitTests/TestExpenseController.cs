@@ -154,7 +154,7 @@ namespace FinanceApi.Test.Tests
 
             // Act
             var result = expenseController.GetUsersExpenses(
-                from, to, list_order_by, list_dir, optionalOwnerId);
+                from, to, list_order_by, list_dir, optionalOwnerId, null);
 
             // Assert
             Assert.IsType<OkObjectResult>(result);
@@ -241,7 +241,7 @@ namespace FinanceApi.Test.Tests
 
 
             var result = expenseController.GetUsersExpenses(from,
-                to, list_order_by, list_dir, optionalOwnerId);
+                to, list_order_by, list_dir, optionalOwnerId, null);
 
 
             // Assert
@@ -276,7 +276,7 @@ namespace FinanceApi.Test.Tests
 
             // Act
 
-            var result = expenseController.GetUsersExpenses(null, null, null, null, null);
+            var result = expenseController.GetUsersExpenses(null, null, null, null, null, null);
 
             // Assert
 
@@ -308,7 +308,7 @@ namespace FinanceApi.Test.Tests
             };
 
             // Act
-            var result = expenseController.GetUsersExpenses(null, null, null, null, "THIS USER DOES NOT EXIST");
+            var result = expenseController.GetUsersExpenses(null, null, null, null, "THIS USER DOES NOT EXIST", null);
 
             // Assert
 
@@ -351,7 +351,7 @@ namespace FinanceApi.Test.Tests
 
             // Act
 
-            var result = expenseController.GetUsersExpenses(null, null, null, null, "OWNER DID NOT AUTHORIZE CURRENT USER");
+            var result = expenseController.GetUsersExpenses(null, null, null, null, "OWNER DID NOT AUTHORIZE CURRENT USER", null);
 
             // Assert
 

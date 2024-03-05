@@ -28,13 +28,16 @@ namespace FinanceApi.Controllers
 
         [HttpGet("current")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(403)]
         public IActionResult GetGoals(
             [FromQuery] DateTime? startDate,
             [FromQuery] DateTime? endDate,
             [FromQuery] string? listOrderBy,
             [FromQuery] string? listDir,
-            [FromQuery] string? optionalOwnerId)
+            [FromQuery] string? optionalOwnerId,
+            [FromQuery] int? categoryId
+            )
         {
 
             if(!ModelState.IsValid)
@@ -56,7 +59,7 @@ namespace FinanceApi.Controllers
             var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
             
             ICollection<Goal> goals;
-            if(!goalService.TryGetAllOrderedOrDefault(userLookupId, out goals, out errorCode, out errorMessage, startDate, endDate, listOrderBy, listDir))
+            if(!goalService.TryGetAllOrderedOrDefault(userLookupId, out goals, out errorCode, out errorMessage, startDate, endDate, listOrderBy, listDir, categoryId))
             {
                 return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
             }
@@ -70,41 +73,6 @@ namespace FinanceApi.Controllers
 
             return Ok(goalDtos);
         }
-
-        [HttpGet("current/goals/{categoryId}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(500)]
-        public IActionResult GetGoalsByCategoryId(int categoryId, [FromQuery] string? optionalOwnerId)
-        {
-
-            var currUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            int errorCode;
-            string errorMessage;
-
-            if (!authorizeService.ValidateUsers(HttpContext, currUserId, optionalOwnerId, out errorCode, out errorMessage))
-            {
-                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
-            }
-
-            var userLookupId = optionalOwnerId == null ? currUserId : optionalOwnerId;
-            var user = userService.GetById(userLookupId, true);
-
-            ICollection<Goal> goals;
-
-            if(!goalService.TryGetGoalsByCategoryId(user, categoryId, out goals, out errorCode, out errorMessage))
-            {
-                return ApiResponseHelper.HandleErrorResponse(errorCode, errorMessage);
-            }
-
-
-            var goalDtos = goals.Select(Map.ToGoalDto);
-
-            return Ok(goalDtos);
-        }
-        
-
 
         [HttpPost("post")]
         [ProducesResponseType(200)]

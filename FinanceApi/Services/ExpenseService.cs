@@ -19,11 +19,6 @@ namespace FinanceApi.Services
             this.categoryRepository = categoryRepository;
         }
 
-        public bool AddCategory(ExpenseCategory expenseCategory)
-        {
-            return expenseRepository.AddCategory(expenseCategory);
-        }
-
         public bool Create(User user, ExpenseDto expenseDto, out int errorCode, out string errorMessage)
         {
             errorCode = 0;
@@ -77,22 +72,13 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool Delete(Expense expense)
-        {
-            return expenseRepository.Delete(expense);
-        }
-
-        public bool ExistsById(string userId, int expenseId)
-        {
-            return expenseRepository.ExistsById(userId, expenseId);
-        }
-
         public bool TryGetExpensesFilteredOrDefault(string userId,
             out ICollection<Expense> expenses,
             DateTime? startDate,
             DateTime? endDate,
             string? list_order_by,
             string? list_dir,
+            int? categoryId,
             out int errorCode,
             out string errorMessage)
         {
@@ -100,7 +86,9 @@ namespace FinanceApi.Services
             errorCode = 0;
             errorMessage = string.Empty;
 
-            expenses = expenseRepository.GetAllOfUser(userId).OrderByDescending(i => i.Date).ToList();
+            expenses = categoryId == null 
+                ? expenseRepository.GetAllOfUser(userId)
+                : expenseRepository.GetAllOfUserByCategoryId(userId, (int) categoryId);
 
 
             if (startDate != null || endDate != null)
@@ -223,31 +211,6 @@ namespace FinanceApi.Services
                     return false;
                 }
             }
-
-            return true;
-        }
-
-        public Expense GetById(int expenseId, bool tracking)
-        {
-            return expenseRepository.GetById(expenseId, tracking);
-        }
-
-        public bool tryGetExpensesWithCategoryId(User user, int categoryId, out ICollection<Expense> expenses, out int errorCode, out string errorMessage)
-        {
-            errorCode = 0;
-            errorMessage = string.Empty;
-            expenses = new List<Expense>();
-
-
-
-            if (!categoryRepository.ExistsById(user.Id, categoryId))
-            {
-                errorCode = 404;
-                errorMessage = "Category not found.";
-                return false;
-            }
-
-            expenses = expenseRepository.GetAllOfUserByCategoryId(user.Id, categoryId);
 
             return true;
         }

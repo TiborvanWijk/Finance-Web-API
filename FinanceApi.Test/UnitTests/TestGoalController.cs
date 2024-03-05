@@ -94,7 +94,7 @@ namespace FinanceApi.Test.Tests
 
             // Act
             var optionalOwnerId = optionalOwnerUsername == null ? null : dataContext.Users.First(x => x.UserName.Normalize().Equals(optionalOwnerUsername.Normalize())).Id;
-            var result = goalController.GetGoals(startDate, endDate, listOrderBy, listDir, optionalOwnerId);
+            var result = goalController.GetGoals(startDate, endDate, listOrderBy, listDir, optionalOwnerId, null);
 
             // Assert
 

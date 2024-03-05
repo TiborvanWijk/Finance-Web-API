@@ -26,7 +26,7 @@ namespace FinanceApi.Services
             errorCode = 0;
             errorMessage = string.Empty;
 
-            if (ExistsByTitle(user.Id, budgetDto.Title))
+            if (budgetRepository.ExistsByTitle(user.Id, budgetDto.Title))
             {
                 errorCode = 400;
                 errorMessage = "Budget with this title already exists.";
@@ -37,7 +37,7 @@ namespace FinanceApi.Services
             {
                 return false;
             }
-
+            
             var budget = Map.ToBudgetFromBudgetManageDto(budgetDto);
             budget.Currency = budget.Currency.ToUpper();
             budget.User = user;
@@ -88,26 +88,10 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool ExistsById(string userId, int budgetId)
-        {
-            return budgetRepository.ExistsById(userId, budgetId);
-        }
-
-        public bool ExistsByTitle(string userId, string title)
-        {
-            return budgetRepository.ExistsByTitle(userId, title);
-        }
-
         public ICollection<Budget> GetAllOfUser(string userId)
         {
             return budgetRepository.GetAllOfUser(userId);
         }
-
-        public Budget GetById(int budgetId, bool tracking)
-        {
-            return budgetRepository.GetById(budgetId, tracking);
-        }
-
         public bool Update(User user, BudgetManageDto budgetDto, out int errorCode, out string errorMessage)
         {
             errorCode = 0;
@@ -151,7 +135,7 @@ namespace FinanceApi.Services
 
             errorMessage = string.Empty;
             errorCode = 0;
-            if (!ExistsById(userId, budgetId))
+            if (!budgetRepository.ExistsById(userId, budgetId))
             {
                 errorMessage = "Budget not found.";
                 errorCode = 404;
@@ -205,27 +189,6 @@ namespace FinanceApi.Services
                     return false;
                 }
             }
-
-            return true;
-        }
-
-        public bool TryGetBudgetsByCategoryId(User user, int categoryId, out ICollection<Budget> budgets, out int errorCode, out string errorMessage)
-        {
-
-            errorCode = 0;
-            errorMessage = string.Empty;
-            budgets = new List<Budget>();
-
-
-            if (!categoryRepository.ExistsById(user.Id, categoryId))
-            {
-                errorCode = 404;
-                errorMessage = "Category not found.";
-                return false;
-            }
-
-            budgets = budgetRepository.GetAllOfUserByCategoryId(user.Id, categoryId);
-
 
             return true;
         }
@@ -321,7 +284,7 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool TryGetAllOrderedOrDefault(string userId, out ICollection<Budget> budgets, out int errorCode, out string errorMessage, DateTime? startDate, DateTime? endDate, string? listOrderBy, string? listDir)
+        public bool TryGetAllOrderedOrDefault(string userId, out ICollection<Budget> budgets, out int errorCode, out string errorMessage, DateTime? startDate, DateTime? endDate, string? listOrderBy, string? listDir, int? categoryId)
         {
 
             errorCode = 0;
@@ -333,7 +296,9 @@ namespace FinanceApi.Services
             {
 
 
-                budgets = budgetRepository.GetAllOfUser(userId);
+                budgets = categoryId == null 
+                    ? budgetRepository.GetAllOfUser(userId)
+                    : budgetRepository.GetAllOfUserByCategoryId(userId, (int)categoryId);
 
                 if (startDate != null || endDate != null)
                 {
