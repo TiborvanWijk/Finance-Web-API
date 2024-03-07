@@ -1,4 +1,5 @@
-﻿using FinanceApi.Data.Dtos;
+﻿using FinanceApi.Currency;
+using FinanceApi.Data.Dtos;
 using FinanceApi.Mapper;
 using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
@@ -22,16 +23,16 @@ namespace FinanceApi.Services
 
         public bool Create(User user, GoalManageDto goalManageDto, out int errorCode, out string errorMessage)
         {
-            
+
             errorCode = 0;
             errorMessage = string.Empty;
 
-            if(!ValidateGoal(goalManageDto, out errorCode, out errorMessage))
+            if (!ValidateGoal(goalManageDto, out errorCode, out errorMessage))
             {
                 return false;
             }
 
-            if(goalRepository.ExistsByTitle(user.Id, goalManageDto.Title))
+            if (goalRepository.ExistsByTitle(user.Id, goalManageDto.Title))
             {
                 errorCode = 400;
                 errorMessage = "Goal with this title already in use.";
@@ -57,7 +58,7 @@ namespace FinanceApi.Services
             errorCode = 0;
             errorMessage = string.Empty;
 
-            if(goalDto.Amount <= 0)
+            if (goalDto.Amount <= 0)
             {
                 errorCode = 400;
                 errorMessage = "Amount must be greater then '0'.";
@@ -71,7 +72,7 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            if(!Validator.ValidateTimePeriod(goalDto.StartDate, goalDto.EndDate, out errorCode, out errorMessage))
+            if (!Validator.ValidateTimePeriod(goalDto.StartDate, goalDto.EndDate, out errorCode, out errorMessage))
             {
                 return false;
             }
@@ -153,7 +154,7 @@ namespace FinanceApi.Services
                 return false;
             }
 
-            if(!ValidateGoal(goalManageDto, out errorCode, out errorMessage))
+            if (!ValidateGoal(goalManageDto, out errorCode, out errorMessage))
             {
                 return false;
             }
@@ -186,7 +187,7 @@ namespace FinanceApi.Services
             errorCode = 0;
             errorMessage = string.Empty;
 
-            if(!goalRepository.ExistsById(user.Id, goalId))
+            if (!goalRepository.ExistsById(user.Id, goalId))
             {
                 errorCode = 404;
                 errorMessage = "Goal not found";
@@ -257,14 +258,14 @@ namespace FinanceApi.Services
             decimal amount = 0;
 
             var goal = goalRepository.GetById(goalId, false);
-
             var incomes = incomeRepository.GetAllOfUserByGoalId(userId, goalId);
 
             foreach (var income in incomes)
             {
-                if(income.Date <= DateTime.Now && income.Date >= goal.StartDate && income.Date <= goal.EndDate)
+                if (income.Date <= DateTime.Now && income.Date >= goal.StartDate && income.Date <= goal.EndDate)
                 {
-                    amount += income.Amount;
+                    var exchangeRate = CurrencyExchange.GetExchangeRate(income.Currency, goal.Currency, income.Date);
+                    amount += income.Amount * exchangeRate;
                 }
             }
 
@@ -290,7 +291,7 @@ namespace FinanceApi.Services
             {
                 goals = categoryId == null
                     ? goalRepository.GetAllOfUser(userId)
-                    : goalRepository.GetAllOfUserByCategoryId(userId, (int) categoryId);
+                    : goalRepository.GetAllOfUserByCategoryId(userId, (int)categoryId);
 
                 if (startDate != null || endDate != null)
                 {

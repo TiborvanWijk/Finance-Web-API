@@ -1,4 +1,5 @@
-﻿using FinanceApi.Models;
+﻿using FinanceApi.Currency;
+using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
 using FinanceApi.Services.Interfaces;
 using FinanceApi.Validators;
@@ -61,20 +62,28 @@ namespace FinanceApi.Services
                 errorMessage = "User not found.";
                 return false;
             }
+            var user = userRepository.GetById(userId, false);
 
             var expenseTotal = expenseRepository.GetAllOfUser(userId)
                 .Where(e => e.Date <= DateTime.Now)
-                .Select(e => e.Amount)
+                .Select(e =>
+                {
+                    var exchangeRate = CurrencyExchange.GetExchangeRate(e.Currency, user.Currency, e.Date);
+                    return e.Amount * exchangeRate;
+                })
                 .Sum();
 
             var incomeTotal = incomeRepository.GetAllOfUser(userId)
-                .Where(e => e.Date <= DateTime.Now)
-                .Select(i => i.Amount)
+                .Where(i => i.Date <= DateTime.Now)
+                .Select(i => {
+                    var exchangeRate = CurrencyExchange.GetExchangeRate(i.Currency, user.Currency, i.Date);
+                    return i.Amount * exchangeRate;
+                })
                 .Sum();
 
             try
             {
-                balance = Math.Round(incomeTotal - expenseTotal,2);
+                balance = Math.Round(incomeTotal - expenseTotal, 2);
             }
             catch (Exception ex)
             {

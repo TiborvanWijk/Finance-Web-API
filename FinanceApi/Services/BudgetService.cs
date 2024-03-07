@@ -1,4 +1,5 @@
-﻿using FinanceApi.Data.Dtos;
+﻿using FinanceApi.Currency;
+using FinanceApi.Data.Dtos;
 using FinanceApi.Enums;
 using FinanceApi.Mapper;
 using FinanceApi.Models;
@@ -37,7 +38,7 @@ namespace FinanceApi.Services
             {
                 return false;
             }
-            
+
             var budget = Map.ToBudgetFromBudgetManageDto(budgetDto);
             budget.Currency = budget.Currency.ToUpper();
             budget.User = user;
@@ -88,10 +89,6 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public ICollection<Budget> GetAllOfUser(string userId)
-        {
-            return budgetRepository.GetAllOfUser(userId);
-        }
         public bool Update(User user, BudgetManageDto budgetDto, out int errorCode, out string errorMessage)
         {
             errorCode = 0;
@@ -222,14 +219,13 @@ namespace FinanceApi.Services
         {
             decimal spending = 0;
             var budget = budgetRepository.GetById(budgetId, false);
-
             var expenses = expenseRepository.GetAllOfUserByBudgetId(userId, budgetId);
-
             foreach (var expense in expenses)
             {
                 if (expense.Date <= DateTime.Now && expense.Date >= budget.StartDate && expense.Date <= budget.EndDate)
                 {
-                    spending += expense.Amount;
+                    var exchangeRate = CurrencyExchange.GetExchangeRate(expense.Currency, budget.Currency, expense.Date);
+                    spending += expense.Amount * exchangeRate;
                 }
             }
 
@@ -296,7 +292,7 @@ namespace FinanceApi.Services
             {
 
 
-                budgets = categoryId == null 
+                budgets = categoryId == null
                     ? budgetRepository.GetAllOfUser(userId)
                     : budgetRepository.GetAllOfUserByCategoryId(userId, (int)categoryId);
 

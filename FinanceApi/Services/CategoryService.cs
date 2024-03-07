@@ -1,4 +1,5 @@
-﻿using FinanceApi.Data.Dtos;
+﻿using FinanceApi.Currency;
+using FinanceApi.Data.Dtos;
 using FinanceApi.Mapper;
 using FinanceApi.Models;
 using FinanceApi.Repositories.Interfaces;
@@ -76,27 +77,27 @@ namespace FinanceApi.Services
             return true;
         }
 
-        public bool ExistsById(string userId, int id)
-        {
-            return categoryRepository.ExistsById(userId, id);
-        }
-
-        public bool ExistsBytitle(string userId, string title)
-        {
-            return categoryRepository.ExistsBytitle(userId, title);
-        }
-
-        private decimal GetExpenseAmountOfCategoryById(string userId, int id)
+        private decimal GetExpenseAmountOfCategoryById(User user, int id)
         {
 
-            var expenseAmount = expenseRepository.GetAllOfUserByCategoryId(userId, id)
-                .Select(x => x.Amount).Sum();
+            var expenseAmount = expenseRepository.GetAllOfUserByCategoryId(user.Id, id)
+                .Select(x =>
+                {
+                    var exchangeRate = CurrencyExchange.GetExchangeRate(x.Currency, user.Currency, x.Date);
+                    return x.Amount * exchangeRate;
+                }
+                ).Sum();
             return expenseAmount;
         }
-        private decimal GetIncomeAmountOfCategoryById(string userId, int id)
+        private decimal GetIncomeAmountOfCategoryById(User user, int id)
         {
-            var incomeAmount = incomeRepository.GetAllOfUserByCategoryId(userId, id)
-                .Select(x => x.Amount).Sum();
+            var incomeAmount = incomeRepository.GetAllOfUserByCategoryId(user.Id, id)
+                .Select(x =>
+                {
+                    var exchangeRate = CurrencyExchange.GetExchangeRate(x.Currency, user.Currency, x.Date);
+                    return x.Amount * exchangeRate;
+                }
+                ).Sum();
             return incomeAmount;
         }
 
@@ -107,7 +108,7 @@ namespace FinanceApi.Services
             errorMessage = string.Empty;
 
 
-            if(!categoryRepository.ExistsById(user.Id, categoryId))
+            if (!categoryRepository.ExistsById(user.Id, categoryId))
             {
                 errorCode = 404;
                 errorMessage = "Category not found.";
@@ -148,8 +149,8 @@ namespace FinanceApi.Services
 
                 categories = categories.Select(x =>
                 {
-                    x.ExpenseAmount = GetExpenseAmountOfCategoryById(userId, x.Id);
-                    x.IncomeAmount = GetIncomeAmountOfCategoryById(userId, x.Id);
+                    x.ExpenseAmount = GetExpenseAmountOfCategoryById(user, x.Id);
+                    x.IncomeAmount = GetIncomeAmountOfCategoryById(user, x.Id);
                     return x;
                 }).ToList();
 
@@ -159,8 +160,8 @@ namespace FinanceApi.Services
                         "title" => categories.OrderByDescending(c => c.Title),
                         "expense" => categories.OrderByDescending(c => c.ExpenseAmount),
                         "income" => categories.OrderByDescending(c => c.IncomeAmount),
-                                _ => categories.OrderByDescending(c => c.Id),
-                                
+                        _ => categories.OrderByDescending(c => c.Id),
+
                     }).ToList()
                     :
                     (ListOrderBy switch
