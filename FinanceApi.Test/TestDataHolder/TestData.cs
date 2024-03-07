@@ -987,5 +987,13 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user4@example.com", 1, null };
 
         }
+
+        public static IEnumerable<object[]> GetAllAuthorizationInvites()
+        {
+            yield return new object[] { "user1@example.com" };
+            yield return new object[] { "user2@example.com" };
+            yield return new object[] { "user3@example.com" };
+            yield return new object[] { "user4@example.com" };
+        }
     }
 }

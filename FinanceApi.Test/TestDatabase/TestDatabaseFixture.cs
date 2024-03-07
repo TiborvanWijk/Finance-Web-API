@@ -218,8 +218,16 @@ namespace FinanceApi.Test.TestDatabase
                 dataContext.AddRange(goalCategories);
             }
 
-
-
+            var authInvite = new AuthorizeUserInvite()
+            {
+                Owner = users[0],
+                OwnerId = users[0].Id,
+                AuthorizedUser = users[users.Count - 1],
+                AuthorizedUserId = users[users.Count - 1].Id,
+                Title = "THIS IS A RANDOM TITLE",
+                Message = "THIS IS A RANDOM MESSAGE",
+            };
+            dataContext.AuthorizeUserInvite.Add(authInvite);
 
 
 
