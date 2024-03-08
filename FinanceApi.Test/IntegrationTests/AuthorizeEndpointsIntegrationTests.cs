@@ -144,9 +144,11 @@ namespace FinanceApi.Test.IntegrationTests
 
         [Theory]
         [MemberData(nameof(TestData.AuthorizeUserValidTestData), MemberType = typeof(TestData))]
-        public async Task AuthorizeUser(
+        public async Task AuthorizeUser_ReturnsOk_WhenUserIsLoggedInAndUserExists(
             string username,
-            string authorizeUsername
+            string authorizeUsername,
+            string title,
+            string message
             )
         {
             using (var scope = factory.Services.CreateScope())
@@ -161,8 +163,8 @@ namespace FinanceApi.Test.IntegrationTests
 
                 var authorizeInvite = new AuthorizeUserInviteDto()
                 {
-                    Title = "This is a title",
-                    Message = "Hello you have been authorized",
+                    Title = title,
+                    Message = message,
                     UserId = authorizedUser.Id
                     
                 };
@@ -180,6 +182,50 @@ namespace FinanceApi.Test.IntegrationTests
                 Assert.True(isAdded);
             }
         }
+
+        [Theory]
+        [MemberData(nameof(TestData.AuthorizeUserBadRequestTestData), MemberType = typeof(TestData))]
+        public async Task AuthorizeUser_ReturnsBadRequest_WhenInputIsInvalid(
+            string username,
+            string authorizeUsername,
+            string title,
+            string message
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                var authorizedUser = db.Users.First(x => x.UserName.Equals(authorizeUsername));
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var authorizeInvite = new AuthorizeUserInviteDto()
+                {
+                    Title = title,
+                    Message = message,
+                    UserId = authorizedUser.Id
+                };
+
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(authorizeInvite), Encoding.UTF8, "application/json");
+
+                var requestUrl = $"api/Authorize/create_authorize_invite";
+
+                var response = await client.PostAsync(requestUrl, jsonContent);
+
+                Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+                bool isAdded = db.AuthorizeUserInvite.Any(x => x.Owner.Id.Equals(user.Id)
+                        && x.AuthorizedUserId.Equals(authorizedUser.Id));
+                Assert.False(isAdded);
+            }
+        }
+
+
+
+
         [Fact]
         public async Task AuthorizeUser_ReturnsUnauthorized_WhenUserIsNotLoggedIn()
         {
