@@ -151,7 +151,7 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public IActionResult GiveEditPermission(string authorizedUserId, [FromQuery] bool canEdit)
+        public IActionResult EditPermission(string authorizedUserId, [FromQuery] bool canEdit)
         {
 
             if (!ModelState.IsValid)

@@ -160,6 +160,13 @@ namespace FinanceApi.Services
                 return false;
             }
 
+            if (userId.Equals(authorizedUserId))
+            {
+                errorCode = 400;
+                errorMessage = "Cannot edit yourself";
+                return false;
+            }
+
             if(!authorizeRepository.IsAuthorized(userId, authorizedUserId))
             {
                 errorCode = 400;
