@@ -988,12 +988,36 @@ namespace FinanceApi.Test.TestDataHolder
 
         }
 
-        public static IEnumerable<object[]> GetAllAuthorizationInvites()
+        public static IEnumerable<object[]> GetAllAuthorizationInvitesValidTestData()
         {
             yield return new object[] { "user1@example.com" };
             yield return new object[] { "user2@example.com" };
             yield return new object[] { "user3@example.com" };
             yield return new object[] { "user4@example.com" };
+        }
+
+        public static IEnumerable<object[]> GetOutgoingAuthorizationInvitesValidTestData()
+        {
+            yield return new object[] { "user1@example.com" };
+            yield return new object[] { "user2@example.com" };
+            yield return new object[] { "user3@example.com" };
+            yield return new object[] { "user4@example.com" };
+        }
+
+        public static IEnumerable<object[]> GetAllAuthorizedUsersValidTestData()
+        {
+            yield return new object[] { "user1@example.com" };
+            yield return new object[] { "user2@example.com" };
+            yield return new object[] { "user3@example.com" };
+            yield return new object[] { "user4@example.com" };
+        }
+
+        public static IEnumerable<object[]> AuthorizeUserValidTestData()
+        {
+            yield return new object[] { "user2@example.com", "user3@example.com" };
+            yield return new object[] { "user3@example.com", "user4@example.com" };
+            yield return new object[] { "user4@example.com", "user1@example.com" };
+
         }
     }
 }
