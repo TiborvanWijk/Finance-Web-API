@@ -33,7 +33,7 @@ namespace FinanceApi.Test.IntegrationTests
 
         [Theory]
         [MemberData(nameof(TestData.GetBudgetValidInputTestData), MemberType = typeof(TestData))]
-        public async Task GetGoal_ReturnsOkObjectResult_WhenUserIsValid2(
+        public async Task GetBudget_ReturnsOkObjectResult_WhenUserIsValid2(
             string userName,
             DateTime? startDate,
             DateTime? endDate,

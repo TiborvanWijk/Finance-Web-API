@@ -12,6 +12,7 @@ namespace FinanceApi.Test.Utils
 {
     public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
+        private static int databaseIdCount = 1;
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureTestServices(services =>
@@ -25,14 +26,14 @@ namespace FinanceApi.Test.Utils
                 {
                     services.Remove(descriptor);
                 }
-
+                var databaseName = $"TestDbContext_{databaseIdCount++}";
                 services.AddDbContext<DataContext>(options =>
                 {
-                    options.UseInMemoryDatabase("TestDbContext");
+                    options.UseInMemoryDatabase(databaseName);
                 });
 
                 using (var scope = services.BuildServiceProvider().CreateScope())
-                {
+                {   
                     var testContext = scope.ServiceProvider.GetRequiredService<DataContext>();
 
                     testContext.Database.EnsureCreated();

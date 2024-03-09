@@ -18,7 +18,7 @@ using FinanceApi.Test.TestDataHolder;
 using System.Data;
 using FinanceApi.Test.TestDatabase;
 
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
+//[assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace FinanceApi.Test.IntegrationTests
 {
     public class IncomeEndpointsIntegrationTests : IDisposable
