@@ -15,6 +15,7 @@ using FinanceApi.Data.Dtos;
 
 namespace FinanceApi.Test.IntegrationTests
 {
+    [Collection("UserIntegrationTests")]
     public class UserEndpointsIntegrationTests : IDisposable
     {
 

@@ -16,9 +16,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using FinanceApi.Test.TestDataHolder;
 using System.Data;
-
 namespace FinanceApi.Test.IntegrationTests
 {
+    [Collection("BudgetIntegrationTests")]
     public class BudgetEndpointsIntegrationTests : IDisposable
     {
         private CustomWebApplicationFactory factory;

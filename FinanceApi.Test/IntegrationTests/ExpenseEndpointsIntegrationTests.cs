@@ -20,6 +20,7 @@ using FinanceApi.Test.TestDatabase;
 
 namespace FinanceApi.Test.IntegrationTests
 {
+    [Collection("ExpenseIntegrationTests")]
     public class ExpenseEndpointsIntegrationTests : IDisposable
     {
         private CustomWebApplicationFactory factory;

@@ -21,6 +21,7 @@ using FinanceApi.Test.TestDatabase;
 //[assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace FinanceApi.Test.IntegrationTests
 {
+    [Collection("IncomeIntegrationTests")]
     public class IncomeEndpointsIntegrationTests : IDisposable
     {
         private CustomWebApplicationFactory factory;

@@ -4,7 +4,7 @@ using FinanceApi.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System.Runtime.Intrinsics.X86;
+using Xunit.Abstractions;
 
 namespace FinanceApi.Test.TestDatabase
 {
@@ -23,10 +23,99 @@ namespace FinanceApi.Test.TestDatabase
             dataContext = new TestDatacontext(builder.Options);
             SeedDatabase(dataContext);
         }
+        private static bool seedingHasBeenDone = false;
+        private static ICollection<User> users;
+        private static ICollection<IdentityRole> roles;
+        private static ICollection<AuthorizedUserJoin> authorizedUsers;
+        private static ICollection<AuthorizeUserInvite> authorizeUserInvites;
+        private static ICollection<BudgetCategory> budgetCategories;
+        private static ICollection<Budget> budgets;
+        private static ICollection<Category> categories;
+        private static ICollection<ExpenseCategory> expenseCategories;
+        private static ICollection<Expense> expenses;
+        private static ICollection<GoalCategory> goalCategories;
+        private static ICollection<Goal> goals;
+        private static ICollection<IncomeCategory> incomeCategories;
+        private static ICollection<Income> incomes;
+        private static object locker = new object();
+
 
         public static void SeedDatabase(DataContext dataContext)
         {
 
+            lock (locker)
+            {
+
+                if (!seedingHasBeenDone)
+                {
+                    SeedDataManualy(dataContext);
+                    SaveData(dataContext);
+                    seedingHasBeenDone = true;
+                    return;
+                }
+                ResetDataBase(dataContext);
+                SeedWithStoredData(dataContext);
+            }
+        }
+
+        private static void SaveData(DataContext dataContext)
+        {
+            users = dataContext.Users.ToList();
+            roles = dataContext.Roles.ToList();
+            authorizedUsers = dataContext.AuthorizedUsers.ToList();
+            authorizeUserInvites = dataContext.AuthorizeUserInvite.ToList();
+            budgetCategories = dataContext.BudgetCategories.ToList();
+            budgets = dataContext.Budgets.ToList();
+            categories = dataContext.Categories.ToList();
+            expenseCategories = dataContext.ExpenseCategories.ToList();
+            expenses = dataContext.Expenses.ToList();
+            goalCategories = dataContext.GoalCategories.ToList();
+            goals = dataContext.Goals.ToList();
+            incomeCategories = dataContext.IncomeCategories.ToList();
+            incomes = dataContext.Incomes.ToList();
+        }
+
+
+        private static void ResetDataBase(DataContext dataContext)
+        {
+            dataContext.RemoveRange(dataContext.Users);
+            dataContext.RemoveRange(dataContext.Roles);
+            dataContext.RemoveRange(dataContext.AuthorizedUsers);
+            dataContext.RemoveRange(dataContext.AuthorizeUserInvite);
+            dataContext.RemoveRange(dataContext.BudgetCategories);
+            dataContext.RemoveRange(dataContext.BudgetCategories);
+            dataContext.RemoveRange(dataContext.Budgets);
+            dataContext.RemoveRange(dataContext.Categories);
+            dataContext.RemoveRange(dataContext.ExpenseCategories);
+            dataContext.RemoveRange(dataContext.Expenses);
+            dataContext.RemoveRange(dataContext.GoalCategories);
+            dataContext.RemoveRange(dataContext.Goals);
+            dataContext.RemoveRange(dataContext.IncomeCategories);
+            dataContext.RemoveRange(dataContext.Incomes);
+            dataContext.SaveChanges();
+        }
+
+        private static void SeedWithStoredData(DataContext dataContext)
+        {
+            dataContext.AddRange(users);
+            dataContext.AddRange(roles);
+            dataContext.AddRange(authorizedUsers);
+            dataContext.AddRange(authorizeUserInvites);
+            dataContext.AddRange(budgetCategories);
+            dataContext.AddRange(budgetCategories);
+            dataContext.AddRange(budgets);
+            dataContext.AddRange(categories);
+            dataContext.AddRange(expenseCategories);
+            dataContext.AddRange(expenses);
+            dataContext.AddRange(goalCategories);
+            dataContext.AddRange(goals);
+            dataContext.AddRange(incomeCategories);
+            dataContext.AddRange(incomes);
+            dataContext.SaveChanges();
+        }
+
+        private static void SeedDataManualy(DataContext dataContext)
+        {
             var passwordHasher = new PasswordHasher<User>();
 
             var users = new List<User>();
@@ -86,7 +175,7 @@ namespace FinanceApi.Test.TestDatabase
                 }
 
                 var goals = new List<Goal>();
-                for (int j = 1; j< 6; ++j)
+                for (int j = 1; j < 6; ++j)
                 {
 
                     var goal = new Goal()
@@ -193,7 +282,7 @@ namespace FinanceApi.Test.TestDatabase
                 }
 
                 users.Add(user);
-                if(i > 1 && i < 4)
+                if (i > 1 && i < 4)
                 {
                     var userAuthorization = new AuthorizedUserJoin()
                     {
@@ -228,11 +317,6 @@ namespace FinanceApi.Test.TestDatabase
                 Message = "THIS IS A RANDOM MESSAGE",
             };
             dataContext.AuthorizeUserInvite.Add(authInvite);
-
-
-
-
-
 
             dataContext.SaveChanges();
         }

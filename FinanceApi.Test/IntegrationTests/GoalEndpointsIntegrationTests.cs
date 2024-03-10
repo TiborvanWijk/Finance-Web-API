@@ -19,6 +19,7 @@ using System.Data;
 
 namespace FinanceApi.Test.IntegrationTests
 {
+    [Collection("GoalIntegrationTests")]
     public class GoalEndpointsIntegrationTests : IDisposable
     {
         private CustomWebApplicationFactory factory;

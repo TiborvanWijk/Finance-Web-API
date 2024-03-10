@@ -16,6 +16,7 @@ using FinanceApi.Mapper;
 
 namespace FinanceApi.Test.IntegrationTests
 {
+    [Collection("AuthorizedIntegrationTests")]
     public class AuthorizeEndpointsIntegrationTests : IDisposable
     {
 
@@ -127,6 +128,7 @@ namespace FinanceApi.Test.IntegrationTests
 
                 var response = await client.GetAsync(requestUrl);
 
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
                 List<AuthorizedUserDto>? data = JsonConvert.DeserializeObject<List<AuthorizedUserDto>>(await response.Content.ReadAsStringAsync());
                 var correctResponse = db.AuthorizedUsers.Where(x => x.OwnerId
                 .Equals(user.Id)).Select(x => x.AuthorizedUser);

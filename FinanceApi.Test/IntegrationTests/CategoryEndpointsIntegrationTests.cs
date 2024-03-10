@@ -17,6 +17,7 @@ using Azure;
 
 namespace FinanceApi.Test.IntegrationTests
 {
+    [Collection("CategoryIntegrationTests")]
     public class CategoryEndpointsIntegrationTests : IDisposable
     {
         private CustomWebApplicationFactory factory;
