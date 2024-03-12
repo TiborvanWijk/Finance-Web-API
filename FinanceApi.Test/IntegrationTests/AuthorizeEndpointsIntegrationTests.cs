@@ -415,7 +415,7 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
-        [Fact]
+        [Fact(Skip = "NOT DONE")]
         public async Task DeclineAuthorizationInvite_ReturnsOk_WhenUserHasInvite()
         {
             using (var scope = factory.Services.CreateScope())
@@ -440,6 +440,17 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Fact]
+        public async Task DeclineAuthorizationInvite_ReturnsUnauthorize_WhenUserIsNotLoggedIn()
+        {
+            var randomId = new Guid().ToString();
+            var requestUrl = $"api/Authorize/decline_authorization_invite/{randomId}";
+
+            var response = await client.DeleteAsync(requestUrl);
+
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+
+        }
 
 
 

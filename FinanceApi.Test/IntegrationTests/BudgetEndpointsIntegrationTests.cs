@@ -147,6 +147,43 @@ namespace FinanceApi.Test.IntegrationTests
 
         }
 
+
+        [Fact(Skip = "Test data not ready yet")]
+        [MemberData(nameof(TestData.GetBudgetUnauthorizedInputTestData), MemberType = typeof(TestData))]
+        public async Task GetBudget_ReturnsUnauhtorized_WhenuserIsNotLoggedInOrUserIsNotAuthorizedToRead()
+        {
+
+            var requestUrl = $"/api/Budget/current";
+
+            var response = await client.GetAsync(requestUrl);
+
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.GetBudgetForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task GetBudget_ReturnsForbidden_WhenUserIsNotAuthorizedByAnotherUser(
+            string username,
+            string optionalOwnerUsername
+            )
+        {
+            using(var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string? optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var requestUrl = $"/api/Budget/current?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.GetAsync(requestUrl);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
+ 
+
         [Theory]
         [MemberData(nameof(TestData.CreateBudgetValidInputTestData), MemberType = typeof(TestData))]
         public async Task CreateBudget_ReturnsOk_WhenInputIsValid(
@@ -186,7 +223,7 @@ namespace FinanceApi.Test.IntegrationTests
                 {
                     var response = await client.PostAsync(requestUrl, jsonContent);
 
-                    if(response.StatusCode == HttpStatusCode.BadRequest)
+                    if (response.StatusCode == HttpStatusCode.BadRequest)
                     {
 
                     }
@@ -297,7 +334,7 @@ namespace FinanceApi.Test.IntegrationTests
                 try
                 {
                     var response = await client.PutAsync(requestUrl, jsonContent);
-                    if(response.StatusCode != HttpStatusCode.OK)
+                    if (response.StatusCode != HttpStatusCode.OK)
                     {
 
                     }
