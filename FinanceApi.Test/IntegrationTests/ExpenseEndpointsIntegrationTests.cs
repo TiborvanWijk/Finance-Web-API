@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using FinanceApi.Test.TestDataHolder;
 using System.Data;
 using FinanceApi.Test.TestDatabase;
+using FinanceApi.Enums;
 
 namespace FinanceApi.Test.IntegrationTests
 {
@@ -134,6 +135,38 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Fact]
+        public async Task GetExpenses_ReturnsUnauthorized_WhenUserIsNotLoggedIn()
+        {
+            var requestUrl = $"/api/Expense/current";
+            var response = await client.GetAsync(requestUrl);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.GetExpenseForbidenTestData), MemberType = typeof(TestData))]
+        public async Task GetExpenses_ReturnsUnauthorized_WhenUserIsNotAuthorziedByOtherUser(
+            string username,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string? optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var requestUrl = $"/api/Expense/current?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.GetAsync(requestUrl);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
+
+
         [Theory]
         [MemberData(nameof(TestData.CreateExpenseValidInputTestData), MemberType = typeof(TestData))]
         public async Task CreateExpense_ReturnsOk_WhenInputIsValid(
@@ -213,6 +246,53 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+
+
+        [Fact]
+        public async Task CreateExpenses_ReturnsUnauthorized_WhenUserIsNotLoggedIn()
+        {
+            var expenseDto = new ExpenseDto()
+            {
+                Title = "Title",
+                Description = "Description",
+                Currency = "eur",
+                Date = DateTime.Now,
+                Amount = 192,
+                Urgency = Urgency.Low,
+                DocumentUrl = "www.document.com/myReceipt"
+            };
+
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(expenseDto), Encoding.UTF8, "application/json");
+
+            var requestUrl = $"/api/Expense/post";
+            var response = await client.PostAsync(requestUrl, jsonContent);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.CreateExpenseForbidenTestData), MemberType = typeof(TestData))]
+        public async Task CreateExpenses_ReturnsUnauthorized_WhenUserIsNotAuthorziedByOtherUser(
+            string username,
+            ExpenseDto expenseDto,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string? optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var requestUrl = $"/api/Expense/post?optionalOwnerId={optionalOwnerId}";
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(expenseDto), Encoding.UTF8, "application/json");
+
+                var response = await client.PostAsync(requestUrl, jsonContent);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
 
         [Theory]
         [MemberData(nameof(TestData.UpdateExpenseValidInputTestData), MemberType = typeof(TestData))]
@@ -339,6 +419,52 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Fact]
+        public async Task UpdateExpenses_ReturnsUnauthorized_WhenUserIsNotLoggedIn()
+        {
+            var expenseDto = new ExpenseDto()
+            {
+                Id = 1,
+                Title = "Title",
+                Description = "Description",
+                Currency = "eur",
+                Date = DateTime.Now,
+                Amount = 192,
+                Urgency = Urgency.Low,
+                DocumentUrl = "www.document.com/myReceipt"
+            };
+
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(expenseDto), Encoding.UTF8, "application/json");
+
+            var requestUrl = $"/api/Expense/put";
+            var response = await client.PutAsync(requestUrl, jsonContent);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.UpdateExpenseForbidenTestData), MemberType = typeof(TestData))]
+        public async Task UpdateExpenses_ReturnsUnauthorized_WhenUserIsNotAuthorziedByOtherUser(
+            string username,
+            ExpenseDto expenseDto,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string? optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var requestUrl = $"/api/Expense/put?optionalOwnerId={optionalOwnerId}";
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(expenseDto), Encoding.UTF8, "application/json");
+
+                var response = await client.PutAsync(requestUrl, jsonContent);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
 
         [Theory]
         [MemberData(nameof(TestData.DeleteExpenseValidInputTestData), MemberType = typeof(TestData))]
@@ -413,8 +539,37 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Fact]
+        public async Task DeleteExpense_ReturnsUnauthorized_WhenUserIsNotLoggedIn()
+        {
+            var requestUrl = $"/api/Expense/delete/{23}";
+            var response = await client.DeleteAsync(requestUrl);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
 
+        [Theory]
+        [MemberData(nameof(TestData.DeleteExpenseForbidenTestData), MemberType = typeof(TestData))]
+        public async Task DeleteExpense_ReturnsUnauthorized_WhenUserIsNotAuthorziedByOtherUser(
+            string username,
+            int expenseId,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string? optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
 
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var requestUrl = $"/api/Expense/delete/{expenseId}?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.DeleteAsync(requestUrl);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
 
         [Theory()]
         [MemberData(nameof(TestData.AddCategoryToExpenseValidInputTestData), MemberType = typeof(TestData))]
@@ -545,6 +700,40 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        public async Task AddCategoryToExpense_ReturnsUnauthorized_WhenUserIsNotLoggedIn()
+        {
+            ICollection<int> categoryIds = new List<int>() { 2,3,4 };
+            var requestUrl = $"api/Expense/associate_categories/1";
+            var response = await client.DeleteAsync(requestUrl);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.AddCategoryToExpenseForbidenTestData), MemberType = typeof(TestData))]
+        public async Task AddCategoryToExpense_ReturnsUnauthorized_WhenUserIsNotAuthorziedByOtherUser(
+            string username,
+            int expenseId,
+            ICollection<int> categoryIds,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string? optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var requestUrl = $"/api/Expense/associate_categories/{expenseId}?optionalOwnerId={optionalOwnerId}";
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
+
+                var response = await client.PostAsync(requestUrl, jsonContent);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
+
         [Theory]
         [MemberData(nameof(TestData.RemoveCategoriesFromExpenseValidInputTestData), MemberType = typeof(TestData))]
         public async Task RemoveCategoriesFromExpense_ReturnsOk_WhenIncomeAndCategoryExistsAndIsUsers(
@@ -598,7 +787,6 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
-
         [Theory]
         [MemberData(nameof(TestData.RemoveCategoriesFromExpenseNotFoundInputsTestData), MemberType = typeof(TestData))]
         public async Task RemoveCategoriesFromExpense_ReturnsNotFound_WhenGoalOrCategoryDoesNotExist(
@@ -632,7 +820,6 @@ namespace FinanceApi.Test.IntegrationTests
                 Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
             }
         }
-
 
         [Theory]
         [MemberData(nameof(TestData.RemoveCategoriesFromExpenseBadRequestInputsTestData), MemberType = typeof(TestData))]
@@ -669,7 +856,38 @@ namespace FinanceApi.Test.IntegrationTests
                 Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             }
         }
+        [Fact]
+        public async Task RemoveCategoriesFromExpense_ReturnsUnauthorized_WhenUserIsNotLoggedIn()
+        {
+            var requestUrl = $"api/Expense/remove_category/1/1";
+            var response = await client.DeleteAsync(requestUrl);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
 
+        [Theory]
+        [MemberData(nameof(TestData.RemoveCategoriesFromExpenseForbidenTestData), MemberType = typeof(TestData))]
+        public async Task RemoveCategoriesFromExpense_ReturnsUnauthorized_WhenUserIsNotAuthorziedByOtherUser(
+            string username,
+            int expenseId,
+            int categoryId,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string? optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var requestUrl = $"/api/Expense/remove_category/{expenseId}/{categoryId}?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.DeleteAsync(requestUrl);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
 
         public void Dispose()
         {

@@ -1150,5 +1150,55 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user4@example.com", 6, "user2@example.com" };
             yield return new object[] { "user4@example.com", 9, "user3@example.com" };
         }
+
+        public static IEnumerable<object[]> GetExpenseForbidenTestData()
+        {
+            yield return new object[] { "user1@example.com", "user4@example.com" };
+            yield return new object[] { "user4@example.com", "user1@example.com" };
+            yield return new object[] { "user4@example.com", "user2@example.com" };
+            yield return new object[] { "user4@example.com", "user3@example.com" };
+        }
+
+        public static IEnumerable<object[]> CreateExpenseForbidenTestData()
+        {
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Title = "Food", Description = "Ate at a restaurant", Amount = 54, Currency = "eur", Date = DateTime.Now, DocumentUrl = "www.restaurant.com/receipt", Urgency = Urgency.Low }, "user4@example.com" };
+            yield return new object[] { "user4@example.com", new ExpenseDto() { Title = "shopping", Description = "shoes", Amount = 460, Currency = "php", Date = DateTime.Now.AddDays(3), DocumentUrl = "shoes", Urgency = Urgency.Low }, "user1@example.com" };
+            yield return new object[] { "user4@example.com", new ExpenseDto() { Title = "insurance", Description = "insurance", Amount = 395, Currency = "usd", Date = DateTime.Now.AddDays(2), DocumentUrl = "receipt", Urgency = Urgency.High }, "user2@example.com" };
+            yield return new object[] { "user4@example.com", new ExpenseDto() { Title = "gym", Description = "", Amount = 323, Currency = "eur", Date = DateTime.Now.AddDays(7), DocumentUrl = "receipt", Urgency = Urgency.Medium }, "user3@example.com" };
+
+        }
+
+        public static IEnumerable<object[]> UpdateExpenseForbidenTestData()
+        {
+            yield return new object[] { "user1@example.com", new ExpenseDto() { Id = 63, Title = "Food", Description = "Ate at a restaurant", Amount = 54, Currency = "eur", Date = DateTime.Now, DocumentUrl = "www.restaurant.com/receipt", Urgency = Urgency.Low }, "user4@example.com" };
+            yield return new object[] { "user4@example.com", new ExpenseDto() { Id = 15, Title = "shopping", Description = "shoes", Amount = 460, Currency = "php", Date = DateTime.Now.AddDays(3), DocumentUrl = "shoes", Urgency = Urgency.Low }, "user1@example.com" };
+            yield return new object[] { "user4@example.com", new ExpenseDto() { Id = 25, Title = "insurance", Description = "insurance", Amount = 395, Currency = "usd", Date = DateTime.Now.AddDays(2), DocumentUrl = "receipt", Urgency = Urgency.High }, "user2@example.com" };
+            yield return new object[] { "user4@example.com", new ExpenseDto() { Id = 50, Title = "gym", Description = "", Amount = 323, Currency = "eur", Date = DateTime.Now.AddDays(7), DocumentUrl = "receipt", Urgency = Urgency.Medium }, "user3@example.com" };
+        }
+
+        public static IEnumerable<object[]> DeleteExpenseForbidenTestData()
+        {
+            yield return new object[] { "user1@example.com", 64, "user4@example.com" };
+            yield return new object[] { "user4@example.com", 18, "user1@example.com" };
+            yield return new object[] { "user4@example.com", 37, "user2@example.com" };
+            yield return new object[] { "user4@example.com", 46, "user3@example.com" };
+        }
+
+        public static IEnumerable<object[]> AddCategoryToExpenseForbidenTestData()
+        {
+            yield return new object[] { "user1@example.com", 64, new List<int>() { 13, 14 }, "user4@example.com" };
+            yield return new object[] { "user4@example.com", 18, new List<int>() { 1, 2, 3 }, "user1@example.com" };
+            yield return new object[] { "user4@example.com", 37, new List<int>() { 5, 6, 7 }, "user2@example.com" };
+            yield return new object[] { "user4@example.com", 46, new List<int>() { 9, 10, 11 }, "user3@example.com" };
+
+        }
+
+        public static IEnumerable<object[]> RemoveCategoriesFromExpenseForbidenTestData()
+        {
+            yield return new object[] { "user1@example.com", 64, 16, "user4@example.com" };
+            yield return new object[] { "user4@example.com", 18, 2, "user1@example.com" };
+            yield return new object[] { "user4@example.com", 37, 6, "user2@example.com" };
+            yield return new object[] { "user4@example.com", 46, 15, "user3@example.com" };
+        }
     }
 }
