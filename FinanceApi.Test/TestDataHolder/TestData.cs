@@ -1118,5 +1118,37 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user4@example.com", 9, 12, "user3@example.com" };
 
         }
+
+        public static IEnumerable<object[]> GetCategoriesForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", "user4@example.com" };
+            yield return new object[] { "user4@example.com", "user1@example.com" };
+            yield return new object[] { "user4@example.com", "user2@example.com" };
+            yield return new object[] { "user4@example.com", "user3@example.com" };
+        }
+
+        public static IEnumerable<object[]> CreateCategoryForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", new CategoryManageDto() { Title = "Food", Description = "Anything that has to do with food" }, "user4@example.com" };
+            yield return new object[] { "user4@example.com", new CategoryManageDto() { Title = "Drinks", Description = "Anything that has to do with drinks" }, "user1@example.com" };
+            yield return new object[] { "user4@example.com", new CategoryManageDto() { Title = "Shopping", Description = "Anything that has to do with shopping" }, "user2@example.com" };
+            yield return new object[] { "user4@example.com", new CategoryManageDto() { Title = "Party", Description = "Anything that has to do with parties" }, "user3@example.com" };
+        }
+
+        public static IEnumerable<object[]> UpdateCategoryForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", new CategoryManageDto() { Id = 14, Title = "Food", Description = "Anything that has to do with food" }, "user4@example.com" };
+            yield return new object[] { "user4@example.com", new CategoryManageDto() { Id = 2, Title = "Drinks", Description = "Anything that has to do with drinks" }, "user1@example.com" };
+            yield return new object[] { "user4@example.com", new CategoryManageDto() { Id = 6, Title = "Shopping", Description = "Anything that has to do with shopping" }, "user2@example.com" };
+            yield return new object[] { "user4@example.com", new CategoryManageDto() { Id = 11, Title = "Party", Description = "Anything that has to do with parties" }, "user3@example.com" };
+        }
+
+        public static IEnumerable<object[]> DeleteCategoryForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", 13, "user4@example.com" };
+            yield return new object[] { "user4@example.com", 2, "user1@example.com" };
+            yield return new object[] { "user4@example.com", 6, "user2@example.com" };
+            yield return new object[] { "user4@example.com", 9, "user3@example.com" };
+        }
     }
 }

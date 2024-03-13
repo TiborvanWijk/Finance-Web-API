@@ -139,6 +139,30 @@ namespace FinanceApi.Test.IntegrationTests
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
+        [Theory]
+        [MemberData(nameof(TestData.GetCategoriesForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task GetCategories_returnsForbidden_WhenUserIsNotAuthorizedByAnotherUser(
+            string username,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string? optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var requestUrl = $"api/Category/current?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.GetAsync(requestUrl);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
+
 
 
         [Theory]
@@ -208,6 +232,34 @@ namespace FinanceApi.Test.IntegrationTests
                 Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             }
         }
+
+
+        [Theory]
+        [MemberData(nameof(TestData.CreateCategoryForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task CreateCategory_returnsForbidden_WhenUserIsNotAuthorizedByAnotherUser(
+            string username,
+            CategoryManageDto categoryManageDto,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string? optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(categoryManageDto), Encoding.UTF8, "application/json");
+
+                var requestUrl = $"api/Category/post?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.PostAsync(requestUrl, jsonContent);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
+
 
 
         [Theory]
@@ -320,6 +372,31 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Theory]
+        [MemberData(nameof(TestData.UpdateCategoryForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task UpdateCategory_returnsForbidden_WhenUserIsNotAuthorizedByAnotherUser(
+            string username,
+            CategoryManageDto categoryManageDto,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string? optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(categoryManageDto), Encoding.UTF8, "application/json");
+
+                var requestUrl = $"api/Category/put?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.PutAsync(requestUrl, jsonContent);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
 
         [Theory]
         [MemberData(nameof(TestData.DeleteCategoryValidInputTestData), MemberType = typeof(TestData))]
@@ -387,6 +464,30 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Theory]
+        [MemberData(nameof(TestData.DeleteCategoryForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task DeleteCategory_returnsForbidden_WhenUserIsNotAuthorizedByAnotherUser(
+            string username,
+            int categoryId,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string? optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var requestUrl = $"api/Category/delete/{categoryId}?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.DeleteAsync(requestUrl);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
         public void Dispose()
         {
             client.Dispose();
