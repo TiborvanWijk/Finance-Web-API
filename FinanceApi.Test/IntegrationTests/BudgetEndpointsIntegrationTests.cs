@@ -300,6 +300,33 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Theory]
+        [MemberData(nameof(TestData.CreateBudgetForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task CreateBudget_ReturnsForbidden_WhenUserIsNotAuthorizedByAnotherUser(
+            string username,
+            BudgetManageDto budgetManageDto,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var requesturl = $"api/Budget/post?optionalOwnerId={optionalOwnerId}";
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(budgetManageDto), Encoding.UTF8, "application/json");
+
+                var response = await client.PostAsync(requesturl, jsonContent);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            } 
+        }
+
 
         [Theory]
         [MemberData(nameof(TestData.UpdateBudgetValidInputTestData), MemberType = typeof(TestData))]
@@ -361,6 +388,33 @@ namespace FinanceApi.Test.IntegrationTests
 
                     Assert.True(isUpdated);
                 }
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.UpdateBudgetForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task UpdateBudget_ReturnsForbidden_WhenUserIsNotAuthorizedByAnotherUser(
+            string username,
+            BudgetManageDto budgetManageDto,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var requesturl = $"api/Budget/put?optionalOwnerId={optionalOwnerId}";
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(budgetManageDto), Encoding.UTF8, "application/json");
+
+                var response = await client.PutAsync(requesturl, jsonContent);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
             }
         }
 
@@ -537,6 +591,32 @@ namespace FinanceApi.Test.IntegrationTests
         }
 
         [Theory]
+        [MemberData(nameof(TestData.DeleteBudgetForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task DeleteBudget_ReturnsForbidden_WhenUserIsNotAuthorizedByAnotherUser(
+            string username,
+            int budgetId,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var requesturl = $"api/Budget/delete/{budgetId}?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.DeleteAsync(requesturl);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
+
+        [Theory]
         [MemberData(nameof(TestData.DeleteBudgetNotFoundInputTestData), MemberType = typeof(TestData))]
         public async Task DeleteBudget_ReturnsNotFound_WhenUserDoesNotHaveAGoalWithInputId(
             string username,
@@ -703,6 +783,34 @@ namespace FinanceApi.Test.IntegrationTests
         }
 
         [Theory]
+        [MemberData(nameof(TestData.AddCategoryToBudgetForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task AddCategoryToBudget_ReturnsForbidden_WhenUserIsNotAuthorizedByAnotherUser(
+            string username,
+            int budgetId,
+            ICollection<int> categoryIds,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
+                var requesturl = $"api/Budget/associate_categories/{budgetId}?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.PostAsync(requesturl, jsonContent);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
+
+        [Theory]
         [MemberData(nameof(TestData.RemoveCategoriesFromBudgetValidInputTestData), MemberType = typeof(TestData))]
         public async Task RemoveCategoriesFromBudget_ReturnsOk_WhenGoalCategoryExistsAndIsUsers(
             string username,
@@ -850,6 +958,32 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Theory]
+        [MemberData(nameof(TestData.RemoveCategoryFromBudgetForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task RemoveCategoryFromBudget_ReturnsForbidden_WhenUserIsNotAuthorizedByAnotherUser(
+            string username,
+            int budgetId,
+            int categoryId,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var requesturl = $"api/Budget/remove_category/{budgetId}/{categoryId}?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.DeleteAsync(requesturl);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
 
         public void Dispose()
         {

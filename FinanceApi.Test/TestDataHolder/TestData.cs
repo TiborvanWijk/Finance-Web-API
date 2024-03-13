@@ -1075,5 +1075,48 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user4@example.com", "user2@example.com" };
             yield return new object[] { "user4@example.com", "user3@example.com" };
         }
+
+        public static IEnumerable<object[]> CreateBudgetForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", new BudgetManageDto() { Title = "Test-Title-1", Description = "Description-1", LimitAmount = 2000, Currency = "eur", StartDate = DateTime.Now, EndDate = DateTime.Now.AddYears(2), Urgency = Urgency.Low }, "user4@example.com" };
+            yield return new object[] { "user4@example.com", new BudgetManageDto() { Title = "Test-Title-2", Description = "Description for a valid goal with a different currency", LimitAmount = 1500, Currency = "usd", StartDate = DateTime.Now.AddDays(5), EndDate = DateTime.Now.AddYears(5), Urgency = Urgency.Medium }, "user1@example.com" };
+            yield return new object[] { "user4@example.com", new BudgetManageDto() { Title = "Test-Title-3", Description = "Description for a valid goal with a longer time period", LimitAmount = 3000, Currency = "eur", StartDate = DateTime.Now.AddDays(10), EndDate = DateTime.Now.AddYears(4), Urgency = Urgency.High }, "user2@example.com" };
+            yield return new object[] { "user4@example.com", new BudgetManageDto() { Title = "Test-Title-4", Description = "Description for a valid goal with a larger amount", LimitAmount = 5000, Currency = "php", StartDate = DateTime.Now.AddDays(3), EndDate = DateTime.Now.AddYears(2).AddMonths(6), Urgency = Urgency.Low }, "user3@example.com" };
+        }
+
+        public static IEnumerable<object[]> UpdateBudgetForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", new BudgetManageDto() { Id = 1, Title = "Test-Title-1", Description = "Description-1", LimitAmount = 2000, Currency = "eur", StartDate = DateTime.Now, EndDate = DateTime.Now.AddYears(2), Urgency = Urgency.Low }, "user4@example.com" };
+            yield return new object[] { "user4@example.com", new BudgetManageDto() { Id = 13, Title = "Test-Title-2", Description = "Description for a valid goal with a different currency", LimitAmount = 1500, Currency = "usd", StartDate = DateTime.Now.AddDays(5), EndDate = DateTime.Now.AddYears(5), Urgency = Urgency.Medium }, "user1@example.com" };
+            yield return new object[] { "user4@example.com", new BudgetManageDto() { Id = 14, Title = "Test-Title-3", Description = "Description for a valid goal with a longer time period", LimitAmount = 3000, Currency = "eur", StartDate = DateTime.Now.AddDays(10), EndDate = DateTime.Now.AddYears(4), Urgency = Urgency.High }, "user2@example.com" };
+            yield return new object[] { "user4@example.com", new BudgetManageDto() { Id = 15, Title = "Test-Title-4", Description = "Description for a valid goal with a larger amount", LimitAmount = 5000, Currency = "php", StartDate = DateTime.Now.AddDays(3), EndDate = DateTime.Now.AddYears(2).AddMonths(6), Urgency = Urgency.Low }, "user3@example.com" };
+
+        }
+
+        public static IEnumerable<object[]> DeleteBudgetForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", 16, "user4@example.com" };
+            yield return new object[] { "user4@example.com", 1, "user1@example.com" };
+            yield return new object[] { "user4@example.com", 6, "user2@example.com" };
+            yield return new object[] { "user4@example.com", 9, "user3@example.com" };
+        }
+
+        public static IEnumerable<object[]> AddCategoryToBudgetForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", 16, new List<int>() { 13, 14 }, "user4@example.com" };
+            yield return new object[] { "user4@example.com", 1, new List<int>() { 2, 3, 4 }, "user1@example.com" };
+            yield return new object[] { "user4@example.com", 6, new List<int>() { 5, 7, 8 }, "user2@example.com" };
+            yield return new object[] { "user4@example.com", 9, new List<int>() { 10, 11, 12 }, "user3@example.com" };
+
+        }
+
+        public static IEnumerable<object[]> RemoveCategoryFromBudgetForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", 16, 14, "user4@example.com" };
+            yield return new object[] { "user4@example.com", 1, 4, "user1@example.com" };
+            yield return new object[] { "user4@example.com", 6, 8, "user2@example.com" };
+            yield return new object[] { "user4@example.com", 9, 12, "user3@example.com" };
+
+        }
     }
 }
