@@ -148,6 +148,41 @@ namespace FinanceApi.Test.IntegrationTests
 
         }
 
+        [Fact]
+        public async Task GetGoal_ReturnsUnAuthorized_WhenUserIsNotLoggedIn()
+        {
+
+            var requestUrl = $"/api/Goal/current";
+
+            var response = await client.GetAsync(requestUrl);
+
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+
+        [Theory]
+        [MemberData(nameof(TestData.GetGoalsForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task GetGoal_ReturnsForbidden_WhenUserIsNotAuthorizedByOtherUser(
+            string username,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var requestUrl = $"/api/Goal/current?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.GetAsync(requestUrl);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
+
         [Theory]
         [MemberData(nameof(TestData.CreateGoalValidInputTestData), MemberType = typeof(TestData))]
         public async Task CreateGoal_ReturnsOk_WhenInputIsValid(
@@ -269,6 +304,52 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Fact]
+        public async Task CreateGoal_ReturnsUnAuthorized_WhenUserIsNotLoggedIn()
+        {
+            var goalManageDto = new GoalManageDto()
+            {
+                Title = "Title",
+                Description = "Description",
+                Currency = "usd",
+                Amount = 1200,
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddYears(3),
+            };
+            var requestUrl = $"/api/Goal/post";
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(goalManageDto), Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync(requestUrl, jsonContent);
+
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+
+        [Theory]
+        [MemberData(nameof(TestData.CreateGoalsForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task CreateGoal_ReturnsForbidden_WhenUserIsNotAuthorizedByOtherUser(
+            string username,
+            GoalManageDto goalManageDto,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var requestUrl = $"/api/Goal/post?optionalOwnerId={optionalOwnerId}";
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(goalManageDto), Encoding.UTF8, "application/json");
+
+
+                var response = await client.PostAsync(requestUrl, jsonContent);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
 
         [Theory]
         [MemberData(nameof(TestData.UpdateGoalValidInputTestData), MemberType = typeof(TestData))]
@@ -473,6 +554,52 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Fact]
+        public async Task UpdateGoal_ReturnsUnAuthorized_WhenUserIsNotLoggedIn()
+        {
+            var goalManageDto = new GoalManageDto()
+            {
+                Id = 1,
+                Title = "Title",
+                Description = "Description",
+                Currency = "usd",
+                Amount = 1200,
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddYears(3),
+            };
+            var requestUrl = $"/api/Goal/post";
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(goalManageDto), Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync(requestUrl, jsonContent);
+
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+
+        [Theory]
+        [MemberData(nameof(TestData.UpdateGoalsForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task UpdateGoal_ReturnsForbidden_WhenUserIsNotAuthorizedByOtherUser(
+            string username,
+            GoalManageDto goalManageDto,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var requestUrl = $"/api/Goal/put?optionalOwnerId={optionalOwnerId}";
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(goalManageDto), Encoding.UTF8, "application/json");
+
+                var response = await client.PutAsync(requestUrl, jsonContent);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
 
         [Theory]
         [MemberData(nameof(TestData.DeleteGoalValidTestData), MemberType = typeof(TestData))]
@@ -578,8 +705,40 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Fact]
+        public async Task DeleteGoal_ReturnsUnAuthorized_WhenUserIsNotLoggedIn()
+        {
+            var requestUrl = $"/api/Goal/delete/1";
+
+            var response = await client.DeleteAsync(requestUrl);
+
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
 
 
+        [Theory]
+        [MemberData(nameof(TestData.DeleteGoalsForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task DeleteGoal_ReturnsForbidden_WhenUserIsNotAuthorizedByOtherUser(
+            string username,
+            int goalId,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var requestUrl = $"/api/Goal/delete/{goalId}?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.DeleteAsync(requestUrl);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
 
         [Theory]
         [MemberData(nameof(TestData.AddCategoryToGoalValidInputTestData), MemberType = typeof(TestData))]
@@ -725,6 +884,45 @@ namespace FinanceApi.Test.IntegrationTests
 
                 Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
+            }
+        }
+
+        [Fact]
+        public async Task AddCategoryToGoal_ReturnsUnAuthorized_WhenUserIsNotLoggedIn()
+        {
+            ICollection<int> categoryIds = new List<int>() { 2,3,4 };
+            var requestUrl = $"/api/Goal/associate_categories/1";
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync(requestUrl, jsonContent);
+
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+
+        [Theory]
+        [MemberData(nameof(TestData.AddCategoryToGoalsForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task AddCategoryToGoal_ReturnsForbidden_WhenUserIsNotAuthorizedByOtherUser(
+            string username,
+            int goalId,
+            ICollection<int> categoryIds,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var requestUrl = $"/api/Goal/associate_categories/{goalId}?optionalOwnerId={optionalOwnerId}";
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
+
+                var response = await client.PostAsync(requestUrl, jsonContent);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
             }
         }
 
@@ -897,6 +1095,43 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Fact]
+        public async Task RemoveCategoryFromGoal_ReturnsUnAuthorized_WhenUserIsNotLoggedIn()
+        {
+            ICollection<int> categoryIds = new List<int>() { 2, 3, 4 };
+            var requestUrl = $"/api/Goal/associate_categories/1";
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync(requestUrl, jsonContent);
+
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+
+        [Theory]
+        [MemberData(nameof(TestData.RemoveCategoryFromGoalForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task RemoveCategoryFromGoal_ReturnsForbidden_WhenUserIsNotAuthorizedByOtherUser(
+            string username,
+            int goalId,
+            int categoryId,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var requestUrl = $"/api/Goal/remove_category/{goalId}/{categoryId}?optionalOwnerId={optionalOwnerId}";
+
+                var response = await client.DeleteAsync(requestUrl);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
 
         public void Dispose()
         {

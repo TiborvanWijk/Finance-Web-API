@@ -1200,5 +1200,55 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user4@example.com", 37, 6, "user2@example.com" };
             yield return new object[] { "user4@example.com", 46, 15, "user3@example.com" };
         }
+
+        public static IEnumerable<object[]> GetGoalsForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", "user4@example.com" };
+            yield return new object[] { "user4@example.com", "user1@example.com" };
+            yield return new object[] { "user4@example.com", "user2@example.com" };
+            yield return new object[] { "user4@example.com", "user3@example.com" };
+        }
+
+        public static IEnumerable<object[]> CreateGoalsForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 1, Title = "Test-Title-1", Description = "Description-1", Amount = 2000, Currency = "eur", StartDate = DateTime.Now, EndDate = new DateTime(2026, 1, 1) }, "user4@example.com" };
+            yield return new object[] { "user4@example.com", new GoalManageDto() { Id = 2, Title = "Test-Title-1", Description = "Description for a valid goal with a different currency", Amount = 1500, Currency = "usd", StartDate = DateTime.Now.AddDays(5), EndDate = new DateTime(2026, 1, 1) }, "user1@example.com" };
+            yield return new object[] { "user4@example.com", new GoalManageDto() { Id = 3, Title = "Test-Title-1", Description = "Description for a valid goal with a longer time period", Amount = 3000, Currency = "eur", StartDate = DateTime.Now.AddDays(10), EndDate = new DateTime(2026, 2, 15) }, "user2@example.com" };
+            yield return new object[] { "user4@example.com", new GoalManageDto() { Id = 4, Title = "Test-Title-1", Description = "Description for a valid goal with a larger amount", Amount = 5000, Currency = "php", StartDate = DateTime.Now.AddDays(3), EndDate = new DateTime(2026, 1, 1) }, "user3@example.com" };
+
+        }
+
+        public static IEnumerable<object[]> UpdateGoalsForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", new GoalManageDto() { Id = 1, Title = "Test-Title-1", Description = "Description-1", Amount = 2000, Currency = "eur", StartDate = DateTime.Now, EndDate = new DateTime(2026, 1, 1) }, "user4@example.com" };
+            yield return new object[] { "user4@example.com", new GoalManageDto() { Id = 2, Title = "Test-Title-1", Description = "Description for a valid goal with a different currency", Amount = 1500, Currency = "usd", StartDate = DateTime.Now.AddDays(5), EndDate = new DateTime(2026, 1, 1) }, "user1@example.com" };
+            yield return new object[] { "user4@example.com", new GoalManageDto() { Id = 3, Title = "Test-Title-1", Description = "Description for a valid goal with a longer time period", Amount = 3000, Currency = "eur", StartDate = DateTime.Now.AddDays(10), EndDate = new DateTime(2026, 2, 15) }, "user2@example.com" };
+            yield return new object[] { "user4@example.com", new GoalManageDto() { Id = 4, Title = "Test-Title-1", Description = "Description for a valid goal with a larger amount", Amount = 5000, Currency = "php", StartDate = DateTime.Now.AddDays(3), EndDate = new DateTime(2026, 1, 1) }, "user3@example.com" };
+
+        }
+
+        public static IEnumerable<object[]> DeleteGoalsForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", 16, "user4@example.com" };
+            yield return new object[] { "user4@example.com", 4, "user1@example.com" };
+            yield return new object[] { "user4@example.com", 7, "user2@example.com" };
+            yield return new object[] { "user4@example.com", 12, "user3@example.com" };
+        }
+
+        public static IEnumerable<object[]> AddCategoryToGoalsForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", 16, new List<int>() { 13, 15, 16 }, "user4@example.com" };
+            yield return new object[] { "user4@example.com", 4, new List<int>() { 1, 2, 3 }, "user1@example.com" };
+            yield return new object[] { "user4@example.com", 7, new List<int>() { 5, 6 }, "user2@example.com" };
+            yield return new object[] { "user4@example.com", 12, new List<int>() { 9, 11, 12 }, "user3@example.com" };
+        }
+
+        public static IEnumerable<object[]> RemoveCategoryFromGoalForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", 16, 13,"user4@example.com" };
+            yield return new object[] { "user4@example.com", 4, 4,"user1@example.com" };
+            yield return new object[] { "user4@example.com", 7, 6,"user2@example.com" };
+            yield return new object[] { "user4@example.com", 12, 10,"user3@example.com" };
+        }
     }
 }
