@@ -5,6 +5,7 @@ using FinanceApi.Models;
 using FinanceApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using System.Security.Claims;
 
 namespace FinanceApi.Controllers
@@ -29,6 +30,7 @@ namespace FinanceApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
+        [OutputCache]
         public IActionResult GetIncomes(
             [FromQuery] DateTime? from,
             [FromQuery] DateTime? to,

@@ -41,7 +41,11 @@ public class Program
         builder.Services.AddScoped<IAuthorizeService, AuthorizeService>();
 
 
-
+        builder.Services.AddLogging();
+        builder.Services.AddHttpLogging(options =>
+        {
+            
+        });
 
 
         builder.Services.AddEndpointsApiExplorer();
@@ -61,6 +65,14 @@ public class Program
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
             );
 
+        builder.Services.AddOutputCache(options =>
+        {
+            options.AddBasePolicy(builder =>
+                builder.Cache());
+
+            //options.AddBasePolicy(builder =>
+            //    builder.Expire(TimeSpan.FromSeconds(100)));
+        });
         builder.Services.AddAuthorization();
         //RequireConfirmedAccount set to false just for development purposes.
         builder.Services.AddIdentityApiEndpoints<User>(options => options.SignIn.RequireConfirmedAccount = false)
@@ -69,7 +81,6 @@ public class Program
 
 
         var app = builder.Build();
-
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
@@ -130,6 +141,7 @@ public class Program
 
 
         }
+        app.UseHttpLogging();
 
 
 

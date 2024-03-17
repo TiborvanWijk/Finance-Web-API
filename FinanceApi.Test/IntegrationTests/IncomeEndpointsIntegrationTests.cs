@@ -130,6 +130,40 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Fact]
+        public async Task GetIncomes_ReturnsUnauthorized_WhenUserIsNotloggedIn()
+        {
+            var requestUrl = $"/api/Income/current";
+            var response = await client.GetAsync(requestUrl);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.GetIncomesForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task GetIncomes_returnsForbidden_WhenUserIsNotAuthorizedByOtherUser(
+            string username,
+            string optionalOwnerUsername
+            )
+        {
+            using(var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                var requestUrl = $"/api/Income/current?optionalOwnerId={optionalOwnerId}";
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var response = await client.GetAsync(requestUrl);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
+
+
+
+
         [Theory]
         [MemberData(nameof(TestData.CreateIncomeValidInputTestData), MemberType = typeof(TestData))]
         public async Task CreateIncome_ReturnsOk_WhenInputIsValid(
@@ -209,6 +243,48 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Fact]
+        public async Task CreateIncomes_ReturnsUnauthorized_WhenUserIsNotloggedIn()
+        {
+            var incomeDto = new IncomeDto()
+            {
+                Title = "Test",
+                Description = "Test",
+                Currency = "usd",
+                Date = DateTime.UtcNow,
+                Amount = 100,
+                DocumentUrl = "url"
+            };
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(incomeDto), Encoding.UTF8, "application/json");
+            var requestUrl = $"/api/Income/post";
+            var response = await client.PostAsync(requestUrl, jsonContent);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.CreateIncomesForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task CreateIncomes_returnsForbidden_WhenUserIsNotAuthorizedByOtherUser(
+            string username,
+            IncomeDto incomeDto,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                var requestUrl = $"/api/Income/post?optionalOwnerId={optionalOwnerId}";
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(incomeDto), Encoding.UTF8, "application/json");
+
+                var response = await client.PostAsync(requestUrl, jsonContent);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
 
         [Theory]
         [MemberData(nameof(TestData.UpdateIncomeValidInputTestData), MemberType = typeof(TestData))]

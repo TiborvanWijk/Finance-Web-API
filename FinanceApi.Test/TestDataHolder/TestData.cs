@@ -1250,5 +1250,22 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user4@example.com", 7, 6,"user2@example.com" };
             yield return new object[] { "user4@example.com", 12, 10,"user3@example.com" };
         }
+
+        public static IEnumerable<object[]> GetIncomesForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", "user4@example.com" };
+            yield return new object[] { "user4@example.com", "user1@example.com" };
+            yield return new object[] { "user4@example.com", "user2@example.com" };
+            yield return new object[] { "user4@example.com", "user3@example.com" };
+        }
+
+        public static IEnumerable<object[]> CreateIncomesForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "eur", Amount = 23, Date = DateTime.Now, DocumentUrl = "receipt" },"user4@example.com" };
+            yield return new object[] { "user4@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "php", Amount = 2353, Date = DateTime.Now, DocumentUrl = "receipt" },"user1@example.com" };
+            yield return new object[] { "user4@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "usd", Amount = 24, Date = DateTime.Now.AddDays(-8), DocumentUrl = "receipt" },"user2@example.com" };
+            yield return new object[] { "user4@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "fjd", Amount = 45, Date = DateTime.Now.AddDays(-6), DocumentUrl = "receipt" }, "user3@example.com" };
+
+        }
     }
 }
