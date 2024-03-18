@@ -1245,10 +1245,10 @@ namespace FinanceApi.Test.TestDataHolder
 
         public static IEnumerable<object[]> RemoveCategoryFromGoalForbiddenTestData()
         {
-            yield return new object[] { "user1@example.com", 16, 13,"user4@example.com" };
-            yield return new object[] { "user4@example.com", 4, 4,"user1@example.com" };
-            yield return new object[] { "user4@example.com", 7, 6,"user2@example.com" };
-            yield return new object[] { "user4@example.com", 12, 10,"user3@example.com" };
+            yield return new object[] { "user1@example.com", 16, 13, "user4@example.com" };
+            yield return new object[] { "user4@example.com", 4, 4, "user1@example.com" };
+            yield return new object[] { "user4@example.com", 7, 6, "user2@example.com" };
+            yield return new object[] { "user4@example.com", 12, 10, "user3@example.com" };
         }
 
         public static IEnumerable<object[]> GetIncomesForbiddenTestData()
@@ -1261,11 +1261,43 @@ namespace FinanceApi.Test.TestDataHolder
 
         public static IEnumerable<object[]> CreateIncomesForbiddenTestData()
         {
-            yield return new object[] { "user1@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "eur", Amount = 23, Date = DateTime.Now, DocumentUrl = "receipt" },"user4@example.com" };
-            yield return new object[] { "user4@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "php", Amount = 2353, Date = DateTime.Now, DocumentUrl = "receipt" },"user1@example.com" };
-            yield return new object[] { "user4@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "usd", Amount = 24, Date = DateTime.Now.AddDays(-8), DocumentUrl = "receipt" },"user2@example.com" };
+            yield return new object[] { "user1@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "eur", Amount = 23, Date = DateTime.Now, DocumentUrl = "receipt" }, "user4@example.com" };
+            yield return new object[] { "user4@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "php", Amount = 2353, Date = DateTime.Now, DocumentUrl = "receipt" }, "user1@example.com" };
+            yield return new object[] { "user4@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "usd", Amount = 24, Date = DateTime.Now.AddDays(-8), DocumentUrl = "receipt" }, "user2@example.com" };
             yield return new object[] { "user4@example.com", new IncomeDto() { Title = "food", Description = "Cheese, tomato, burgers", Currency = "fjd", Amount = 45, Date = DateTime.Now.AddDays(-6), DocumentUrl = "receipt" }, "user3@example.com" };
 
+        }
+
+        public static IEnumerable<object[]> UpdateIncomesForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", new IncomeDto() { Id = 1, Title = "new Title", Description = "new Description", Currency = "php", Amount = 999999, Date = DateTime.Now, DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, "user4@example.com" };
+            yield return new object[] { "user4@example.com", new IncomeDto() { Id = 3, Title = "Random title-dwddwwa214", Description = "new Description", Currency = "all", Amount = 123, Date = DateTime.Now, DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, "user1@example.com" };
+            yield return new object[] { "user4@example.com", new IncomeDto() { Id = 4, Title = "A cool heading", Description = "new Description", Currency = "dzd", Amount = 438, Date = DateTime.Now, DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, "user2@example.com" };
+            yield return new object[] { "user4@example.com", new IncomeDto() { Id = 6, Title = "TITLE/TITLE", Description = "new Description", Currency = "aoa", Amount = 12, Date = DateTime.Now, DocumentUrl = "WWW.SOMETHINGFOREXAMPLE.com" }, "user3@example.com" };
+        }
+
+        public static IEnumerable<object[]> DeleteIncomeForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", 61, "user4@example.com" };
+            yield return new object[] { "user4@example.com", 12, "user1@example.com" };
+            yield return new object[] { "user4@example.com", 36, "user2@example.com" };
+            yield return new object[] { "user4@example.com", 53, "user3@example.com" };
+        }
+
+        public static IEnumerable<object[]> AddCategoryToIncomeForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", 61, new List<int>() { 16 }, "user4@example.com" };
+            yield return new object[] { "user4@example.com", 12, new List<int>() { 3 }, "user1@example.com" };
+            yield return new object[] { "user4@example.com", 36, new List<int>() { 5 }, "user2@example.com" };
+            yield return new object[] { "user4@example.com", 53, new List<int>() { 12 }, "user3@example.com" };
+        }
+
+        public static IEnumerable<object[]> RemoveCategoriesFromIncomeForbiddenTestData()
+        {
+            yield return new object[] { "user1@example.com", 61, 13, "user4@example.com" };
+            yield return new object[] { "user4@example.com", 12, 2, "user1@example.com" };
+            yield return new object[] { "user4@example.com", 36, 6, "user2@example.com" };
+            yield return new object[] { "user4@example.com", 53, 11, "user3@example.com" };
         }
     }
 }

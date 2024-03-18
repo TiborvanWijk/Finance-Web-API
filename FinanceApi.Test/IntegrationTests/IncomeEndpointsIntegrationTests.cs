@@ -411,6 +411,49 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Fact]
+        public async Task updateIncomes_ReturnsUnauthorized_WhenUserIsNotloggedIn()
+        {
+            var incomeDto = new IncomeDto()
+            {
+                Id = 1,
+                Title = "Test",
+                Description = "Test",
+                Currency = "usd",
+                Date = DateTime.UtcNow,
+                Amount = 100,
+                DocumentUrl = "url"
+            };
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(incomeDto), Encoding.UTF8, "application/json");
+            var requestUrl = $"/api/Income/put";
+            var response = await client.PutAsync(requestUrl, jsonContent);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.UpdateIncomesForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task UpdateIncomes_returnsForbidden_WhenUserIsNotAuthorizedByOtherUser(
+            string username,
+            IncomeDto incomeDto,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                var requestUrl = $"/api/Income/put?optionalOwnerId={optionalOwnerId}";
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(incomeDto), Encoding.UTF8, "application/json");
+
+                var response = await client.PutAsync(requestUrl, jsonContent);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
 
         [Theory]
         [MemberData(nameof(TestData.DeleteIncomeValidInputTestData), MemberType = typeof(TestData))]
@@ -485,7 +528,37 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Fact]
+        public async Task DeleteIncomes_ReturnsUnauthorized_WhenUserIsNotloggedIn()
+        {
+            var requestUrl = $"/api/Income/delete/1";
+            var response = await client.DeleteAsync(requestUrl);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
 
+        [Theory]
+        [MemberData(nameof(TestData.DeleteIncomeForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task DeleteIncome_returnsForbidden_WhenUserIsNotAuthorizedByOtherUser(
+            string username,
+            int incomeId,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                var requestUrl = $"/api/Income/delete/{incomeId}?optionalOwnerId={optionalOwnerId}";
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var response = await client.DeleteAsync(requestUrl);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
 
 
         [Theory]
@@ -610,6 +683,42 @@ namespace FinanceApi.Test.IntegrationTests
                 var response = await client.PostAsync(requestUrl, jsonCategoryIds);
 
                 Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            }
+        }
+
+        [Fact]
+        public async Task AddCategoryToIncome_ReturnsUnauthorized_WhenUserIsNotloggedIn()
+        {
+            ICollection<int> categoryIds = new List<int>() { 1,2,3};
+            var requestUrl = $"/api/Income/associate_categories/{1}";
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(categoryIds));
+            var response = await client.PostAsync(requestUrl, jsonContent);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.AddCategoryToIncomeForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task AddCategoryToIncome_returnsForbidden_WhenUserIsNotAuthorizedByOtherUser(
+            string username,
+            int incomeId,
+            ICollection<int> categoryIds,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                var requestUrl = $"/api/Income/associate_categories/{incomeId}?optionalOwnerId={optionalOwnerId}";
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(categoryIds), Encoding.UTF8, "application/json");
+
+                var response = await client.PostAsync(requestUrl, jsonContent);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
             }
         }
 
@@ -741,6 +850,38 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
+        [Fact]
+        public async Task RemoveCategoriesFromIncome_ReturnsUnauthorized_WhenUserIsNotloggedIn()
+        {
+            var requestUrl = $"/api/Income/remove_category/1/1";
+            var response = await client.DeleteAsync(requestUrl);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData.RemoveCategoriesFromIncomeForbiddenTestData), MemberType = typeof(TestData))]
+        public async Task RemoveCategoriesFromIncome_returnsForbidden_WhenUserIsNotAuthorizedByOtherUser(
+            string username,
+            int incomeId,
+            int categoryId,
+            string optionalOwnerUsername
+            )
+        {
+            using (var scope = factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var user = db.Users.First(x => x.UserName.Equals(username));
+                string optionalOwnerId = db.Users.First(x => x.UserName.Equals(optionalOwnerUsername)).Id;
+
+                var authToken = await GetAuthenticationTokenAsync(user.Email, "Password!2");
+                var requestUrl = $"/api/Income/remove_category/{incomeId}/{categoryId}?optionalOwnerId={optionalOwnerId}";
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+                var response = await client.DeleteAsync(requestUrl);
+
+                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            }
+        }
 
         public void Dispose()
         {
