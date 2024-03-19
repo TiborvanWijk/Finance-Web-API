@@ -127,23 +127,6 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
-
-
-
-        //[Fact]
-        //public async Task UpdateUsersCurrency_ReturnsUnauthorized_WhenUserIsNotLoggedIn()
-        //{
-        //    using (var scope = factory.Services.CreateScope())
-        //    {
-        //        var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-
-        //        var requestUrl = "api/User/patch_currency/usd";
-        //        var response = await client.GetAsync(requestUrl);
-
-        //        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-        //    }
-        //}
-
         public void Dispose()
         {
             client.Dispose();

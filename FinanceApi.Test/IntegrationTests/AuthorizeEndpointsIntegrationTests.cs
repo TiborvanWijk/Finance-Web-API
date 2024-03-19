@@ -415,7 +415,7 @@ namespace FinanceApi.Test.IntegrationTests
             }
         }
 
-        [Fact(Skip = "NOT DONE")]
+        [Fact]
         public async Task DeclineAuthorizationInvite_ReturnsOk_WhenUserHasInvite()
         {
             using (var scope = factory.Services.CreateScope())

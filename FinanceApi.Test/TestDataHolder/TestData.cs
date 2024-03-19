@@ -1062,12 +1062,6 @@ namespace FinanceApi.Test.TestDataHolder
             yield return new object[] { "user4@example.com", "user1@example.com", "This is way to big of a title to be called valid", "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium q" };
             yield return new object[] { "user1@example.com", "user1@example.com", "Valid", "Valid" };
         }
-
-        public static IEnumerable<object[]> GetBudgetUnauthorizedInputTestData()
-        {
-            yield return new object[] { null, null };
-        }
-
         public static IEnumerable<object[]> GetBudgetForbiddenTestData()
         {
             yield return new object[] { "user1@example.com", "user4@example.com" };

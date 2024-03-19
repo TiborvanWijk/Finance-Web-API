@@ -148,8 +148,7 @@ namespace FinanceApi.Test.IntegrationTests
         }
 
 
-        [Fact(Skip = "Test data not ready yet")]
-        [MemberData(nameof(TestData.GetBudgetUnauthorizedInputTestData), MemberType = typeof(TestData))]
+        [Fact]
         public async Task GetBudget_ReturnsUnauhtorized_WhenuserIsNotLoggedInOrUserIsNotAuthorizedToRead()
         {
 
